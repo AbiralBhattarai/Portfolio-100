@@ -178,6 +178,7 @@ input, textarea { caret-color: var(--accent); }
   position: sticky; top: 0; z-index: 50;
   --p: 0;
   --bar: var(--accent);
+  --hover: color-mix(in srgb, var(--ink) 8%, transparent);
   background: color-mix(in srgb, var(--bg) 80%, transparent);
   -webkit-backdrop-filter: saturate(1.6) blur(14px);
   backdrop-filter: saturate(1.6) blur(14px);
@@ -185,30 +186,60 @@ input, textarea { caret-color: var(--accent); }
   color: var(--ink);
   transition: background-color 0.4s var(--ease), border-color 0.4s var(--ease), color 0.4s var(--ease);
 }
-/* Reading progress: a hairline that fills along the nav's bottom edge */
-.nav::after {
-  content: ""; position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%;
-  background: var(--bar);
-  transform: scaleX(var(--p)); transform-origin: 0 50%;
-  transition: background-color 0.4s var(--ease);
-}
-.no-js .nav::after { display: none; }
-/* Over the black Sectra chapter the nav goes black too, with a lime line */
+/* Over the black Sectra chapter the nav goes black, with lime marks */
 .nav.on-stage {
   --bg: #000000; --ink: var(--stage-ink); --ink-2: var(--stage-ink-2); --line: var(--stage-line);
   --bar: var(--signal);
 }
 .nav.on-stage .brand-mark .c { fill: var(--signal); }
-.nav-in {
-  display: flex; align-items: center; gap: 2rem;
-  height: 3.5rem;
+/* Over the ultramarine contact band it turns ultramarine, with white marks */
+.nav.on-accent {
+  --bg: var(--accent); --ink: #ffffff; --ink-2: rgba(255, 255, 255, 0.82); --line: rgba(255, 255, 255, 0.28);
+  --bar: #ffffff;
 }
+.nav.on-accent .brand-mark .c { fill: #ffffff; }
+.nav.on-accent .brand-mark rect:not(.c) { fill: rgba(255, 255, 255, 0.6); }
+.nav.on-accent :focus-visible { outline-color: #fff; }
+
+.nav-in {
+  position: relative;
+  display: flex; align-items: center; gap: 1.25rem;
+  height: 3.5rem;
+  border: 1px solid transparent;
+  transition: transform 0.5s var(--ease), max-width 0.5s var(--ease), width 0.5s var(--ease), padding 0.5s var(--ease),
+    background-color 0.4s var(--ease), border-color 0.4s var(--ease), box-shadow 0.5s var(--ease), border-radius 0.5s var(--ease);
+}
+
+/* Past the hero, the bar lifts into a floating pill. A transform, not a margin,
+   so nothing below it moves. */
+.nav.float { background: transparent; border-bottom-color: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.nav.float .nav-in {
+  transform: translateY(0.6rem);
+  width: calc(100% - 2 * var(--pad) + 2.5rem);
+  max-width: calc(var(--max) - 2 * var(--pad) + 2.5rem);
+  padding: 0 0.6rem 0 1.25rem;
+  border-radius: 999px;
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: saturate(1.6) blur(14px);
+  backdrop-filter: saturate(1.6) blur(14px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+@media (max-width: 640px) {
+  .nav.float .nav-in { width: calc(100% - 1rem); padding: 0 0.4rem 0 1rem; }
+}
+
+/* Brand: the waveform mark bounces with scroll speed (--v, set by script) */
 .brand {
-  display: inline-flex; align-items: center; gap: 0.6rem;
+  display: inline-flex; align-items: center; gap: 0.6rem; flex: none;
   font-weight: 750; letter-spacing: -0.02em; text-decoration: none; font-size: 1.0625rem;
 }
 .brand-mark { width: 1.35rem; height: auto; flex: none; overflow: visible; }
-.brand-mark rect { fill: currentColor; transform-box: fill-box; transform-origin: 50% 50%; transition: fill 0.4s var(--ease); }
+.brand-mark rect {
+  fill: currentColor; transform-box: fill-box; transform-origin: 50% 50%;
+  transform: scaleY(calc(1 + var(--v, 0) * var(--k, 0)));
+  transition: fill 0.4s var(--ease);
+}
 .brand-mark .c { fill: var(--accent); }
 @media (prefers-reduced-motion: no-preference) {
   .brand:hover .brand-mark rect { animation: eq 0.9s var(--ease) infinite alternate; }
@@ -218,39 +249,147 @@ input, textarea { caret-color: var(--accent); }
   .brand:hover .brand-mark rect:nth-child(5) { animation-delay: -0.45s; }
 }
 @keyframes eq { 0% { transform: scaleY(1); } 50% { transform: scaleY(0.45); } 100% { transform: scaleY(1.15); } }
-.nav-links { display: flex; gap: 1.75rem; margin-left: auto; font-size: 0.9375rem; }
+
+/* Timecode: the page read as a clip, like Sectra labels its own */
+.nav-tc {
+  display: inline-flex; align-items: center; gap: 0.5rem; flex: none;
+  font-family: var(--mono); font-size: 0.6875rem; color: var(--ink-2);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  padding-left: 1.25rem; border-left: 1px solid var(--line);
+  transition: color 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+.nav-tc .tc-dot { width: 0.4rem; height: 0.4rem; border-radius: 99px; background: var(--bar); flex: none; transition: background-color 0.4s var(--ease); }
+.nav-tc .tc-clip { color: var(--ink); }
+.nav-tc .tc-name { min-width: 7ch; }
+.nav-tc .tc-rec { display: none; font-weight: 400; color: var(--signal); }
+/* Over Sectra the dot becomes a recording light */
+.nav.on-stage .tc-rec { display: inline; }
+@media (prefers-reduced-motion: no-preference) {
+  .nav.on-stage .tc-dot { animation: rec 1.4s steps(1) infinite; }
+}
+@keyframes rec { 50% { opacity: 0.15; } }
+
+/* Section links with one pill that glides to the current section */
+.nav-links { position: relative; display: flex; gap: 0.25rem; margin-left: auto; font-size: 0.9375rem; }
 .nav-links a {
-  position: relative; text-decoration: none; color: var(--ink-2); transition: color 0.2s;
+  position: relative; z-index: 1;
+  padding: 0.3rem 0.75rem 0.5rem; border-radius: 999px;
+  text-decoration: none; color: var(--ink-2); transition: color 0.2s;
 }
-.nav-links a::after {
-  content: ""; position: absolute; left: 0; right: 0; bottom: -0.3rem; height: 2px; border-radius: 2px;
-  background: var(--bar); transform: scaleX(0); transform-origin: 0 50%;
-  transition: transform 0.35s var(--ease);
+.nav-links a:hover, .nav-links a.on { color: var(--ink); }
+.nav-pill {
+  /* The current section's wavy underline: a repeating wave masked out of the accent
+     colour, so it takes the bar's tone (ultramarine, lime over Sectra, white over Contact). */
+  --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 6'%3E%3Cpath d='M0 3q6.5-2.6 13 0t13 0' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
+  position: absolute; left: 0; bottom: 0.4rem; height: 6px; width: 0;
+  background: var(--bar);
+  -webkit-mask: var(--wave) 0 0 / 26px 6px repeat-x;
+  mask: var(--wave) 0 0 / 26px 6px repeat-x;
+  opacity: 0; pointer-events: none;
+  transition: transform 0.45s var(--ease), width 0.45s var(--ease), opacity 0.3s var(--ease), background-color 0.4s var(--ease);
 }
-.nav-links a:hover { color: var(--ink); }
-.nav-links a:hover::after { transform: scaleX(1); }
+/* The wave rolls only while the underline travels, in the direction it moves */
+@media (prefers-reduced-motion: no-preference) {
+  .nav-pill.move-r { animation: wave-roll-r 0.45s var(--ease); }
+  .nav-pill.move-l { animation: wave-roll-l 0.45s var(--ease); }
+}
+@keyframes wave-roll-r { from { -webkit-mask-position: -52px 0; mask-position: -52px 0; } }
+@keyframes wave-roll-l { from { -webkit-mask-position: 52px 0; mask-position: 52px 0; } }
+.no-js .nav-pill { display: none; }
+
+.nav-ext { display: flex; gap: 0.125rem; }
+.nav-ext a {
+  display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 999px;
+  color: var(--ink-2); transition: color 0.2s, background-color 0.2s;
+}
+.nav-ext a:hover { color: var(--ink); background: var(--hover); }
+.nav-ext svg { width: 1.05rem; height: 1.05rem; }
+
 .nav-cv {
-  display: inline-flex; align-items: center; height: 2.25rem; padding: 0 1rem;
+  display: inline-flex; align-items: center; height: 2.25rem; padding: 0 1rem; flex: none;
   border-radius: 999px; background: var(--ink); color: var(--bg);
   font-size: 0.875rem; font-weight: 600; text-decoration: none;
-  margin-left: -0.75rem;
-  transition: background-color 0.2s var(--ease);
+  transition: background-color 0.2s var(--ease), color 0.4s var(--ease);
 }
 .nav-cv:hover { background: color-mix(in srgb, var(--ink) 82%, var(--bg)); }
-.theme {
-  display: grid; place-items: center;
+.theme, .nav-menu {
+  display: grid; place-items: center; flex: none;
   width: 2.25rem; height: 2.25rem; border-radius: 999px;
   border: 1px solid var(--line); background: transparent; color: var(--ink);
-  cursor: pointer; transition: background-color 0.2s, border-color 0.2s;
+  cursor: pointer; transition: background-color 0.2s, border-color 0.4s var(--ease), color 0.4s var(--ease);
 }
-.theme:hover { background: var(--panel); }
-.theme svg { width: 1.05rem; height: 1.05rem; }
+.theme:hover, .nav-menu:hover { background: var(--hover); }
+.theme svg, .nav-menu svg { width: 1.05rem; height: 1.05rem; }
 .theme .moon { display: none; }
 :root[data-theme="dark"] .theme .sun { display: none; }
 :root[data-theme="dark"] .theme .moon { display: block; }
-@media (max-width: 760px) {
-  .nav-links { display: none; }
-  .nav-cv { margin-left: auto; }
+.nav-menu { display: none; }
+
+/* Timeline: the page as one waveform along the bar's bottom edge. It fills as you
+   scroll, and the section you're in is bracketed like a clip. */
+.nav-tl {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 7px;
+  pointer-events: none;
+  transition: left 0.5s var(--ease), right 0.5s var(--ease), bottom 0.5s var(--ease);
+}
+.nav-tl svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tl-base rect { fill: color-mix(in srgb, var(--ink) 16%, transparent); }
+.tl-fill { clip-path: inset(0 calc(100% - var(--p) * 100%) 0 0); }
+.tl-fill rect { fill: var(--bar); transition: fill 0.4s var(--ease); }
+.tl-clip {
+  position: absolute; top: -2px; bottom: 0; left: 0; width: 0;
+  border-inline: 1.5px solid var(--bar); background: color-mix(in srgb, var(--bar) 12%, transparent);
+  transition: left 0.5s var(--ease), width 0.5s var(--ease), border-color 0.4s var(--ease), background-color 0.4s var(--ease);
+}
+.nav.float .nav-tl { left: 1.75rem; right: 1.75rem; bottom: 4px; height: 5px; }
+.no-js .nav-tl { display: none; }
+
+@media (max-width: 1120px) { .nav-tc { display: none; } }
+@media (max-width: 960px) {
+  .nav-links, .nav-ext { display: none; }
+  .nav-tc { display: inline-flex; margin-right: auto; }
+  .nav-menu { display: grid; }
+  .nav-in { gap: 0.6rem; }
+}
+@media (max-width: 600px) { .nav-tc { display: none; } .nav-cv { margin-left: auto; } }
+@media (max-width: 380px) { .nav-cv { display: none; } .theme { margin-left: auto; } }
+
+/* Mobile menu: a full-screen sheet in headline type */
+.sheet {
+  position: fixed; inset: 0; z-index: 70;
+  display: flex; flex-direction: column;
+  padding: 0 var(--pad) 2rem;
+  background: var(--bg); color: var(--ink);
+  opacity: 0; transform: translateY(-12px);
+  transition: opacity 0.3s var(--ease), transform 0.4s var(--ease);
+  overflow-y: auto;
+}
+.sheet.open { opacity: 1; transform: none; }
+.sheet[hidden] { display: none; }
+.menu-open, .menu-open body { overflow: hidden; }
+.sheet-top { display: flex; align-items: center; justify-content: space-between; height: 3.5rem; flex: none; }
+.sheet-links { display: grid; margin-top: 2rem; border-top: 1px solid var(--ink); }
+.sheet-links a {
+  display: flex; align-items: baseline; gap: 1rem;
+  padding: 0.9rem 0; border-bottom: 1px solid var(--line);
+  font-size: clamp(2.4rem, 12vw, 4rem); font-weight: 850; letter-spacing: -0.045em; line-height: 1;
+  text-decoration: none;
+}
+.sheet-links span { font-family: var(--mono); font-size: 0.875rem; font-weight: 400; letter-spacing: 0; color: var(--accent-ink); }
+.sheet-links a:active { color: var(--accent-ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .sheet-links a { opacity: 0; transform: translateY(10px); transition: opacity 0.4s var(--ease), transform 0.5s var(--ease); }
+  .sheet.open .sheet-links a { opacity: 1; transform: none; }
+  .sheet.open .sheet-links a:nth-child(2) { transition-delay: 0.04s; }
+  .sheet.open .sheet-links a:nth-child(3) { transition-delay: 0.08s; }
+  .sheet.open .sheet-links a:nth-child(4) { transition-delay: 0.12s; }
+  .sheet.open .sheet-links a:nth-child(5) { transition-delay: 0.16s; }
+}
+.sheet-foot { display: grid; gap: 1.25rem; margin-top: auto; padding-top: 2.5rem; }
+.sheet-ext { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; }
+.sheet-ext a:not(.pill) { font-weight: 600; color: var(--ink-2); text-decoration: none; }
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .nav-in, .nav-pill, .nav-tl, .tl-clip { transition: none; }
 }
 
 /* ---------- Hero ---------- */
@@ -440,21 +579,44 @@ input, textarea { caret-color: var(--accent); }
   padding: 0.15rem 0.4rem; border-radius: 4px;
 }
 
-/* Stage states (data-step 1..5). No-JS shows the final state. */
+/* Stage states (data-step 1..7). No-JS shows the final state. */
 .stage[data-step="1"] .st-bar .go { box-shadow: 0 0 0 4px color-mix(in srgb, var(--signal) 25%, transparent); }
-.stage[data-step] .st-stages li:nth-child(1) { color: #000; background: var(--signal); border-color: var(--signal); }
+.stage[data-step] .st-stages li:nth-child(1),
 .stage:not([data-step="1"]) .st-stages li:nth-child(2),
-.stage:is([data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"]) .st-stages li:nth-child(3),
-.stage:is([data-step="4"], [data-step="5"], [data-step="6"]) .st-stages li:nth-child(4),
-.stage:is([data-step="5"], [data-step="6"]) .st-stages li:nth-child(5),
-.stage[data-step="6"] .st-stages li:nth-child(6) { color: #000; background: var(--signal); border-color: var(--signal); }
+.stage:is([data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-stages li:nth-child(3),
+.stage:is([data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-stages li:nth-child(4),
+.stage:is([data-step="5"], [data-step="6"], [data-step="7"]) .st-stages li:nth-child(5),
+.stage:is([data-step="6"], [data-step="7"]) .st-stages li:nth-child(6),
+.stage[data-step="7"] .st-stages li:nth-child(7) { color: #000; background: var(--signal); border-color: var(--signal); }
 
 .stage:not([data-step="1"]) .st-wave .bar.sp { fill: var(--stage-ink); }
-.stage:is([data-step="4"], [data-step="5"], [data-step="6"]) .st-wave .bar.cl { fill: var(--signal); }
-.stage:is([data-step="4"], [data-step="5"], [data-step="6"]) .st-wave :is(.clipbox, .cliplabel) { opacity: 1; }
-.stage:is([data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"]) .st-words span { opacity: 1; transform: none; }
-.stage:is([data-step="4"], [data-step="5"], [data-step="6"]) .st-words span:not(.hl) { opacity: 0.4; }
-.stage:is([data-step="5"], [data-step="6"]) .phone { opacity: 1; transform: none; }
+.stage:is([data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-wave .bar.cl { fill: var(--signal); }
+.stage:is([data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-wave :is(.clipbox, .cliplabel) { opacity: 1; }
+.stage:is([data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-words span { opacity: 1; transform: none; }
+.stage:is([data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-words span:not(.hl) { opacity: 0.4; }
+
+/* The vertical preview: appears with the clip (centred, speaker off to the side),
+   reframes onto the speaker on Track, gets its captions on Export. */
+.stage:is([data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .phone { opacity: 1; transform: none; }
+.stage .phone .shot { object-position: 50% 50%; transform: scale(1); transform-origin: 50% 34%; transition: object-position 0.6s var(--ease), transform 0.6s var(--ease); }
+.stage:is([data-step="5"], [data-step="6"], [data-step="7"]) .phone .shot { object-position: 87% 50%; transform: scale(1.12); }
+.stage .phone .cap { opacity: 0; transform: translateY(6px); transition: opacity 0.4s var(--ease), transform 0.5s var(--ease); }
+.stage:is([data-step="6"], [data-step="7"]) .phone .cap { opacity: 1; transform: none; }
+/* The face box rides in with the reframe: at Clips her face sits just past the card's
+   right edge, so the box enters from there and lands on it as the image pans. */
+.facebox {
+  position: absolute; left: 99%; top: 26%; width: 23%; height: 17%; z-index: 2;
+  border: 1.5px solid var(--signal); border-radius: 6px;
+  opacity: 0;
+  transition: left 0.6s var(--ease), top 0.6s var(--ease), width 0.6s var(--ease), height 0.6s var(--ease), opacity 0.2s var(--ease);
+}
+.facebox span {
+  position: absolute; left: -1.5px; bottom: calc(100% + 4px); white-space: nowrap;
+  font-family: var(--mono); font-size: 0.5625rem; color: #000; background: var(--signal);
+  padding: 0.05rem 0.3rem; border-radius: 3px;
+}
+.stage:is([data-step="5"], [data-step="6"], [data-step="7"]) .facebox { left: 37%; top: 25%; width: 26%; height: 19%; }
+.stage[data-step="5"] .facebox { opacity: 1; }
 .st-post { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .st-post li {
   display: inline-flex; align-items: center; gap: 0.45rem;
@@ -463,14 +625,15 @@ input, textarea { caret-color: var(--accent); }
   transition: color 0.4s var(--ease), border-color 0.4s var(--ease);
 }
 .st-post .dot { width: 0.5rem; height: 0.5rem; border-radius: 99px; background: var(--stage-line); transition: background-color 0.4s var(--ease); }
-.stage[data-step="6"] .st-post li { color: var(--stage-ink); border-color: var(--signal); }
-.stage[data-step="6"] .st-post .dot { background: var(--signal); }
-.stage[data-step="6"] .st-post li:nth-child(2) .dot { transition-delay: 0.15s; }
-.stage[data-step="6"] .st-post li:nth-child(3) .dot { transition-delay: 0.3s; }
-.stage[data-step="6"] .st-post li:nth-child(4) .dot { transition-delay: 0.45s; }
+.stage[data-step="7"] .st-post li { color: var(--stage-ink); border-color: var(--signal); }
+.stage[data-step="7"] .st-post .dot { background: var(--signal); }
+.stage[data-step="7"] .st-post li:nth-child(2) .dot { transition-delay: 0.15s; }
+.stage[data-step="7"] .st-post li:nth-child(3) .dot { transition-delay: 0.3s; }
+.stage[data-step="7"] .st-post li:nth-child(4) .dot { transition-delay: 0.45s; }
+.stage[data-step="7"] .st-post li:nth-child(5) .dot { transition-delay: 0.6s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .st-words span, .phone, .step, .st-wave .bar { transition: none; }
+  .st-words span, .phone, .phone .shot, .phone .cap, .facebox, .step, .st-wave .bar { transition: none; }
 }
 
 @media (max-width: 900px) {
@@ -485,6 +648,7 @@ input, textarea { caret-color: var(--accent); }
   .st-words span { font-size: 0.875rem; }
   .phone { width: 5.5rem; border-radius: 14px; }
   .phone .cap { font-size: 0.55rem; }
+  .facebox span { display: none; }
   .step { min-height: 62vh; }
   .step:first-child { min-height: 45vh; }
 }
@@ -760,8 +924,32 @@ a.row:hover h3 { color: var(--accent-ink); }
   margin: 0 -0.04em;
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
-:root[data-theme="dark"] .h2 .hook { background-image: linear-gradient(color-mix(in srgb, var(--accent) 55%, transparent), color-mix(in srgb, var(--accent) 55%, transparent)); }
+:root[data-theme="dark"] .h2 .hook { background-image: linear-gradient(color-mix(in srgb, var(--accent) 45%, transparent), color-mix(in srgb, var(--accent) 45%, transparent)); }
 @media (prefers-reduced-motion: no-preference) {
   .js:not(.still) .h2 .hook { background-size: 0% 0.36em; transition: background-size 0.9s var(--ease) 0.15s; }
   .js:not(.still) .h2 .hook.in { background-size: 100% 0.36em; }
 }
+
+/* Email chooser: webmail compose links instead of forcing the system mail app */
+.mailpick {
+  position: fixed; z-index: 80; min-width: 14rem;
+  display: grid; padding: 0.4rem;
+  background: var(--bg); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+.mailpick[hidden] { display: none; }
+.mailpick-to { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-2); padding: 0.45rem 0.7rem 0.55rem; border-bottom: 1px solid var(--line); margin-bottom: 0.3rem; }
+.mailpick a, .mailpick button {
+  display: block; width: 100%; text-align: left;
+  padding: 0.55rem 0.7rem; border-radius: 10px; border: 0; background: none;
+  font: inherit; font-size: 0.9375rem; font-weight: 600; color: var(--ink); text-decoration: none; cursor: pointer;
+}
+.mailpick a:hover, .mailpick button:hover, .mailpick a:focus-visible, .mailpick button:focus-visible {
+  background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent-ink); outline: none;
+}
+.mailpick button { border-top: 1px solid var(--line); border-radius: 0 0 10px 10px; margin-top: 0.3rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .mailpick:not([hidden]) { animation: pick-in 0.2s var(--ease); }
+}
+@keyframes pick-in { from { opacity: 0; transform: translateY(-4px); } }
