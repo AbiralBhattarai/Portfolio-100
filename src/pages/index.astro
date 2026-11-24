@@ -573,7 +573,8 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
         if (!jump) return;
         const up = atBottom();
         jump.classList.toggle('up', up);
-        const probe = window.innerHeight - jump.offsetHeight / 2 - 24;
+        const jr = jump.getBoundingClientRect();
+        const probe = jr.top + jr.height / 2;
         const under = sections.find((el) => { const b = el.getBoundingClientRect(); return b.top <= probe && b.bottom > probe; });
         const tone = under?.dataset.tone || 'ink';
         if (jump.dataset.tone !== tone) jump.dataset.tone = tone;

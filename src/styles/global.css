@@ -616,7 +616,7 @@ a.row:hover h3 { color: var(--accent-ink); }
 
 /* Next-section / back-to-top button */
 .jump {
-  position: fixed; right: clamp(1rem, 2.5vw, 2rem); bottom: clamp(1rem, 2.5vw, 2rem); z-index: 40;
+  position: fixed; right: clamp(1rem, 2.5vw, 2rem); bottom: clamp(5rem, 7vw, 6rem); z-index: 40;
   width: 3.25rem; height: 3.25rem; border-radius: 999px;
   display: grid; place-items: center;
   background: var(--ink); color: var(--bg); border: 1.5px solid color-mix(in srgb, var(--bg) 30%, transparent);
