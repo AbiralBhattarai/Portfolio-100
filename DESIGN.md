@@ -1,0 +1,276 @@
+---
+name: Abiral Bhattarai — AI × Product
+description: A one-page portfolio staged like a flagship product launch, with huge bold type, one product shown in motion, and actions in ultramarine.
+colors:
+  ground: "#ffffff"
+  panel-grey: "#f5f5f7"
+  ink: "#111113"
+  ink-muted: "#5d5d66"
+  hairline: "#e2e2e8"
+  ultramarine: "#2b3bff"
+  ultramarine-ink: "#2433e6"
+  ultramarine-deep: "#1d2bd9"
+  on-ultramarine: "#ffffff"
+  signal-lime: "#c8ff2e"
+  stage-black: "#000000"
+  stage-panel: "#121214"
+  stage-hairline: "#2a2a2e"
+  stage-ink: "#f5f5f7"
+  stage-ink-muted: "#a3a3ab"
+  dark-ground: "#131316"
+  dark-panel: "#1c1c20"
+  dark-ink: "#f4f4f6"
+  dark-ink-muted: "#a1a1aa"
+  dark-hairline: "#2c2c33"
+  dark-ultramarine: "#3644ff"
+  dark-ultramarine-ink: "#8f98ff"
+  dark-ultramarine-hover: "#4b58ff"
+typography:
+  display:
+    fontFamily: "Schibsted Grotesk, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(6rem, 13.6vw, 13.5rem)"
+    fontWeight: 850
+    lineHeight: 0.92
+    letterSpacing: "-0.045em"
+  headline:
+    fontFamily: "Schibsted Grotesk, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(2.6rem, 7vw, 6rem)"
+    fontWeight: 850
+    lineHeight: 0.95
+    letterSpacing: "-0.045em"
+  title:
+    fontFamily: "Schibsted Grotesk, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1.75rem, 3.6vw, 3.25rem)"
+    fontWeight: 850
+    lineHeight: 1
+    letterSpacing: "-0.04em"
+  subhead:
+    fontFamily: "Schibsted Grotesk, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1.35rem, 2.4vw, 2rem)"
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: "-0.02em"
+  lede:
+    fontFamily: "Schibsted Grotesk, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "clamp(1.25rem, 2vw, 1.625rem)"
+    fontWeight: 500
+    lineHeight: 1.35
+    letterSpacing: "-0.015em"
+  body:
+    fontFamily: "Schibsted Grotesk, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1.0625rem"
+    fontWeight: 400
+    lineHeight: 1.55
+  label:
+    fontFamily: "Schibsted Grotesk, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 600
+  data:
+    fontFamily: "Fragment Mono, ui-monospace, monospace"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    fontFeature: "tnum"
+rounded:
+  tag: "4px"
+  focus: "6px"
+  chip: "14px"
+  device: "22px"
+  stage: "28px"
+  pill: "999px"
+spacing:
+  gutter: "clamp(1.25rem, 4vw, 3.5rem)"
+  container: "1320px"
+  row: "clamp(1.75rem, 4vh, 2.75rem)"
+  section-head: "clamp(3rem, 8vh, 5.5rem)"
+  section: "clamp(6rem, 14vh, 10rem)"
+components:
+  button-primary:
+    backgroundColor: "{colors.ultramarine}"
+    textColor: "{colors.on-ultramarine}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: "0 1.6rem"
+    height: "3.25rem"
+  button-primary-hover:
+    backgroundColor: "{colors.ultramarine-deep}"
+  button-ink:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.ground}"
+    rounded: "{rounded.pill}"
+    padding: "0 1.6rem"
+    height: "3.25rem"
+  button-line:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+    padding: "0 1.6rem"
+    height: "3.25rem"
+  tag:
+    textColor: "{colors.ink-muted}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0.3rem 0.75rem"
+  nav:
+    backgroundColor: "{colors.ground}"
+    textColor: "{colors.ink-muted}"
+    height: "3.5rem"
+  nav-resume:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.ground}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "0 1rem"
+    height: "2.25rem"
+  theme-toggle:
+    rounded: "{rounded.pill}"
+    size: "2.25rem"
+  stage-panel:
+    backgroundColor: "{colors.stage-panel}"
+    textColor: "{colors.stage-ink}"
+    rounded: "{rounded.stage}"
+  row-arrow:
+    rounded: "{rounded.pill}"
+    size: "3.25rem"
+  row-arrow-hover:
+    backgroundColor: "{colors.ultramarine}"
+    textColor: "{colors.on-ultramarine}"
+---
+
+# Design System: Abiral Bhattarai — AI × Product
+
+## Overview
+
+**Creative North Star: "The Launch Keynote"**
+
+The site presents work the way a flagship product is launched: one headline at a time, set huge and heavy, with one product demonstrated in motion. White ground and soft grey panels carry near-black ink; one black chapter holds the product demo; ultramarine marks every action and finally drenches the closing section.
+
+Density is low and the rhythm is vertical. Each chapter opens with a headline at display or headline scale, a muted one-line subhead, then content laid out as hairline-ruled rows, never as cards. Light and dark themes are both first-class, switched by `data-theme` on `<html>`; the black product chapter stays black in both.
+
+Motion is exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`), scroll-stepped where it tells a story, and reduced-motion always shows the final state.
+
+**Key Characteristics:**
+- Display type at weight 850 with tight tracking (-0.045em) and line-height under 1.
+- Hairline rules (1px) separate rows; a full-ink 1px rule opens each list.
+- Pill-shaped actions, ultramarine for the primary one.
+- One dark "stage" chapter with a lime signal for the product's own outputs.
+- No cards, no drop shadows on surfaces.
+
+## Colors
+
+A white-and-ink launch page with one ultramarine action color and one lime signal reserved for the black product chapter.
+
+### Primary
+- **Launch Ultramarine** (`ultramarine`): every primary action, the × in the hero headline, the clip in the hero waveform, the person-decides nodes in the agent graph, row-arrow hover fill, selection and focus ring. It also drenches the closing contact section edge to edge.
+- **Ultramarine Ink** (`ultramarine-ink`): ultramarine as text and thin marks (text links, work and focus-row titles on hover, the × in the research headline, mono timestamp labels, the dotted re-plan edge in the agent graph, the "|" separators in tech specs). In dark theme it lifts to `dark-ultramarine-ink` for contrast; inside the black chapter it lifts further to #9ba3ff.
+- **Deep Ultramarine** (`ultramarine-deep`): hover fill for the primary pill.
+
+### Secondary
+- **Signal Lime** (`signal-lime`): only inside the black stage chapter. It marks what the product produces: speech, chosen words, clip boxes, active pipeline stages, the chapter title's final mark, and mono tech lines. Text on lime is always black.
+
+### Neutral
+- **Ground** (`ground` / `dark-ground`): page background.
+- **Panel Grey** (`panel-grey` / `dark-panel`): alternating full-bleed section bands and the theme toggle's hover fill.
+- **Ink** (`ink` / `dark-ink`): headlines, emphasized phrases, the opening rule of each list.
+- **Muted Ink** (`ink-muted` / `dark-ink-muted`): subheads, body copy, nav links, captions, dates.
+- **Hairline** (`hairline` / `dark-hairline`): row separators, nav bottom edge, tag and toggle borders.
+- **Stage Black / Stage Panel / Stage Hairline / Stage Ink** (`stage-*`): the product chapter's own scale, identical in both themes.
+
+### Named Rules
+**The One Action Color Rule.** Ultramarine means "act here" or "a person decides". Do not spend it on decoration; muted ink and hairlines do the rest.
+
+**The Lime Stays On Stage Rule.** Signal lime appears only on black. On white it fails contrast; where the stage's lime would fall on the light page, ultramarine stands in.
+
+**The Local Remap Rule.** Inverted sections (the black stage, the ultramarine contact drench) redefine `--ink`, `--ink-2` and `--line` locally instead of introducing new component variants, so every row, pill and rule inside them inherits correctly.
+
+## Typography
+
+**Display Font:** Schibsted Grotesk, variable 400–900 (with ui-sans-serif, system-ui)
+**Body Font:** Schibsted Grotesk
+**Data Font:** Fragment Mono 400 (with ui-monospace), self-hosted in `public/fonts`
+
+**Character:** One grotesque carries everything from a 13.5rem headline to 13px tags, with weight doing the work of hierarchy; the mono appears only where the content is literally data.
+
+### Hierarchy
+- **Display** (850, up to 13.5rem, 0.92): the hero headline, the stage chapter title (up to 15rem) and the contact headline (up to 10rem). Balanced wrapping; the hero stays on one line from 900px up.
+- **Headline** (850, clamp 2.6–6rem, 0.95): each chapter's opening sentence, phrased as a statement ending in a full stop.
+- **Title** (800–850, clamp 1.75–4rem, 1.0): work-row titles (up to 3.25rem), focus-row titles (850, up to 4rem, -0.045em) and the research paper title; smaller step titles (750–800, 1.375–3rem) in timeline and stage steps.
+- **Subhead** (600, clamp 1.35–2rem, 1.2, muted ink, max 30ch): the one line under each headline.
+- **Lede** (500, clamp 1.25–1.625rem, 1.35, max 36ch): intro paragraphs; `strong` inside it lifts to full ink at 650.
+- **Body** (400, 1.0625rem, 1.55, muted ink, max 62ch).
+- **Label** (600, 0.8125rem): tags, pipeline stage tabs, post-platform chips; 0.875rem for captions, the Resume pill and the unlinked-row location label.
+- **Data** (Fragment Mono 400, 0.875rem, tabular figures): dates, timestamps, URLs, citation meta, tech lines.
+
+### Named Rules
+**The Weight Ladder Rule.** Hierarchy comes from weight and size, never from case: no uppercase labels outside the in-product caption mock, no small eyebrow lines above headlines.
+
+**The Mono Means Data Rule.** Fragment Mono is used only for timestamps, dates, URLs, ratios and tech identifiers. Never for headings or prose.
+
+## Layout
+
+A single 1320px container with a fluid gutter (`clamp(1.25rem, 4vw, 3.5rem)`). Chapters are full-bleed bands (ground, panel grey, stage black, ultramarine) with generous vertical padding (`clamp(6rem, 14vh, 10rem)`); the section head sits `clamp(3rem, 8vh, 5.5rem)` above content.
+
+Content is arranged as ruled rows on two- and three-column grids that collapse to one column (breakpoints at 900, 860, 760, 700, 640, 520 and 480px depending on the component). Authored SVG figures (hero waveform, agent graph) ship a separate mobile drawing instead of scaling the desktop one down; the graph swaps at 760px, the waveform at 640px. The stage chapter is a scrollytelling grid (0.8fr steps, 1.2fr sticky stage); under 900px the stage moves above the steps and sticks under the nav. The nav is sticky at 3.5rem; anchor scroll padding matches it.
+
+## Elevation & Depth
+
+Flat. Depth comes from tonal bands (ground → panel grey → stage black → ultramarine) and 1px hairlines, not shadows. The only shadows are functional: a 4px lime focus halo on the stage's "go" chip in its first step, and a text-shadow on the caption inside the phone mock, where it imitates real social-video captions.
+
+### Named Rules
+**The No-Card Rule.** Surfaces never float. Group content with rules and bands; the stage panel is the single bordered container, and it is a device, not a card.
+
+## Shapes
+
+Two shape families: fully round (999px, or radius = half height in SVG) for every interactive element and every node (pills, tags, stage chips, the theme toggle, row arrows, agent-graph nodes) and soft device corners for objects that depict hardware or apps (stage panel 28px, phone 22px, model chips 14px). Rules are always 1px; the hero bracket, graph edges and node outlines are 2px (animated loop edges 2.5px); pill borders are 1.5px.
+
+## Components
+
+### Buttons
+- **Shape:** full pill (999px), 3.25rem tall, 1.6rem side padding, 600 weight, optional trailing 1.05em icon.
+- **Primary:** ultramarine fill, white text; hover deepens to deep ultramarine.
+- **Ink:** ink fill with ground-color text; hover mixes 18% toward ground. On the ultramarine contact drench it becomes white with ink text, paired with a near-black pill.
+- **Line:** 1.5px current-color border, transparent; hover adds a 10% current-color wash.
+- **Active:** all pills scale to 0.97.
+- Paired actions sit side by side with equal minimum width (11.5rem); under 480px they split a two-column grid.
+
+- **CV actions** read "View CV" with a leading document icon and open the PDF.
+
+### Text links
+Ultramarine ink, 600 weight, 1.125rem, no underline at rest; underline on hover and the trailing arrow shifts 2px up and right. Every outbound link (GitHub, LinkedIn, CV, paper, code) opens in a new tab with `rel="noopener"`; mailto and in-page links do not.
+
+### Tags
+Small pills: 0.8125rem, 1px hairline border, muted ink, no fill. Used for tech lists under rows and agent tool lists.
+
+### Navigation
+Sticky bar, 3.5rem, 94% ground with a hairline bottom edge. Bold wordmark left (750); on the right, muted outbound links (GitHub, LinkedIn, Email) that go to full ink on hover, an ink-filled 2.25rem Resume pill (0.875rem, 600, hover mixes 18% toward ground), and a round 2.25rem hairline theme toggle with sun and moon icons. No section anchors. Under 760px the text links hide; wordmark, Resume pill and toggle remain.
+
+### Ruled Rows (signature)
+The repeating content unit for focus areas, work, tech specs and timeline: a full-ink 1px rule opens the list, each row is a grid separated by hairlines. Titles at title scale on the left, muted description on the right; on hover the title turns ultramarine ink.
+- **Focus rows:** two columns (1.1fr / 1fr), baseline-aligned, the biggest row titles on the page; one column under 760px.
+- **Work rows:** three columns with a fixed 6rem trailing column. Linked rows carry a 3.25rem round arrow that fills ultramarine and rotates -45°; unlinked rows put a muted 0.875rem location label in that column instead and have no hover.
+- **Tech-spec rows:** items separated by a thin ultramarine-ink "|" (400 weight, full opacity); each item never wraps internally.
+
+### Stage Panel (signature)
+A black device panel (28px corners, stage-hairline border) that sticks while six steps scroll past. It holds a URL bar with a lime "go" chip, a row of six pipeline-stage tabs (sans 600) that fill lime as steps advance, a row of post-platform chips whose dots light lime one after another on the final "Post" step, a waveform where speech bars lift to stage ink and the clip turns lime, rising transcript words, and a 9:16 phone preview that appears on the last step. Inactive steps sit at 32% opacity. Without JS, the final state shows.
+
+### Waveform Band (signature)
+A full-width SVG waveform under the hero: muted ink bars, speech bars in ink, the clip in ultramarine with a 2px bracket and a 9% ultramarine wash, words rising above, mono timestamps in ultramarine ink. Bars grow in with a 6ms stagger.
+
+### Agent Graph (signature)
+An authored SVG state graph, drawn twice: a wide desktop layout and a tall mobile layout swapped at 760px. Nodes are pill-shaped with 2px ink outlines on the ground color and 700-weight 18px labels: the input node has a dashed outline, agent nodes are plain, person-decides nodes fill ultramarine with white text, the tool node fills panel grey, the end node fills ink. Edges are 2px round-capped ink with arrowheads; the reject/re-plan edge is a dotted ultramarine-ink arc. The ReAct loop sits inside a dotted hairline ring with an 850-weight label, and its two loop edges run a flowing dash animation (1.6s linear) that stops under reduced motion. Muted 15px labels annotate edges; tool names sit beneath the tool node as 600-weight chips. A key below names the two node meanings.
+
+## Do's and Don'ts
+
+### Do:
+- **Do** set every chapter headline at weight 850 with -0.045em tracking and line-height under 1.
+- **Do** use ultramarine for the primary action and for marks that mean "a person decides".
+- **Do** separate content with 1px hairlines and open lists with a full-ink rule.
+- **Do** redefine `--ink`, `--ink-2` and `--line` locally when a section inverts.
+- **Do** use `cubic-bezier(0.16, 1, 0.3, 1)` for transitions and show final states under reduced motion.
+- **Do** check every new color pairing in both light and dark themes.
+
+### Don't:
+- **Don't** put signal lime on a white or grey ground.
+- **Don't** wrap content in cards or add drop shadows to surfaces.
+- **Don't** add uppercase eyebrows or kicker lines above headlines.
+- **Don't** use Fragment Mono for anything that is not data.
+- **Don't** introduce a second action color.
