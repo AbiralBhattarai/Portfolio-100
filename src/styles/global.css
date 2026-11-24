@@ -660,7 +660,6 @@ input, textarea { caret-color: var(--accent); }
   border-top: 1px solid var(--stage-line);
 }
 .narr-head { display: grid; gap: 1rem; max-width: 46rem; }
-.narr-kicker { font-family: var(--mono); font-size: 0.8125rem; color: var(--signal); }
 .narr-title { font-size: clamp(2.4rem, 5.4vw, 4.75rem); font-weight: 850; letter-spacing: -0.045em; line-height: 0.98; text-wrap: balance; }
 .narr-body {
   display: grid; grid-template-columns: minmax(0, 1fr) auto;

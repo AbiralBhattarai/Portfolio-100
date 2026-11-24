@@ -144,7 +144,7 @@ components:
 
 The site presents work the way a flagship product is launched: one headline at a time, set huge and heavy, with one product demonstrated in motion. White ground and soft grey panels carry near-black ink; one black chapter holds the product demo; ultramarine marks every action and finally drenches the closing section.
 
-Density is low and the rhythm is vertical. Each chapter opens with a headline at display or headline scale, a muted one-line subhead, then content laid out as hairline-ruled rows, never as cards. Light and dark themes are both first-class, switched by `data-theme` on `<html>`; the black product chapter stays black in both.
+Density is low and the rhythm is vertical. Each chapter opens with a headline at display or headline scale, a muted one-line subhead, then content laid out as hairline-ruled rows, never as cards. Light is the default theme; dark is a full alternative behind the toggle (remembered in localStorage, never taken from the OS setting). Both are switched by `data-theme` on `<html>`; the black product chapter stays black in both.
 
 Motion is exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`), scroll-stepped where it tells a story, and reduced-motion always shows the final state.
 
@@ -153,19 +153,19 @@ Motion is exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`), scroll-stepped
 - Hairline rules (1px) separate rows; a full-ink 1px rule opens each list.
 - Pill-shaped actions, ultramarine for the primary one.
 - One dark "stage" chapter with a lime signal for the product's own outputs.
-- No cards, no drop shadows on surfaces.
+- No cards, no drop shadows on content surfaces; only the floating nav pill and the email chooser lift off the page.
 
 ## Colors
 
 A white-and-ink launch page with one ultramarine action color and one lime signal reserved for the black product chapter.
 
 ### Primary
-- **Launch Ultramarine** (`ultramarine`): every primary action, the × in the hero headline, the clip in the hero waveform, the person-decides nodes in the agent graph, row-arrow hover fill, selection and focus ring. It also drenches the closing contact section edge to edge.
+- **Launch Ultramarine** (`ultramarine`): every primary action, the × in the hero headline, the clip in the hero waveform, the nav's timeline fill and wavy current-section underline, the 30% highlighter stroke behind each headline's hook word, the person-decides nodes in the agent graph, row-arrow hover fill, selection and focus ring. It also drenches the closing contact section edge to edge.
 - **Ultramarine Ink** (`ultramarine-ink`): ultramarine as text and thin marks (text links, work and focus-row titles on hover, the × in the research headline, mono timestamp labels, the dotted re-plan edge in the agent graph, the "|" separators in tech specs). In dark theme it lifts to `dark-ultramarine-ink` for contrast; inside the black chapter it lifts further to #9ba3ff.
 - **Deep Ultramarine** (`ultramarine-deep`): hover fill for the primary pill.
 
 ### Secondary
-- **Signal Lime** (`signal-lime`): only inside the black stage chapter. It marks what the product produces: speech, chosen words, clip boxes, active pipeline stages, the chapter title's final mark, and mono tech lines. Text on lime is always black.
+- **Signal Lime** (`signal-lime`): only on black: inside the stage chapter, and on the nav while it sits over that chapter. It marks what the product produces: speech, chosen words, clip boxes, the face-tracking box, active pipeline stages, the chapter title's final mark, and mono tech lines. Text on lime is always black.
 
 ### Neutral
 - **Ground** (`ground` / `dark-ground`): page background.
@@ -192,7 +192,7 @@ A white-and-ink launch page with one ultramarine action color and one lime signa
 
 ### Hierarchy
 - **Display** (850, up to 13.5rem, 0.92): the hero headline, the stage chapter title (up to 15rem) and the contact headline (up to 10rem). Balanced wrapping; the hero stays on one line from 900px up.
-- **Headline** (850, clamp 2.6–6rem, 0.95): each chapter's opening sentence, phrased as a statement ending in a full stop.
+- **Headline** (850, clamp 2.6–6rem, 0.95): each chapter's opening sentence, phrased as a statement ending in a full stop. One hook word per headline (product, asks, built, Published, specs, so far) carries a highlighter stroke: a 0.36em band of 30% ultramarine (45% in dark) behind the word's lower half, drawn left to right when the headline enters view.
 - **Title** (800–850, clamp 1.75–4rem, 1.0): work-row titles (up to 3.25rem), focus-row titles (850, up to 4rem, -0.045em) and the research paper title; smaller step titles (750–800, 1.375–3rem) in timeline and stage steps.
 - **Subhead** (600, clamp 1.35–2rem, 1.2, muted ink, max 30ch): the one line under each headline.
 - **Lede** (500, clamp 1.25–1.625rem, 1.35, max 36ch): intro paragraphs; `strong` inside it lifts to full ink at 650.
@@ -201,7 +201,9 @@ A white-and-ink launch page with one ultramarine action color and one lime signa
 - **Data** (Fragment Mono 400, 0.875rem, tabular figures): dates, timestamps, URLs, citation meta, tech lines.
 
 ### Named Rules
-**The Weight Ladder Rule.** Hierarchy comes from weight and size, never from case: no uppercase labels outside the in-product caption mock, no small eyebrow lines above headlines.
+**The Weight Ladder Rule.** Hierarchy comes from weight and size, never from case: no uppercase labels outside the in-product caption mock and mono clip labels (CLIP 01, REC, SPEAKER), no small eyebrow lines above headlines.
+
+**The One Hook Rule.** Emphasis inside a headline is one whole word with a highlighter stroke. Never recolor letters or fragments of words.
 
 **The Mono Means Data Rule.** Fragment Mono is used only for timestamps, dates, URLs, ratios and tech identifiers. Never for headings or prose.
 
@@ -209,14 +211,14 @@ A white-and-ink launch page with one ultramarine action color and one lime signa
 
 A single 1320px container with a fluid gutter (`clamp(1.25rem, 4vw, 3.5rem)`). Chapters are full-bleed bands (ground, panel grey, stage black, ultramarine) with generous vertical padding (`clamp(6rem, 14vh, 10rem)`); the section head sits `clamp(3rem, 8vh, 5.5rem)` above content.
 
-Content is arranged as ruled rows on two- and three-column grids that collapse to one column (breakpoints at 900, 860, 760, 700, 640, 520 and 480px depending on the component). Authored SVG figures (hero waveform, agent graph) ship a separate mobile drawing instead of scaling the desktop one down; the graph swaps at 760px, the waveform at 640px. The stage chapter is a scrollytelling grid (0.8fr steps, 1.2fr sticky stage); under 900px the stage moves above the steps and sticks under the nav. The nav is sticky at 3.5rem; anchor scroll padding matches it.
+Content is arranged as ruled rows on two- and three-column grids that collapse to one column (breakpoints at 900, 860, 760, 700, 640, 520 and 480px depending on the component). Authored SVG figures (hero waveform, agent graph) ship a separate mobile drawing instead of scaling the desktop one down; the graph swaps at 760px, the waveform at 640px. The stage chapter is a scrollytelling grid (0.8fr steps, 1.2fr sticky stage); under 900px the stage moves above the steps and sticks under the nav. The nav is sticky at 3.5rem; anchor scroll padding matches it. Nav items drop out as width shrinks: the timecode under 1120px, section links and the GitHub/LinkedIn icons under 960px (a menu button takes their place), the timecode again under 600px, the Resume pill under 380px.
 
 ## Elevation & Depth
 
-Flat. Depth comes from tonal bands (ground → panel grey → stage black → ultramarine) and 1px hairlines, not shadows. The only shadows are functional: a 4px lime focus halo on the stage's "go" chip in its first step, and a text-shadow on the caption inside the phone mock, where it imitates real social-video captions.
+Flat. Depth comes from tonal bands (ground → panel grey → stage black → ultramarine) and 1px hairlines, not shadows. The only shadows are functional: a 4px lime focus halo on the stage's "go" chip in its first step, a text-shadow on the caption inside the phone mock (where it imitates real social-video captions), a soft 30px shadow under the floating nav pill, and a 40px shadow under the email chooser, the one popover on the page.
 
 ### Named Rules
-**The No-Card Rule.** Surfaces never float. Group content with rules and bands; the stage panel is the single bordered container, and it is a device, not a card.
+**The No-Card Rule.** Content never floats. Group content with rules and bands; the stage panel is the single bordered container, and it is a device, not a card. Only chrome floats: the nav pill and the email chooser.
 
 ## Shapes
 
@@ -235,13 +237,24 @@ Two shape families: fully round (999px, or radius = half height in SVG) for ever
 - **CV actions** read "View CV" with a leading document icon and open the PDF.
 
 ### Text links
-Ultramarine ink, 600 weight, 1.125rem, no underline at rest; underline on hover and the trailing arrow shifts 2px up and right. Every outbound link (GitHub, LinkedIn, CV, paper, code) opens in a new tab with `rel="noopener"`; mailto and in-page links do not.
+Ultramarine ink, 600 weight, 1.125rem, no underline at rest; underline on hover and the trailing arrow shifts 2px up and right. Every outbound link (GitHub, LinkedIn, CV, paper, code) opens in a new tab with `rel="noopener"`; in-page links do not.
+
+### Email chooser
+Every email link keeps a plain `mailto:` href (the no-JS fallback) but opens a small menu instead, because `mailto:` always launches the visitor's default app (often Outlook). The menu sits under the link (above it near the bottom of the screen): the address in mono, then Gmail, Outlook.com and Yahoo Mail compose links (new tab), "Your mail app" (mailto), and "Copy address" (shows "Copied ✓"). Ground fill, hairline border, 16px corners, 0.4rem padding; items are 600-weight rows that wash 10% ultramarine on hover and focus. Focus moves to the first item; arrow keys move, Escape, Tab, outside clicks and scrolling close it.
 
 ### Tags
 Small pills: 0.8125rem, 1px hairline border, muted ink, no fill. Used for tech lists under rows and agent tool lists.
 
-### Navigation
-Sticky bar, 3.5rem, 94% ground with a hairline bottom edge. Bold wordmark left (750); on the right, muted outbound links (GitHub, LinkedIn, Email) that go to full ink on hover, an ink-filled 2.25rem Resume pill (0.875rem, 600, hover mixes 18% toward ground), and a round 2.25rem hairline theme toggle with sun and moon icons. No section anchors. Under 760px the text links hide; wordmark, Resume pill and toggle remain.
+### Navigation (signature)
+The nav treats the page the way Sectra treats a talk: as one long clip.
+- **Bar:** sticky, 3.5rem, 80% ground with a 14px backdrop blur and a hairline bottom edge. Once the hero has scrolled away it lifts into a floating pill: translated 0.6rem down (a transform, so nothing below moves), 999px corners, hairline border, the same blur, a soft shadow, inset so the wordmark keeps its x position.
+- **Skins:** the bar takes the tone of the section under its middle. Over the stage chapter it goes black with lime marks; over the contact drench it goes ultramarine with white marks. Both use the Local Remap Rule.
+- **Wordmark:** a five-bar waveform mark (outer bars ink, inner three ultramarine; lime on stage, white on ultramarine) and the name at 750. The bars stretch with scroll speed and settle when scrolling stops; on hover they bounce like an equalizer.
+- **Timecode:** after a hairline divider, mono 0.6875rem: a dot, CLIP number and section name, and a running time (one second per 40px scrolled). Over the stage chapter the dot blinks lime and a lime REC appears.
+- **Section links:** Sectra, Research, Work (the agent, more work and the paper), About, Contact, in muted ink that goes to full ink on hover or when current. The current one gets a wavy underline: one 26px-period wave masked from the bar's tone, spanning the word only, sitting just under the text. It glides between links (0.45s) and rolls in its direction of travel only while moving.
+- **Right side:** GitHub and LinkedIn icon buttons (2.25rem round, muted), the ink Resume pill (2.25rem, 0.875rem, 600, hover mixes 18% toward ground) and a round 2.25rem hairline theme toggle; button hovers wash 8% ink so they work on every skin.
+- **Timeline:** along the bottom edge, a 7px strip of thin waveform bars (5px inside the floating pill) covering the whole page. Bars are 16% ink and fill in the bar's tone up to the scroll position; the current section is bracketed like a clip (1.5px side rules and a 12% wash).
+- **Mobile menu:** under 960px a round menu button opens a full-screen ground sheet: wordmark and close button on top, the five sections as headline-scale (850, up to 4rem) ruled rows numbered 01–05 in mono ultramarine ink, then Resume, Email, GitHub and LinkedIn at the foot. Focus is trapped inside; Escape closes it and returns focus.
 
 ### Ruled Rows (signature)
 The repeating content unit for focus areas, work, tech specs and timeline: a full-ink 1px rule opens the list, each row is a grid separated by hairlines. Titles at title scale on the left, muted description on the right; on hover the title turns ultramarine ink.
@@ -250,7 +263,12 @@ The repeating content unit for focus areas, work, tech specs and timeline: a ful
 - **Tech-spec rows:** items separated by a thin ultramarine-ink "|" (400 weight, full opacity); each item never wraps internally.
 
 ### Stage Panel (signature)
-A black device panel (28px corners, stage-hairline border) that sticks while six steps scroll past. It holds a URL bar with a lime "go" chip, a row of six pipeline-stage tabs (sans 600) that fill lime as steps advance, a row of post-platform chips whose dots light lime one after another on the final "Post" step, a waveform where speech bars lift to stage ink and the clip turns lime, rising transcript words, and a 9:16 phone preview that appears on the last step. Inactive steps sit at 32% opacity. Without JS, the final state shows.
+A black device panel (28px corners, stage-hairline border) that sticks while seven steps scroll past (Ingest, Speech, Transcribe, Clips, Track, Export, Post). It holds a URL bar with a lime "go" chip, a row of seven pipeline-stage tabs (sans 600) that fill lime as steps advance, a waveform where speech bars lift to stage ink and the clip turns lime, rising transcript words, a row of five post-platform chips (YouTube, TikTok, Instagram, X, Facebook) whose dots light lime one after another on the final Post step, and a 9:16 phone preview.
+- **Phone preview:** a real photo (a CC0 StockSnap shot of a woman speaking at a podcast mic, stored wide so it can pan). It appears at Clips framed on the centre of the shot, with the speaker off to the side. At Track it pans and zooms (scale 1.12) onto her face over 0.6s while a lime face box labelled "SPEAKER · 0.94" rides in from the right edge with it. Captions (uppercase, 900, lime key word, over a bottom scrim) arrive at Export.
+- Inactive steps sit at 32% opacity. Without JS, `?still` and reduced motion, the final state shows.
+
+### Narrator block
+Below the stage, inside the black chapter and opened by a stage-hairline rule: a headline-scale title ("Narrator. Stories in, parts out."), a muted body line, then four numbered steps (01–04 in mono) in a two-column ruled grid beside a 9:16 card. The card shows a white stick narrator over a dimmed, blocky stand-in for gameplay footage, with an uppercase caption above its head and a mouth that flaps in steps (still under reduced motion). Under the card, Part 1 / Part 2 / Part 3 chips with mono durations, Part 1 outlined in lime.
 
 ### Waveform Band (signature)
 A full-width SVG waveform under the hero: muted ink bars, speech bars in ink, the clip in ultramarine with a 2px bracket and a 9% ultramarine wash, words rising above, mono timestamps in ultramarine ink. Bars grow in with a 6ms stagger.
@@ -272,5 +290,6 @@ An authored SVG state graph, drawn twice: a wide desktop layout and a tall mobil
 - **Don't** put signal lime on a white or grey ground.
 - **Don't** wrap content in cards or add drop shadows to surfaces.
 - **Don't** add uppercase eyebrows or kicker lines above headlines.
+- **Don't** recolor letters or word fragments inside a headline; highlight one whole hook word.
 - **Don't** use Fragment Mono for anything that is not data.
 - **Don't** introduce a second action color.

@@ -12,13 +12,14 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
 
 ## Users
 
-- Hiring managers and engineering leads who are judging Abiral Bhattarai for a full-time AI/ML or backend engineering role.
-- They skim quickly, often between other candidates, and want proof of production work.
+- Engineers, engineering leads and recruiters who want to see what Abiral Bhattarai builds.
+- The site must not read as a job search, while still showing the work at its best.
+- Visitors skim quickly and want proof of production work.
 
 ## Product Purpose
 
 - A personal portfolio for Abiral Bhattarai, a Jr. AI/ML Engineer based in Kathmandu, Nepal.
-- Success means a hiring manager understands what Abiral has built and reaches out or opens the CV.
+- Success means a visitor understands what Abiral has built and gets in touch to talk AI, agents, open source or product, or opens the CV.
 
 ## Positioning
 
@@ -49,8 +50,10 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
 - Personal GitHub projects, led by Sectra:
   - Sectra: fully local clipping and narration software that turns long videos into short captioned clips.
   - It uses a local LLM through Ollama (or a cloud API), faster-whisper transcription, and Silero VAD.
-  - It includes a browser editor and exports captioned MP4s.
-  - It auto-posts clips to X, TikTok, YouTube and Instagram with one click, through a headless browser (Playwright).
+  - Face tracking: YuNet finds faces and Light-ASD scores who is speaking, frame by frame; clips cut and crop to the active speaker.
+  - It includes a browser editor and exports captioned MP4s in 9:16, 1:1 or 16:9.
+  - Narrator: pasted stories are narrated with Kokoro TTS, with a lip-synced stick narrator (Rhubarb) over black or gameplay footage, cut into parts that fit Shorts, Reels and X.
+  - It auto-posts clips to YouTube, TikTok, Instagram, X and Facebook with one click, through a browser it drives on your machine (Playwright).
   - Its async worker runs on Redis Streams with per-stage concurrency limits (downloads, ffmpeg, VAD, speech-to-text, LLM).
   - Repo: https://github.com/AbiralBhattarai/sectra (MIT).
   - Marketing Campaign Architect Agent: a LangGraph agent that turns a campaign prompt into a full marketing campaign.
@@ -68,7 +71,7 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
   - It compares regression and classification metrics, with ensemble models built for each architecture on each task.
   - Repo: https://github.com/AbiralBhattarai/Protein_Pep_Binding_Affinity_Pred.
   - Paper: https://doi.org/10.3126/jacem.v11i1.84250.
-- The site has an "AI × product research" section on: cost optimization, progressive tool calling, context management, and memory for MCP clients.
+- The site has an "AI × product research" section on: AI feasibility ("Is AI the answer?": which features need a model, where plain code wins, and the cost per user), cost optimization, progressive tool calling, context management, and memory for MCP clients.
 - The site lists skills from the CV, plus Keras, Kubernetes, Git and GitHub:
   - Languages: Python, C++, C, SQL.
   - Backend & APIs: Strawberry GraphQL, FastAPI, GraphQL Federation, Django, gRPC, Pydantic.
@@ -81,9 +84,11 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
 - No Veel internals: no architecture diagrams, internal service names, data flows, code, or screenshots.
 - Contact details on the site: email (abiralbh.101@gmail.com) and location (Kathmandu, Nepal); no phone number.
 - The site opens the current CV PDF in the browser, phone number included (Abiral's choice).
-- Main actions: Email and View CV, with equal weight.
+- Main actions: Email and View CV, with equal weight. Email opens a chooser (Gmail, Outlook.com, Yahoo Mail, the visitor's mail app, or copy the address) rather than forcing the system mail app.
+- The contact line invites conversation ("Always up for talking AI, agents, open source and product."); no "hiring" or "open to work" language anywhere.
 - All outbound links and the CV open in a new tab.
-- The site is one page, linking out to GitHub and the paper.
+- The site is one page, linking out to GitHub and the paper, plus a 404 page ("This clip got cut.").
+- Link previews use `public/og.png` (1200×630) with Open Graph and Twitter tags, a canonical URL and Person structured data.
 - Hosting: Netlify free tier, static build.
 
 ## Brand Commitments
