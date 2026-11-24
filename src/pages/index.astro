@@ -56,9 +56,18 @@ const steps = [
   { t: 'Hear every word.', p: 'Speech becomes text with a timestamp on every single word.', tech: 'faster-whisper' },
   { t: 'Pick the moments.', p: 'An LLM reads the transcript and proposes clips. Sectra snaps them to sentences and keeps them 15 to 60 seconds.', tech: 'Ollama, or any OpenAI-compatible or Anthropic API' },
   { t: 'Edit and export.', p: 'Trim, crop, and restyle captions in the browser. Export a captioned MP4 in 9:16, 1:1 or 16:9.', tech: 'React editor · ffmpeg + libass' },
-  { t: 'Post everywhere.', p: 'One click on a clip, and a headless browser uploads it to X, TikTok, YouTube and Instagram.', tech: 'Playwright poster' },
+  { t: 'Post everywhere.', p: 'One click on a clip, and a browser on your machine uploads it to YouTube, TikTok, Instagram, X and Facebook.', tech: 'Playwright poster' },
 ];
-const platforms = ['X', 'TikTok', 'YouTube', 'Instagram'];
+const platforms = ['YouTube', 'TikTok', 'Instagram', 'X', 'Facebook'];
+
+// Narrator: written story in, narrated parts out.
+const narrator = [
+  { t: 'Paste a story.', p: 'Up to 20,000 characters. An optional LLM pass rewrites it for narration and writes the title and caption.' },
+  { t: 'Give it a voice.', p: 'A local voice reads it aloud: ten US and UK voices, speed 0.7 to 1.5×.', tech: 'Kokoro TTS' },
+  { t: 'Add a narrator.', p: 'A stick figure talks over black or gameplay footage. Its mouth follows the words and its face follows the story.', tech: 'Rhubarb lip sync' },
+  { t: 'Cut it into parts.', p: 'Long stories split at pauses into Part 1, Part 2, …, each short enough for Shorts, Reels and X.' },
+];
+const parts = [['Part 1', '2:18'], ['Part 2', '2:11'], ['Part 3', '1:47']];
 const stageNames = ['Ingest', 'Speech', 'Transcribe', 'Clips', 'Export', 'Post'];
 
 const sectraSpecs = [
@@ -66,8 +75,9 @@ const sectraSpecs = [
   ['Language model', 'Local through Ollama, or a cloud API'],
   ['Speech to text', 'faster-whisper, or a cloud API'],
   ['Speech detection', 'Silero VAD'],
+  ['Narration', 'Kokoro text-to-speech, lip-synced with Rhubarb'],
   ['Output', '1080p H.264 MP4 with burned-in captions, plus SRT'],
-  ['Auto-post', 'X, TikTok, YouTube and Instagram, through a headless browser'],
+  ['Auto-post', 'YouTube, TikTok, Instagram, X and Facebook, through Playwright'],
   ['Concurrency', 'An async worker on Redis Streams, with its own limit for downloads, ffmpeg, VAD, speech-to-text and LLM calls'],
   ['License', 'MIT, open source'],
 ];
@@ -83,6 +93,7 @@ const setup = [
 const toolChips = ['Web search', 'Campaign history', 'Parse to JSON'];
 
 const focus = [
+  ['Is AI the answer?', 'Feasibility comes before any model. I map where a model creates real value, where plain code wins, and what each AI feature costs per user before anyone builds it.'],
   ['Cost optimization', 'Less compute per answer: dynamic audio chunking, unique-frame analysis and bounded concurrency, with the same quality.'],
   ['Progressive tool calling', 'Agents get tools as a task needs them, not all at once, so prompts stay small and choices stay sharp.'],
   ['Context management', 'What an agent keeps, summarizes and drops as a task grows longer.'],
@@ -159,8 +170,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Abiral Bhattarai — AI × Product</title>
     <meta name="description" content="Abiral Bhattarai is an AI/ML engineer in Kathmandu who turns models and agents into products people use." />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#131316" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" />
     <meta property="og:title" content="Abiral Bhattarai — AI × Product" />
     <meta property="og:description" content="AI/ML engineer in Kathmandu. I turn models and agents into products people use." />
     <meta property="og:type" content="website" />
@@ -176,9 +186,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
         var q = new URLSearchParams(location.search).get('theme');
         if (q === 'light' || q === 'dark') t = q;
         if (new URLSearchParams(location.search).has('still')) d.classList.add('still');
-        if (t !== 'light' && t !== 'dark') {
-          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
+        if (t !== 'light' && t !== 'dark') t = 'light';
         d.setAttribute('data-theme', t);
         var c = t === 'dark' ? '#131316' : '#ffffff';
         document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', c); m.removeAttribute('media'); });
@@ -191,7 +199,16 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
 
     <header class="nav">
       <div class="wrap nav-in">
-        <a class="brand" href="#top">Abiral Bhattarai</a>
+        <a class="brand" href="#top">
+          <svg class="brand-mark" viewBox="0 0 22 16" aria-hidden="true">
+            <rect x="0" y="6" width="3" height="4" rx="1.5" />
+            <rect class="c" x="4.75" y="2" width="3" height="12" rx="1.5" />
+            <rect class="c" x="9.5" y="0" width="3" height="16" rx="1.5" />
+            <rect class="c" x="14.25" y="3.5" width="3" height="9" rx="1.5" />
+            <rect x="19" y="6.5" width="3" height="3" rx="1.5" />
+          </svg>
+          Abiral Bhattarai
+        </a>
         <nav class="nav-links" aria-label="Elsewhere">
           <a href={GITHUB} target="_blank" rel="noopener">GitHub</a>
           <a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a>
@@ -263,7 +280,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
             <p class="sub">Long videos in. Captioned clips out. Everything runs on your own machine.</p>
             <div class="sectra-meta">
               <a class="pill pill-line" href={SECTRA} target="_blank" rel="noopener">View on GitHub <Fragment set:html={arrow} /></a>
-              <span class="body">My open-source clipping and narration tool. Local LLM, local speech-to-text, no upload required.</span>
+              <span class="body">My open-source clipping and narration tool. Local LLM, local speech-to-text, local voices, no upload required.</span>
             </div>
           </div>
 
@@ -311,13 +328,50 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
                     <p class="st-note">Illustration with sample data.</p>
                   </div>
                   <div class="phone">
+                    <img class="shot" src="/images/sectra-clip.webp" width="361" height="641" alt="" loading="lazy" decoding="async" />
                     <span class="ratio">9:16</span>
-                    <svg class="person" viewBox="0 0 100 110"><circle cx="50" cy="34" r="20" fill="#3b3f4a"/><path d="M8 110c4-30 22-46 42-46s38 16 42 46z" fill="#2c303a"/></svg>
                     <p class="cap">The model is only <b>half</b> of the product</p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="wrap narr">
+          <div class="narr-head">
+            <span class="narr-kicker">Second tab</span>
+            <h3 class="narr-title" id="narr-title">Narrator. Stories in, parts out.</h3>
+            <p class="body">Narrator works the other way round: it starts from writing, not video. Sectra narrates a story with a local voice, puts a talking narrator over footage, and joins the same editor, export and poster as clips.</p>
+          </div>
+          <div class="narr-body">
+            <ol class="narr-steps">
+              {narrator.map((s) => (
+                <li>
+                  <h4>{s.t}</h4>
+                  <p>{s.p}</p>
+                  {s.tech && <span class="tech">{s.tech}</span>}
+                </li>
+              ))}
+            </ol>
+            <figure class="narr-fig">
+              <div class="phone phone-narr" aria-hidden="true">
+                <span class="ratio">Part 1</span>
+                <div class="game"></div>
+                <p class="cap">I never told anyone what I found in the <b>attic</b></p>
+                <svg class="stick" viewBox="0 0 80 120" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="40" cy="26" r="18" fill="#000" />
+                  <circle cx="33" cy="23" r="1.6" fill="#fff" stroke="none" />
+                  <circle cx="47" cy="23" r="1.6" fill="#fff" stroke="none" />
+                  <ellipse class="mouth" cx="40" cy="33" rx="4.5" ry="3.2" fill="#fff" stroke="none" />
+                  <path d="M40 44v38M40 56 24 72M40 56l16 14M40 82l-13 30M40 82l13 30" />
+                </svg>
+              </div>
+              <ul class="narr-parts">
+                {parts.map(([p, d]) => <li><b>{p}</b><span>{d}</span></li>)}
+              </ul>
+              <figcaption class="narr-note">Illustration. Each part stays under X's 2:20 limit.</figcaption>
+            </figure>
           </div>
         </div>
 
@@ -335,8 +389,8 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
       <section class="section" id="focus" aria-labelledby="focus-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 class="h2" id="focus-title">AI <span class="x">×</span> product research.</h2>
-            <p class="sub">The questions I work on: how to make AI cheap, reliable and useful enough to ship.</p>
+            <h2 class="h2" id="focus-title">AI <span class="x">×</span> <span class="hook">product</span> research.</h2>
+            <p class="sub">The questions I work on: where AI belongs in a product, and how to make it cheap and reliable enough to ship.</p>
           </div>
           <ul class="focus">
             {focus.map(([t, p]) => (
@@ -350,7 +404,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
       <section class="section panel" id="agent" data-tone="accent" aria-labelledby="agent-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 class="h2" id="agent-title">An agent that asks before it acts.</h2>
+            <h2 class="h2" id="agent-title">An agent that <span class="hook">asks</span> before it acts.</h2>
             <p class="sub">My open-source marketing agent turns one prompt into a full campaign, and stops twice for your say.</p>
           </div>
           <figure class="graph-wrap">
@@ -440,7 +494,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
       <section class="section" id="work" aria-labelledby="work-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 class="h2" id="work-title">More things I've built.</h2>
+            <h2 class="h2" id="work-title">More things I've <span class="hook">built</span>.</h2>
           </div>
           <ul class="work">
             {work.map((w) => (
@@ -474,7 +528,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
       <section class="section panel" id="research" data-tone="accent" aria-labelledby="research-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 class="h2" id="research-title">Published research.</h2>
+            <h2 class="h2" id="research-title"><span class="hook">Published</span> research.</h2>
           </div>
           <div class="paper">
             <div>
@@ -497,7 +551,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
       <section class="section" id="about" aria-labelledby="skills-title">
         <div class="wrap">
           <div class="section-head">
-            <h2 class="h2" id="skills-title">Tech specs.</h2>
+            <h2 class="h2" id="skills-title">Tech <span class="hook">specs</span>.</h2>
           </div>
           <dl class="skills">
             {skills.map(([k, v]) => (
@@ -506,7 +560,7 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
           </dl>
 
           <div class="section-head" style="margin-top: clamp(6rem, 14vh, 9rem)">
-            <h2 class="h2" id="path-title">The path so far.</h2>
+            <h2 class="h2" id="path-title">The path <span class="hook">so far</span>.</h2>
           </div>
           <ol class="timeline" aria-labelledby="path-title">
             {timeline.map((e) => (
@@ -564,6 +618,35 @@ const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d=
         document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', next === 'dark' ? '#131316' : '#ffffff'));
         label();
       });
+
+      // Nav: scroll progress line, and a dark skin while it sits over the Sectra chapter
+      const nav = document.querySelector<HTMLElement>('.nav');
+      const sectraEl = document.querySelector<HTMLElement>('.sectra');
+      let navTick = false;
+      const syncNav = () => {
+        navTick = false;
+        if (!nav) return;
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        nav.style.setProperty('--p', String(max > 0 ? Math.min(1, window.scrollY / max) : 0));
+        if (sectraEl) {
+          const b = sectraEl.getBoundingClientRect();
+          const h = nav.offsetHeight;
+          nav.classList.toggle('on-stage', b.top <= h && b.bottom > h);
+        }
+      };
+      syncNav();
+      const onNavScroll = () => { if (!navTick) { navTick = true; requestAnimationFrame(syncNav); } };
+      window.addEventListener('scroll', onNavScroll, { passive: true });
+      window.addEventListener('resize', onNavScroll);
+
+      // Headline hook words: draw the highlighter stroke when the heading comes into view
+      const hooks = document.querySelectorAll<HTMLElement>('.hook');
+      if ('IntersectionObserver' in window) {
+        const hio = new IntersectionObserver((entries) => {
+          entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); hio.unobserve(e.target); } });
+        }, { rootMargin: '0px 0px -20% 0px' });
+        hooks.forEach((h) => hio.observe(h));
+      } else hooks.forEach((h) => h.classList.add('in'));
 
       // Next-section / back-to-top button
       const jump = document.querySelector<HTMLButtonElement>('[data-jump]');
