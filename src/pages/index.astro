@@ -1,27 +1,8 @@
 ---
-import '../styles/global.css';
-import Loader from '../components/Loader.astro';
-
-const EMAIL = 'abiralbh.101@gmail.com';
-const CV = '/abiral-bhattarai-cv.pdf';
-const GITHUB = 'https://github.com/abiralbhattarai';
-const LINKEDIN = 'https://www.linkedin.com/in/abiral-bhattarai/';
-const SECTRA = 'https://github.com/AbiralBhattarai/sectra';
-const AGENT = 'https://github.com/AbiralBhattarai/marketing_agent';
-const PAPER = 'https://doi.org/10.3126/jacem.v11i1.84250';
-
-// Deterministic waveform: speech regions are loud and textured, gaps are low.
-function wave(n: number, speech: [number, number][], seed: number) {
-  let s = seed;
-  const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-  return Array.from({ length: n }, (_, i) => {
-    const inSpeech = speech.some(([a, b]) => i >= a && i <= b);
-    const base = inSpeech
-      ? 0.35 + 0.45 * Math.abs(Math.sin(i * 0.37)) * (0.6 + 0.4 * rnd()) + 0.2 * rnd()
-      : 0.05 + 0.08 * rnd();
-    return { h: Math.min(1, base), sp: inSpeech };
-  });
-}
+import Base from '../layouts/Base.astro';
+import SectraLoop from '../components/SectraLoop.astro';
+import Contact from '../components/Contact.astro';
+import { EMAIL, CV, GITHUB, LINKEDIN, SECTRA, AGENT, PAPER, wave, arrow, right, mailIcon, dlIcon } from '../lib/site';
 
 // Hero waveform
 const HN = 150;
@@ -36,51 +17,20 @@ const mClip: [number, number] = [20, 44];
 const mob = wave(MN, mSpeech, 7);
 const MW = 400, MH = 120, MBW = MW / MN;
 
-// Sectra stage waveform
-const SN = 90;
-const stSpeech: [number, number][] = [[4, 22], [30, 62], [70, 86]];
-const stClip: [number, number] = [30, 62];
-const st = wave(SN, stSpeech, 42);
-const SW = 600, SH = 190, SBW = SW / SN;
-
-const stWords = [
-  ['so', '00:41.8'], ['the', '00:42.0'], ['model', '00:42.2'], ['is', '00:42.7'],
-  ['only', '00:42.9'], ['half', '00:43.3'], ['of', '00:43.7'], ['the', '00:43.8'],
-  ['product', '00:44.0'], ['and', '00:44.9'], ['the', '00:45.1'], ['rest', '00:45.3'],
+// Sectra in four lines, beside the auto-playing card.
+const overview = [
+  ['Finds the moments.', 'Paste a link or drop a file. Sectra finds the speech, transcribes every word, and has an LLM pick the moments worth clipping.'],
+  ['Frames the speaker.', 'It tracks faces, follows whoever is talking, and burns in captions as vertical, square or wide MP4s.'],
+  ['Posts everywhere.', 'One click uploads a clip to YouTube, TikTok, Instagram, X and Facebook, from a browser on your machine.'],
+  ['Narrates stories, too.', 'Narrator turns written stories into narrated, captioned parts with a talking stick figure.'],
 ];
-const hlWords = new Set([1, 2, 3, 4, 5, 6, 7, 8]);
 
-const steps = [
-  { t: 'Paste a link.', p: 'Drop in a YouTube URL or a local file. Sectra pulls it in and caps it at 1080p.', tech: 'yt-dlp · ffmpeg' },
-  { t: 'Find the speech.', p: 'Voice activity detection marks where people talk, so only speech gets transcribed.', tech: 'Silero VAD' },
-  { t: 'Hear every word.', p: 'Speech becomes text with a timestamp on every single word.', tech: 'faster-whisper' },
-  { t: 'Pick the moments.', p: 'An LLM reads the transcript and proposes clips. Sectra snaps them to sentences and keeps them 15 to 60 seconds.', tech: 'Ollama, or any OpenAI-compatible or Anthropic API' },
-  { t: 'Follow the speaker.', p: 'Sectra finds every face, works out who is talking frame by frame, and cuts and crops the vertical frame to them. Two people talking? It switches between them.', tech: 'YuNet faces · Light-ASD speaker detection' },
-  { t: 'Edit and export.', p: 'Trim, crop, and restyle captions in the browser. Export a captioned MP4 in 9:16, 1:1 or 16:9.', tech: 'React editor · ffmpeg + libass' },
-  { t: 'Post everywhere.', p: 'One click on a clip, and a browser on your machine uploads it to YouTube, TikTok, Instagram, X and Facebook.', tech: 'Playwright poster' },
-];
-const platforms = ['YouTube', 'TikTok', 'Instagram', 'X', 'Facebook'];
-
-// Narrator: written story in, narrated parts out.
-const narrator = [
-  { t: 'Paste a story.', p: 'Up to 20,000 characters. An optional LLM pass rewrites it for narration and writes the title and caption.' },
-  { t: 'Give it a voice.', p: 'A local voice reads it aloud: ten US and UK voices, speed 0.7 to 1.5×.', tech: 'Kokoro TTS' },
-  { t: 'Add a narrator.', p: 'A stick figure talks over black or gameplay footage. Its mouth follows the words and its face follows the story.', tech: 'Rhubarb lip sync' },
-  { t: 'Cut it into parts.', p: 'Long stories split at pauses into Part 1, Part 2, …, each short enough for Shorts, Reels and X.' },
-];
-const parts = [['Part 1', '2:18'], ['Part 2', '2:11'], ['Part 3', '1:47']];
-const stageNames = ['Ingest', 'Speech', 'Transcribe', 'Clips', 'Track', 'Export', 'Post'];
-
-const sectraSpecs = [
-  ['Runs on', 'Your machine, in Docker'],
-  ['Language model', 'Local through Ollama, or a cloud API'],
-  ['Speech', 'Silero VAD, then faster-whisper or a cloud API'],
-  ['Face tracking', 'YuNet faces and Light-ASD active-speaker scores, on the CPU'],
-  ['Narration', 'Kokoro text-to-speech, lip-synced with Rhubarb'],
-  ['Output', '1080p H.264 MP4 with burned-in captions, plus SRT'],
-  ['Auto-post', 'YouTube, TikTok, Instagram, X and Facebook, through Playwright'],
-  ['Concurrency', 'An async worker on Redis Streams, with its own limit for downloads, ffmpeg, VAD, speech-to-text and LLM calls'],
-  ['License', 'MIT, open source'],
+// What the Sectra page covers beyond the clipping demo.
+const sectraMore = [
+  ['How clips are scored', 'Five qualities, fixed weights, then a ranking round.'],
+  ['Narrator', 'Written stories in, narrated parts out.'],
+  ['The editor', 'Trim, crop, captions, music, in the browser.'],
+  ['Run it yourself', 'Docker, one .env file, your own models.'],
 ];
 
 // Agent graph: a linear setup, then a ReAct loop (LLM <-> tools) that exits to the campaign.
@@ -158,810 +108,301 @@ const timeline = [
   { w: '2021 – 2025', t: 'B.E. Computer Engineering', o: 'Tribhuvan University', p: 'Final-year research on peptide binding affinity, published in JACEM.' },
 ];
 
-// Nav timeline: the whole page as one long waveform.
-const TLN = 220;
-const tlBars = wave(TLN, [[0, 219]], 11)
-  .map((b, i) => { const h = (1.5 + b.h * 6.5).toFixed(2); return `<rect x="${i + 0.18}" y="${(8 - +h).toFixed(2)}" width="0.64" height="${h}" />`; })
-  .join('');
-const navLinks = [
+const navLinks: [string, string, string][] = [
   ['Sectra', '#sectra', 'sectra'],
   ['Research', '#focus', 'focus'],
   ['Work', '#agent', 'agent work research'],
   ['About', '#about', 'about'],
   ['Contact', '#contact', 'contact'],
 ];
-const ghIcon = '<svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>';
-const inIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M5 7.25v4.25M8 11.5V7.25m0 2.25a2 2 0 0 1 4 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="5" cy="4.9" r="0.95" fill="currentColor"/></svg>';
-const arrow = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const right = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const mailIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="1.75" y="3.25" width="12.5" height="9.5" rx="1.75" stroke="currentColor" stroke-width="1.5"/><path d="m2.5 4.5 5.5 4.25 5.5-4.25" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-const dlIcon = '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 1.75h5.25L12.5 5v9.25H4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 1.75V5.25h3.5M6.25 8.5h4M6.25 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-
 ---
-<!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Abiral Bhattarai — AI × Product</title>
-    <meta name="description" content="Abiral Bhattarai is an AI/ML engineer in Kathmandu who turns models and agents into products people use." />
-    <meta name="theme-color" content="#ffffff" />
-    <meta property="og:title" content="Abiral Bhattarai — AI × Product" />
-    <meta property="og:description" content="AI/ML engineer in Kathmandu. I turn models and agents into products people use." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://abiralbhattarai.netlify.app/" />
-    <meta property="og:image" content="https://abiralbhattarai.netlify.app/og.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="canonical" href="https://abiralbhattarai.netlify.app/" />
-    <script type="application/ld+json" set:html={JSON.stringify({
-      '@context': 'https://schema.org', '@type': 'Person', name: 'Abiral Bhattarai',
-      jobTitle: 'AI/ML Engineer', url: 'https://abiralbhattarai.netlify.app/',
-      address: { '@type': 'PostalAddress', addressLocality: 'Kathmandu', addressCountry: 'NP' },
-      sameAs: [GITHUB, LINKEDIN],
-    })} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <script is:inline>
-      (function () {
-        var d = document.documentElement;
-        d.classList.remove('no-js');
-        d.classList.add('js');
-        var t = null;
-        try { t = localStorage.getItem('theme'); } catch (e) {}
-        var q = new URLSearchParams(location.search).get('theme');
-        if (q === 'light' || q === 'dark') t = q;
-        if (new URLSearchParams(location.search).has('still')) d.classList.add('still');
-        if (t !== 'light' && t !== 'dark') t = 'light';
-        d.setAttribute('data-theme', t);
-        var c = t === 'dark' ? '#131316' : '#ffffff';
-        document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) { m.setAttribute('content', c); m.removeAttribute('media'); });
-      })();
-    </script>
-  </head>
-  <body>
-    <Loader />
-    <a class="skip" href="#main">Skip to content</a>
+<Base
+  title="Abiral Bhattarai — AI × Product"
+  description="Abiral Bhattarai is an AI/ML engineer in Kathmandu who turns models and agents into products people use."
+  path="/"
+  links={navLinks}
+  loader
+>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org', '@type': 'Person', name: 'Abiral Bhattarai',
+    jobTitle: 'AI/ML Engineer', url: 'https://abiralbhattarai.netlify.app/',
+    address: { '@type': 'PostalAddress', addressLocality: 'Kathmandu', addressCountry: 'NP' },
+    sameAs: [GITHUB, LINKEDIN],
+  })} />
 
-    <header class="nav">
-      <div class="wrap nav-in">
-        <a class="brand" href="#top">
-          <svg class="brand-mark" viewBox="0 0 22 16" aria-hidden="true">
-            <rect x="0" y="6" width="3" height="4" rx="1.5" style="--k:0.9" />
-            <rect class="c" x="4.75" y="2" width="3" height="12" rx="1.5" style="--k:-0.4" />
-            <rect class="c" x="9.5" y="0" width="3" height="16" rx="1.5" style="--k:0.25" />
-            <rect class="c" x="14.25" y="3.5" width="3" height="9" rx="1.5" style="--k:-0.45" />
-            <rect x="19" y="6.5" width="3" height="3" rx="1.5" style="--k:1.1" />
-          </svg>
-          Abiral Bhattarai
-        </a>
-        <span class="nav-tc" aria-hidden="true">
-          <i class="tc-dot"></i><b class="tc-rec">REC</b><span class="tc-clip">CLIP 01</span><span class="tc-name">Intro</span><span class="tc-time">00:00</span>
-        </span>
-        <nav class="nav-links" aria-label="Sections">
-          <span class="nav-pill" aria-hidden="true"></span>
-          {navLinks.map(([label, href, ids]) => <a href={href} data-for={ids}>{label}</a>)}
-        </nav>
-        <div class="nav-ext">
-          <a href={GITHUB} target="_blank" rel="noopener" aria-label="GitHub"><Fragment set:html={ghIcon} /></a>
-          <a href={LINKEDIN} target="_blank" rel="noopener" aria-label="LinkedIn"><Fragment set:html={inIcon} /></a>
-        </div>
-        <a class="nav-cv" href={CV} target="_blank" rel="noopener">Resume</a>
-        <button class="theme" type="button" aria-label="Switch to dark mode" data-theme-toggle>
-          <svg class="sun" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="3.6" stroke="currentColor" stroke-width="1.6"/><path d="M10 1.8v2M10 16.2v2M1.8 10h2M16.2 10h2M4.2 4.2l1.4 1.4M14.4 14.4l1.4 1.4M4.2 15.8l1.4-1.4M14.4 5.6l1.4-1.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-          <svg class="moon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M16.5 12.3A7 7 0 0 1 7.7 3.5a7 7 0 1 0 8.8 8.8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-        </button>
-        <button class="nav-menu" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sheet" data-menu-open>
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 6.5h14M3 13.5h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        </button>
-        <div class="nav-tl" aria-hidden="true">
-          <svg class="tl-base" viewBox={`0 0 ${TLN} 8`} preserveAspectRatio="none"><Fragment set:html={tlBars} /></svg>
-          <svg class="tl-fill" viewBox={`0 0 ${TLN} 8`} preserveAspectRatio="none"><Fragment set:html={tlBars} /></svg>
-          <span class="tl-clip"></span>
+  <!-- Hero -->
+  <section class="hero" id="top" data-name="Intro">
+    <div class="wrap">
+      <h1 class="display hero-title">AI <span class="x" aria-hidden="true">×</span><span class="vh">and</span> Product.</h1>
+      <div class="hero-row">
+        <p class="lede">I'm <strong>Abiral Bhattarai</strong>, an AI/ML engineer in Kathmandu. I turn models and agents into products people use, like <a class="lede-link" href="/sectra">Sectra</a>.</p>
+        <div class="actions">
+          <a class="pill pill-solid" href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu"><Fragment set:html={mailIcon} />Email me</a>
+          <a class="pill pill-ink" href={CV} target="_blank" rel="noopener"><Fragment set:html={dlIcon} />View CV</a>
         </div>
       </div>
-    </header>
 
-    <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Menu" hidden>
-      <div class="sheet-top">
-        <a class="brand" href="#top" data-menu-link>Abiral Bhattarai</a>
-        <button class="theme" type="button" aria-label="Close menu" data-menu-close>
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 5l10 10M15 5 5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        </button>
+      <figure class="wave">
+        <svg class="w-lg" viewBox={`0 -64 ${HW} ${HH + 64}`} role="img" aria-label="Illustration: a speech waveform where Sectra highlights the words 'the model is only half of the product' and marks them as a clip.">
+          <rect class="bracket-fill" x={heroClip[0] * HBW - 4} y="-10" width={(heroClip[1] - heroClip[0] + 1) * HBW + 8} height={HH + 10} rx="10" />
+          <path class="bracket" d={`M${heroClip[0] * HBW - 4} ${HH} V-10 h10 M${heroClip[0] * HBW - 4} ${HH} h10 M${(heroClip[1] + 1) * HBW + 4} ${HH} V-10 h-10 M${(heroClip[1] + 1) * HBW + 4} ${HH} h-10`} />
+          <text class="tlabel" x={heroClip[0] * HBW + 10} y="-46">CLIP 01 · 00:42 – 01:18</text>
+          {heroWords.map((w, i) => {
+            const lens = heroWords.map((t) => t.length + 1.6);
+            const total = lens.reduce((a, c) => a + c, 0);
+            const startX = (heroClip[0] + 1.5) * HBW;
+            const width = (heroClip[1] - heroClip[0] - 1) * HBW;
+            const before = lens.slice(0, i).reduce((a, c) => a + c, 0);
+            const x = startX + (before / total) * width;
+            return <text class="word" style={`--w:${i}`} x={x} y="-20">{w}</text>;
+          })}
+          {hero.map((b, i) => {
+            const h = Math.max(4, b.h * (HH - 20));
+            const inClip = i >= heroClip[0] && i <= heroClip[1];
+            return <rect class={`bar${b.sp ? ' sp' : ''}${inClip ? ' clip' : ''}`} style={`--i:${i}`} x={i * HBW + 1.5} y={HH - h} width={HBW - 3} height={h} rx={(HBW - 3) / 2} />;
+          })}
+        </svg>
+        <svg class="w-sm" viewBox={`0 -40 ${MW} ${MH + 40}`} role="img" aria-label="Illustration: a speech waveform where Sectra marks one passage as a clip.">
+          <rect class="bracket-fill" x={mClip[0] * MBW - 3} y="-6" width={(mClip[1] - mClip[0] + 1) * MBW + 6} height={MH + 6} rx="8" />
+          <text class="tlabel" x={mClip[0] * MBW + 2} y="-16" style="font-size:13px">CLIP 01 · 00:42 – 01:18</text>
+          {mob.map((b, i) => {
+            const h = Math.max(3, b.h * (MH - 10));
+            const inClip = i >= mClip[0] && i <= mClip[1];
+            return <rect class={`bar${b.sp ? ' sp' : ''}${inClip ? ' clip' : ''}`} style={`--i:${i}`} x={i * MBW + 1} y={MH - h} width={MBW - 2} height={h} rx={(MBW - 2) / 2} />;
+          })}
+        </svg>
+        <figcaption>
+          <span>Sectra finding a clip in a talk. Illustration.</span>
+          <a href="#sectra">See how it works</a>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Sectra: the clipping demo, then a door to the full page -->
+  <section class="sectra" id="sectra" data-tone="stage" data-name="Sectra" aria-labelledby="sectra-title">
+    <div class="wrap">
+      <div class="sectra-head">
+        <h2 class="display sectra-title" id="sectra-title">Sectra<span>.</span></h2>
+        <p class="sub">Long videos in. Captioned clips out. Everything runs on your own machine.</p>
+        <div class="sectra-meta">
+          <a class="pill pill-signal" href="/sectra">The full story <Fragment set:html={right} /></a>
+          <a class="pill pill-line" href={SECTRA} target="_blank" rel="noopener">View on GitHub <Fragment set:html={arrow} /></a>
+          <span class="body">My open-source clipping and narration tool. Local LLM, local speech-to-text, local voices, no upload required.</span>
+        </div>
       </div>
-      <nav class="sheet-links" aria-label="Sections">
-        {navLinks.map(([label, href], i) => <a href={href} data-menu-link><span>{String(i + 1).padStart(2, '0')}</span>{label}</a>)}
-      </nav>
-      <div class="sheet-foot">
-        <div class="sheet-ext">
-          <a class="pill pill-ink" href={CV} target="_blank" rel="noopener">Resume</a>
-          <a href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu">Email</a>
-          <a href={GITHUB} target="_blank" rel="noopener">GitHub</a>
-          <a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a>
+
+      <div class="sectra-overview">
+        <div class="ov-text">
+          <ul class="ov-list">
+            {overview.map(([t, p]) => <li><h3>{t}</h3><p>{p}</p></li>)}
+          </ul>
+          <p class="ov-tech">yt-dlp · Silero VAD · faster-whisper · Ollama · YuNet · Light-ASD · ffmpeg · Playwright</p>
+        </div>
+        <SectraLoop />
+      </div>
+
+      <a class="sectra-door" href="/sectra" data-reveal>
+        <span class="door-title">There's more to Sectra<span class="door-dot">.</span></span>
+        <ul class="door-list">
+          {sectraMore.map(([t, p], i) => (
+            <li style={`--d:${i}`}><b>{t}</b><span>{p}</span></li>
+          ))}
+        </ul>
+        <span class="door-cta">Read the full story <span class="door-arrow"><Fragment set:html={right} /></span></span>
+      </a>
+    </div>
+  </section>
+
+  <!-- AI x product research -->
+  <section class="section" id="focus" data-name="Research" aria-labelledby="focus-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="focus-title">AI <span class="x">×</span> <span class="hook">product</span> research.</h2>
+        <p class="sub">The questions I work on: where AI belongs in a product, and how to make it cheap and reliable enough to ship.</p>
+      </div>
+      <ul class="focus">
+        {focus.map(([t, p]) => (
+          <li class="fr"><h3>{t}</h3><p>{p}</p></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Marketing agent -->
+  <section class="section band-ink" id="agent" data-tone="ink" data-name="Agent" aria-labelledby="agent-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="agent-title">An agent that <span class="hook">asks</span> before it acts.</h2>
+        <p class="sub">My open-source marketing agent turns one prompt into a full campaign, and stops twice for your say.</p>
+      </div>
+      <figure class="graph-wrap">
+        <svg class="graph g-lg" viewBox="0 -30 1200 720" role="img" aria-labelledby="g-desc">
+          <desc id="g-desc">The agent's graph. Your prompt leads to planning the steps, which you approve or reject to re-plan. It then finds competitors and you pick which sites to study. Next comes a loop: the LLM calls tools (web search, campaign history, parsing to JSON), reads the results, and repeats. When it is ready, it generates the campaign.</desc>
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+          </defs>
+          {setup.map((n, i) => {
+            const x = 30 + i * 240;
+            return (
+              <g class={`g-node ${n.k}`}>
+                <rect x={x} y="52" width="180" height="56" rx="28" />
+                <text x={x + 90} y="86">{n.t}</text>
+                {i < setup.length - 1 && <path class="g-edge" d={`M${x + 184} 80 H${x + 236}`} marker-end="url(#ah)" />}
+              </g>
+            );
+          })}
+          <path class="g-edge g-back" d="M600 50 C600 4, 360 4, 360 48" marker-end="url(#ah)" />
+          <text class="g-label" x="480" y="-12">reject: re-plan</text>
+
+          <path class="g-edge" d="M1080 110 V170 C1080 225, 690 200, 690 268" marker-end="url(#ah)" />
+
+          <circle class="g-ring" cx="690" cy="440" r="150" />
+          <text class="g-loop" x="690" y="440">ReAct loop</text>
+          <text class="g-label" x="690" y="468">repeats until the plan is complete</text>
+
+          <path class="g-edge g-cycle" d="M792 300 C940 330, 940 550, 792 580" marker-end="url(#ah)" />
+          <text class="g-label ta-s" x="950" y="445">calls a tool</text>
+          <path class="g-edge g-cycle" d="M588 580 C440 550, 440 330, 588 300" marker-end="url(#ah)" />
+          <text class="g-label ta-e" x="430" y="445">reads results</text>
+
+          <g class="g-node ai"><rect x="590" y="270" width="200" height="60" rx="30" /><text x="690" y="306">LLM</text></g>
+          <g class="g-node tool"><rect x="590" y="550" width="200" height="60" rx="30" /><text x="690" y="586">Tools</text></g>
+          {toolChips.map((c, i) => <text class="g-chip" x={530 + i * 160} y="650">{c}</text>)}
+
+          <path class="g-edge" d="M588 290 C400 290, 150 300, 150 402" marker-end="url(#ah)" />
+          <text class="g-label" x="330" y="280">when ready, generate</text>
+          <g class="g-node end"><rect x="50" y="406" width="200" height="60" rx="30" /><text x="150" y="442">Campaign</text></g>
+        </svg>
+        <svg class="graph g-sm" viewBox="0 0 400 1010" role="img" aria-label="The agent's graph: prompt, plan, your approval, competitors, your pick of sites, then a loop where the LLM calls tools and reads results until it generates the campaign.">
+          <defs>
+            <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+          </defs>
+          {setup.map((n, i) => {
+            const y = 20 + i * 92;
+            return (
+              <g class={`g-node ${n.k}`}>
+                <rect x="90" y={y} width="220" height="54" rx="27" />
+                <text x="200" y={y + 33}>{n.t}</text>
+                {i < setup.length - 1 && <path class="g-edge" d={`M200 ${y + 56} V${y + 90}`} marker-end="url(#ahm)" />}
+              </g>
+            );
+          })}
+          <path class="g-edge g-back" d="M88 230 C40 230, 40 139, 88 139" marker-end="url(#ahm)" />
+          <text class="g-label" x="24" y="185" transform="rotate(-90 24 185)">re-plan</text>
+
+          <path class="g-edge" d="M200 424 V474" marker-end="url(#ahm)" />
+          <circle class="g-ring" cx="200" cy="630" r="128" />
+          <path class="g-edge g-cycle" d="M290 500 C370 540, 370 720, 290 760" marker-end="url(#ahm)" />
+          <path class="g-edge g-cycle" d="M110 760 C30 720, 30 540, 110 500" marker-end="url(#ahm)" />
+          <text class="g-loop" x="200" y="625" style="font-size:24px">ReAct loop</text>
+          <text class="g-label" x="200" y="652">calls tools, reads results</text>
+          <g class="g-node ai"><rect x="110" y="476" width="180" height="54" rx="27" /><text x="200" y="509">LLM</text></g>
+          <g class="g-node tool"><rect x="110" y="732" width="180" height="54" rx="27" /><text x="200" y="765">Tools</text></g>
+          <text class="g-chip" x="200" y="816">Web search · History · JSON</text>
+
+          <path class="g-edge" d="M200 838 V918" marker-end="url(#ahm)" />
+          <text class="g-label ta-s" x="214" y="884">when ready</text>
+          <g class="g-node end"><rect x="100" y="922" width="200" height="56" rx="28" /><text x="200" y="956">Campaign</text></g>
+        </svg>
+      </figure>
+      <div class="flow-key" aria-hidden="true">
+        <span><i class="k-human"></i>A person decides</span>
+        <span><i class="k-ai"></i>The agent works</span>
+      </div>
+      <div class="agent-foot">
+        <ul class="tags">
+          <li>LangGraph</li><li>Pydantic</li><li>Tavily</li><li>BeautifulSoup</li><li>Asyncio</li>
+        </ul>
+        <a class="textlink" href={AGENT} target="_blank" rel="noopener">Read the code <Fragment set:html={arrow} /></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- More work -->
+  <section class="section" id="work" data-name="Work" aria-labelledby="work-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="work-title">More things I've <span class="hook">built</span>.</h2>
+      </div>
+      <ul class="work">
+        {work.map((w) => (
+          <li>
+            {w.href ? (
+              <a class="row" href={w.href} target="_blank" rel="noopener">
+                <h3>{w.t}</h3>
+                <div>
+                  <p>{w.p}</p>
+                  <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
+                </div>
+                <span class="arrow"><Fragment set:html={right} /><span class="vh">View {w.t} on GitHub</span></span>
+              </a>
+            ) : (
+              <div class="row row-static">
+                <h3>{w.t}</h3>
+                <div>
+                  <p>{w.p}</p>
+                  <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
+                </div>
+                <span class="where">{w.where}</span>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Research -->
+  <section class="section band-ink" id="research" data-tone="ink" data-name="Paper" aria-labelledby="research-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="research-title"><span class="hook">Published</span> research.</h2>
+      </div>
+      <div class="paper">
+        <div>
+          <p class="paper-title">Comparative Study of Deep Learning Models for MHC-II and Epitope Binding Affinity Prediction</p>
+          <p class="paper-meta">JACEM · 2025 · doi:10.3126/jacem.v11i1.84250</p>
+        </div>
+        <div class="paper-side">
+          <ul class="models"><li>LSTM</li><li>TCN</li><li>Transformer</li></ul>
+          <p class="body">Three architectures compared on regression and classification metrics, with an ensemble built for each architecture on each task.</p>
+          <div class="paper-links">
+            <a class="textlink" href={PAPER} target="_blank" rel="noopener">Read the paper <Fragment set:html={arrow} /></a>
+            <a class="textlink" href="https://github.com/AbiralBhattarai/Protein_Pep_Binding_Affinity_Pred" target="_blank" rel="noopener">See the code <Fragment set:html={arrow} /></a>
+          </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <div class="mailpick" id="mailpick" role="menu" aria-label="Email Abiral with" hidden>
-      <p class="mailpick-to">{EMAIL}</p>
-      <a role="menuitem" href={`https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}`} target="_blank" rel="noopener">Gmail</a>
-      <a role="menuitem" href={`https://outlook.live.com/mail/0/deeplink/compose?to=${EMAIL}`} target="_blank" rel="noopener">Outlook.com</a>
-      <a role="menuitem" href={`https://compose.mail.yahoo.com/?to=${EMAIL}`} target="_blank" rel="noopener">Yahoo Mail</a>
-      <a role="menuitem" href={`mailto:${EMAIL}`}>Your mail app</a>
-      <button role="menuitem" type="button" data-copy={EMAIL}>Copy address</button>
+  <!-- About: skills + timeline -->
+  <section class="section" id="about" data-name="About" aria-labelledby="skills-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="skills-title">Tech <span class="hook">specs</span>.</h2>
+      </div>
+      <dl class="skills">
+        {skills.map(([k, v]) => (
+          <div class="skill"><dt>{k}</dt><dd>{v.split(', ').map((x, i) => <Fragment>{i > 0 && <span class="sep" aria-hidden="true"> | </span>}<span class="tool">{x}</span>{i < v.split(', ').length - 1 && <span class="vh">, </span>}</Fragment>)}</dd></div>
+        ))}
+      </dl>
+
+      <div class="section-head" style="margin-top: clamp(6rem, 14vh, 9rem)">
+        <h2 class="h2" id="path-title">The path <span class="hook">so far</span>.</h2>
+      </div>
+      <ol class="timeline" aria-labelledby="path-title">
+        {timeline.map((e) => (
+          <li class="tl">
+            <span class="when">{e.w}</span>
+            <div><h3>{e.t}</h3><span class="org">{e.o}</span></div>
+            <p>{e.p}</p>
+          </li>
+        ))}
+      </ol>
+      <p class="certs"><b>Certifications:</b> Machine Learning Scientist in Python, Deep Learning with PyTorch, and Natural Language Processing in Python (DataCamp); Data Science Foundations (IBM).</p>
     </div>
+  </section>
 
-    <main id="main">
-      <!-- Hero -->
-      <section class="hero" id="top">
-        <div class="wrap">
-          <h1 class="display hero-title">AI <span class="x" aria-hidden="true">×</span><span class="vh">and</span> Product.</h1>
-          <div class="hero-row">
-            <p class="lede">I'm <strong>Abiral Bhattarai</strong>, an AI/ML engineer in Kathmandu. I turn models and agents into products people use, like Sectra.</p>
-            <div class="actions">
-              <a class="pill pill-solid" href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu"><Fragment set:html={mailIcon} />Email me</a>
-              <a class="pill pill-ink" href={CV} target="_blank" rel="noopener"><Fragment set:html={dlIcon} />View CV</a>
-            </div>
-          </div>
-
-          <figure class="wave">
-            <svg class="w-lg" viewBox={`0 -64 ${HW} ${HH + 64}`} role="img" aria-label="Illustration: a speech waveform where Sectra highlights the words 'the model is only half of the product' and marks them as a clip.">
-              <rect class="bracket-fill" x={heroClip[0] * HBW - 4} y="-10" width={(heroClip[1] - heroClip[0] + 1) * HBW + 8} height={HH + 10} rx="10" />
-              <path class="bracket" d={`M${heroClip[0] * HBW - 4} ${HH} V-10 h10 M${heroClip[0] * HBW - 4} ${HH} h10 M${(heroClip[1] + 1) * HBW + 4} ${HH} V-10 h-10 M${(heroClip[1] + 1) * HBW + 4} ${HH} h-10`} />
-              <text class="tlabel" x={heroClip[0] * HBW + 10} y="-46">CLIP 01 · 00:42 – 01:18</text>
-              {heroWords.map((w, i) => {
-                const lens = heroWords.map((t) => t.length + 1.6);
-                const total = lens.reduce((a, c) => a + c, 0);
-                const startX = (heroClip[0] + 1.5) * HBW;
-                const width = (heroClip[1] - heroClip[0] - 1) * HBW;
-                const before = lens.slice(0, i).reduce((a, c) => a + c, 0);
-                const x = startX + (before / total) * width;
-                return <text class="word" style={`--w:${i}`} x={x} y="-20">{w}</text>;
-              })}
-              {hero.map((b, i) => {
-                const h = Math.max(4, b.h * (HH - 20));
-                const inClip = i >= heroClip[0] && i <= heroClip[1];
-                return <rect class={`bar${b.sp ? ' sp' : ''}${inClip ? ' clip' : ''}`} style={`--i:${i}`} x={i * HBW + 1.5} y={HH - h} width={HBW - 3} height={h} rx={(HBW - 3) / 2} />;
-              })}
-            </svg>
-            <svg class="w-sm" viewBox={`0 -40 ${MW} ${MH + 40}`} role="img" aria-label="Illustration: a speech waveform where Sectra marks one passage as a clip.">
-              <rect class="bracket-fill" x={mClip[0] * MBW - 3} y="-6" width={(mClip[1] - mClip[0] + 1) * MBW + 6} height={MH + 6} rx="8" />
-              <text class="tlabel" x={mClip[0] * MBW + 2} y="-16" style="font-size:13px">CLIP 01 · 00:42 – 01:18</text>
-              {mob.map((b, i) => {
-                const h = Math.max(3, b.h * (MH - 10));
-                const inClip = i >= mClip[0] && i <= mClip[1];
-                return <rect class={`bar${b.sp ? ' sp' : ''}${inClip ? ' clip' : ''}`} style={`--i:${i}`} x={i * MBW + 1} y={MH - h} width={MBW - 2} height={h} rx={(MBW - 2) / 2} />;
-              })}
-            </svg>
-            <figcaption>
-              <span>Sectra finding a clip in a talk. Illustration.</span>
-              <a href="#sectra">See how it works</a>
-            </figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <!-- Sectra -->
-      <section class="sectra" id="sectra" data-tone="stage" aria-labelledby="sectra-title">
-        <div class="wrap">
-          <div class="sectra-head">
-            <h2 class="display sectra-title" id="sectra-title">Sectra<span>.</span></h2>
-            <p class="sub">Long videos in. Captioned clips out. Everything runs on your own machine.</p>
-            <div class="sectra-meta">
-              <a class="pill pill-line" href={SECTRA} target="_blank" rel="noopener">View on GitHub <Fragment set:html={arrow} /></a>
-              <span class="body">My open-source clipping and narration tool. Local LLM, local speech-to-text, local voices, no upload required.</span>
-            </div>
-          </div>
-
-          <div class="scrolly">
-            <ol class="steps">
-              {steps.map((s, i) => (
-                <li class="step" data-step={i + 1}>
-                  <h3>{s.t}</h3>
-                  <p>{s.p}</p>
-                  <span class="tech">{s.tech}</span>
-                </li>
-              ))}
-            </ol>
-
-            <div class="stage-wrap">
-              <div class="stage" data-step="7" aria-hidden="true">
-                <div class="st-bar">
-                  <span class="url">youtube.com/watch?v=… · 58:12 talk</span>
-                  <span class="go">Find clips</span>
-                </div>
-                <ul class="st-stages">
-                  {stageNames.map((n) => <li>{n}</li>)}
-                </ul>
-                <div class="st-body">
-                  <div class="st-main">
-                    <div class="st-wave">
-                      <svg viewBox={`0 -26 ${SW} ${SH + 26}`}>
-                        <rect class="clipbox" x={stClip[0] * SBW - 3} y="-6" width={(stClip[1] - stClip[0] + 1) * SBW + 6} height={SH + 6} rx="8" />
-                        <text class="cliplabel" x={stClip[0] * SBW + 4} y="-12">CLIP 01 · 36s</text>
-                        {st.map((b, i) => {
-                          const h = Math.max(3, b.h * (SH - 12));
-                          const inClip = i >= stClip[0] && i <= stClip[1];
-                          return <rect class={`bar${b.sp ? ' sp' : ''}${inClip ? ' cl' : ''}`} x={i * SBW + 1} y={SH - h} width={SBW - 2} height={h} rx={(SBW - 2) / 2} />;
-                        })}
-                      </svg>
-                    </div>
-                    <div class="st-words">
-                      {stWords.map(([w, ts], i) => (
-                        <span class={hlWords.has(i) ? 'hl' : ''} style={`--w:${i}`}>{w}<small>{ts}</small></span>
-                      ))}
-                    </div>
-                    <ul class="st-post">
-                      {platforms.map((n) => <li><span class="dot"></span>{n}</li>)}
-                    </ul>
-                    <p class="st-note">Illustration with sample data.</p>
-                  </div>
-                  <div class="phone">
-                    <img class="shot" src="/images/sectra-clip-wide.webp" width="960" height="641" alt="" loading="lazy" decoding="async" />
-                    <span class="facebox"><span>SPEAKER · 0.94</span></span>
-                    <span class="ratio">9:16</span>
-                    <p class="cap">The model is only <b>half</b> of the product</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="wrap narr">
-          <div class="narr-head">
-            <h3 class="narr-title" id="narr-title">Narrator. Stories in, parts out.</h3>
-            <p class="body">Narrator works the other way round: it starts from writing, not video. Sectra narrates a story with a local voice, puts a talking narrator over footage, and joins the same editor, export and poster as clips.</p>
-          </div>
-          <div class="narr-body">
-            <ol class="narr-steps">
-              {narrator.map((s) => (
-                <li>
-                  <h4>{s.t}</h4>
-                  <p>{s.p}</p>
-                  {s.tech && <span class="tech">{s.tech}</span>}
-                </li>
-              ))}
-            </ol>
-            <figure class="narr-fig">
-              <div class="phone phone-narr" aria-hidden="true">
-                <span class="ratio">Part 1</span>
-                <div class="game"></div>
-                <p class="cap">I never told anyone what I found in the <b>attic</b></p>
-                <svg class="stick" viewBox="0 0 80 120" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="40" cy="26" r="18" fill="#000" />
-                  <circle cx="33" cy="23" r="1.6" fill="#fff" stroke="none" />
-                  <circle cx="47" cy="23" r="1.6" fill="#fff" stroke="none" />
-                  <ellipse class="mouth" cx="40" cy="33" rx="4.5" ry="3.2" fill="#fff" stroke="none" />
-                  <path d="M40 44v38M40 56 24 72M40 56l16 14M40 82l-13 30M40 82l13 30" />
-                </svg>
-              </div>
-              <ul class="narr-parts">
-                {parts.map(([p, d]) => <li><b>{p}</b><span>{d}</span></li>)}
-              </ul>
-              <figcaption class="narr-note">Illustration. Each part stays under X's 2:20 limit.</figcaption>
-            </figure>
-          </div>
-        </div>
-
-        <div class="wrap specs">
-          <h3>Sectra at a glance.</h3>
-          <dl class="spec-grid">
-            {sectraSpecs.map(([k, v]) => (
-              <div><dt>{k}</dt><dd>{v}</dd></div>
-            ))}
-          </dl>
-        </div>
-      </section>
-
-      <!-- AI x product research -->
-      <section class="section" id="focus" aria-labelledby="focus-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 class="h2" id="focus-title">AI <span class="x">×</span> <span class="hook">product</span> research.</h2>
-            <p class="sub">The questions I work on: where AI belongs in a product, and how to make it cheap and reliable enough to ship.</p>
-          </div>
-          <ul class="focus">
-            {focus.map(([t, p]) => (
-              <li class="fr"><h3>{t}</h3><p>{p}</p></li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <!-- Marketing agent -->
-      <section class="section panel" id="agent" data-tone="accent" aria-labelledby="agent-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 class="h2" id="agent-title">An agent that <span class="hook">asks</span> before it acts.</h2>
-            <p class="sub">My open-source marketing agent turns one prompt into a full campaign, and stops twice for your say.</p>
-          </div>
-          <figure class="graph-wrap">
-            <svg class="graph g-lg" viewBox="0 -30 1200 720" role="img" aria-labelledby="g-desc">
-              <desc id="g-desc">The agent's graph. Your prompt leads to planning the steps, which you approve or reject to re-plan. It then finds competitors and you pick which sites to study. Next comes a loop: the LLM calls tools (web search, campaign history, parsing to JSON), reads the results, and repeats. When it is ready, it generates the campaign.</desc>
-              <defs>
-                <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
-              </defs>
-              {setup.map((n, i) => {
-                const x = 30 + i * 240;
-                return (
-                  <g class={`g-node ${n.k}`}>
-                    <rect x={x} y="52" width="180" height="56" rx="28" />
-                    <text x={x + 90} y="86">{n.t}</text>
-                    {i < setup.length - 1 && <path class="g-edge" d={`M${x + 184} 80 H${x + 236}`} marker-end="url(#ah)" />}
-                  </g>
-                );
-              })}
-              <path class="g-edge g-back" d="M600 50 C600 4, 360 4, 360 48" marker-end="url(#ah)" />
-              <text class="g-label" x="480" y="-12">reject: re-plan</text>
-
-              <path class="g-edge" d="M1080 110 V170 C1080 225, 690 200, 690 268" marker-end="url(#ah)" />
-
-              <circle class="g-ring" cx="690" cy="440" r="150" />
-              <text class="g-loop" x="690" y="440">ReAct loop</text>
-              <text class="g-label" x="690" y="468">repeats until the plan is complete</text>
-
-              <path class="g-edge g-cycle" d="M792 300 C940 330, 940 550, 792 580" marker-end="url(#ah)" />
-              <text class="g-label ta-s" x="950" y="445">calls a tool</text>
-              <path class="g-edge g-cycle" d="M588 580 C440 550, 440 330, 588 300" marker-end="url(#ah)" />
-              <text class="g-label ta-e" x="430" y="445">reads results</text>
-
-              <g class="g-node ai"><rect x="590" y="270" width="200" height="60" rx="30" /><text x="690" y="306">LLM</text></g>
-              <g class="g-node tool"><rect x="590" y="550" width="200" height="60" rx="30" /><text x="690" y="586">Tools</text></g>
-              {toolChips.map((c, i) => <text class="g-chip" x={530 + i * 160} y="650">{c}</text>)}
-
-              <path class="g-edge" d="M588 290 C400 290, 150 300, 150 402" marker-end="url(#ah)" />
-              <text class="g-label" x="330" y="280">when ready, generate</text>
-              <g class="g-node end"><rect x="50" y="406" width="200" height="60" rx="30" /><text x="150" y="442">Campaign</text></g>
-            </svg>
-            <svg class="graph g-sm" viewBox="0 0 400 1010" role="img" aria-label="The agent's graph: prompt, plan, your approval, competitors, your pick of sites, then a loop where the LLM calls tools and reads results until it generates the campaign.">
-              <defs>
-                <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
-              </defs>
-              {setup.map((n, i) => {
-                const y = 20 + i * 92;
-                return (
-                  <g class={`g-node ${n.k}`}>
-                    <rect x="90" y={y} width="220" height="54" rx="27" />
-                    <text x="200" y={y + 33}>{n.t}</text>
-                    {i < setup.length - 1 && <path class="g-edge" d={`M200 ${y + 56} V${y + 90}`} marker-end="url(#ahm)" />}
-                  </g>
-                );
-              })}
-              <path class="g-edge g-back" d="M88 230 C40 230, 40 139, 88 139" marker-end="url(#ahm)" />
-              <text class="g-label" x="24" y="185" transform="rotate(-90 24 185)">re-plan</text>
-
-              <path class="g-edge" d="M200 424 V474" marker-end="url(#ahm)" />
-              <circle class="g-ring" cx="200" cy="630" r="128" />
-              <path class="g-edge g-cycle" d="M290 500 C370 540, 370 720, 290 760" marker-end="url(#ahm)" />
-              <path class="g-edge g-cycle" d="M110 760 C30 720, 30 540, 110 500" marker-end="url(#ahm)" />
-              <text class="g-loop" x="200" y="625" style="font-size:24px">ReAct loop</text>
-              <text class="g-label" x="200" y="652">calls tools, reads results</text>
-              <g class="g-node ai"><rect x="110" y="476" width="180" height="54" rx="27" /><text x="200" y="509">LLM</text></g>
-              <g class="g-node tool"><rect x="110" y="732" width="180" height="54" rx="27" /><text x="200" y="765">Tools</text></g>
-              <text class="g-chip" x="200" y="816">Web search · History · JSON</text>
-
-              <path class="g-edge" d="M200 838 V918" marker-end="url(#ahm)" />
-              <text class="g-label ta-s" x="214" y="884">when ready</text>
-              <g class="g-node end"><rect x="100" y="922" width="200" height="56" rx="28" /><text x="200" y="956">Campaign</text></g>
-            </svg>
-          </figure>
-          <div class="flow-key" aria-hidden="true">
-            <span><i style="background: var(--accent)"></i>A person decides</span>
-            <span><i style="border: 2px solid var(--ink)"></i>The agent works</span>
-          </div>
-          <div class="agent-foot">
-            <ul class="tags">
-              <li>LangGraph</li><li>Pydantic</li><li>Tavily</li><li>BeautifulSoup</li><li>Asyncio</li>
-            </ul>
-            <a class="textlink" href={AGENT} target="_blank" rel="noopener">Read the code <Fragment set:html={arrow} /></a>
-          </div>
-        </div>
-      </section>
-
-      <!-- More work -->
-      <section class="section" id="work" aria-labelledby="work-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 class="h2" id="work-title">More things I've <span class="hook">built</span>.</h2>
-          </div>
-          <ul class="work">
-            {work.map((w) => (
-              <li>
-                {w.href ? (
-                  <a class="row" href={w.href} target="_blank" rel="noopener">
-                    <h3>{w.t}</h3>
-                    <div>
-                      <p>{w.p}</p>
-                      <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
-                    </div>
-                    <span class="arrow"><Fragment set:html={right} /><span class="vh">View {w.t} on GitHub</span></span>
-                  </a>
-                ) : (
-                  <div class="row row-static">
-                    <h3>{w.t}</h3>
-                    <div>
-                      <p>{w.p}</p>
-                      <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
-                    </div>
-                    <span class="where">{w.where}</span>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      <!-- Research -->
-      <section class="section panel" id="research" data-tone="accent" aria-labelledby="research-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 class="h2" id="research-title"><span class="hook">Published</span> research.</h2>
-          </div>
-          <div class="paper">
-            <div>
-              <p class="paper-title">Comparative Study of Deep Learning Models for MHC-II and Epitope Binding Affinity Prediction</p>
-              <p class="paper-meta">JACEM · 2025 · doi:10.3126/jacem.v11i1.84250</p>
-            </div>
-            <div class="paper-side">
-              <ul class="models"><li>LSTM</li><li>TCN</li><li>Transformer</li></ul>
-              <p class="body">Three architectures compared on regression and classification metrics, with an ensemble built for each architecture on each task.</p>
-              <div class="paper-links">
-                <a class="textlink" href={PAPER} target="_blank" rel="noopener">Read the paper <Fragment set:html={arrow} /></a>
-                <a class="textlink" href="https://github.com/AbiralBhattarai/Protein_Pep_Binding_Affinity_Pred" target="_blank" rel="noopener">See the code <Fragment set:html={arrow} /></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- About: skills + timeline -->
-      <section class="section" id="about" aria-labelledby="skills-title">
-        <div class="wrap">
-          <div class="section-head">
-            <h2 class="h2" id="skills-title">Tech <span class="hook">specs</span>.</h2>
-          </div>
-          <dl class="skills">
-            {skills.map(([k, v]) => (
-              <div class="skill"><dt>{k}</dt><dd>{v.split(', ').map((x, i) => <Fragment>{i > 0 && <span class="sep" aria-hidden="true"> | </span>}<span class="tool">{x}</span>{i < v.split(', ').length - 1 && <span class="vh">, </span>}</Fragment>)}</dd></div>
-            ))}
-          </dl>
-
-          <div class="section-head" style="margin-top: clamp(6rem, 14vh, 9rem)">
-            <h2 class="h2" id="path-title">The path <span class="hook">so far</span>.</h2>
-          </div>
-          <ol class="timeline" aria-labelledby="path-title">
-            {timeline.map((e) => (
-              <li class="tl">
-                <span class="when">{e.w}</span>
-                <div><h3>{e.t}</h3><span class="org">{e.o}</span></div>
-                <p>{e.p}</p>
-              </li>
-            ))}
-          </ol>
-          <p class="certs"><b>Certifications:</b> Machine Learning Scientist in Python, Deep Learning with PyTorch, and Natural Language Processing in Python (DataCamp); Data Science Foundations (IBM).</p>
-        </div>
-      </section>
-
-      <!-- Contact -->
-      <section class="contact" id="contact" data-tone="invert" aria-labelledby="contact-title">
-        <div class="wrap">
-          <h2 class="display contact-title" id="contact-title">Let's build the next one.</h2>
-          <p class="lede">Always up for talking AI, agents, open source and product. Say hi. Based in Kathmandu, Nepal.</p>
-          <a class="mail" href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu">{EMAIL}</a>
-          <div class="actions">
-            <a class="pill pill-ink" href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu"><Fragment set:html={mailIcon} />Email me</a>
-            <a class="pill pill-dark" href={CV} target="_blank" rel="noopener"><Fragment set:html={dlIcon} />View CV</a>
-          </div>
-          <footer class="foot">
-            <span>© 2026 Abiral Bhattarai · Kathmandu, Nepal</span>
-            <ul>
-              <li><a href={GITHUB} target="_blank" rel="noopener">GitHub</a></li>
-              <li><a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a></li>
-              <li><a href={CV} target="_blank" rel="noopener">CV</a></li>
-            </ul>
-          </footer>
-        </div>
-      </section>
-    </main>
-
-    <button class="jump" type="button" data-jump aria-label="Go to next section">
-      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3.5v13M4.5 11 10 16.5 15.5 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-
-    <script>
-      // Theme toggle
-      const root = document.documentElement;
-      const btn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-      const label = () => {
-        if (!btn) return;
-        const dark = root.getAttribute('data-theme') === 'dark';
-        btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-      };
-      label();
-      btn?.addEventListener('click', () => {
-        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        root.setAttribute('data-theme', next);
-        try { localStorage.setItem('theme', next); } catch (e) {}
-        document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute('content', next === 'dark' ? '#131316' : '#ffffff'));
-        label();
-      });
-
-      // Nav: timeline progress, timecode, current-section pill, section skins,
-      // a floating pill once past the hero, and a logo that bounces with scroll speed.
-      const nav = document.querySelector<HTMLElement>('.nav');
-      const navAnchors = Array.from(document.querySelectorAll<HTMLAnchorElement>('.nav-links a'));
-      const pill = document.querySelector<HTMLElement>('.nav-pill');
-      const tlClip = document.querySelector<HTMLElement>('.tl-clip');
-      const tcClip = document.querySelector<HTMLElement>('.tc-clip');
-      const tcName = document.querySelector<HTMLElement>('.tc-name');
-      const tcTime = document.querySelector<HTMLElement>('.tc-time');
-      const mark = document.querySelector<SVGElement>('.nav .brand-mark');
-      const heroEl = document.querySelector<HTMLElement>('.hero');
-      const allSections = Array.from(document.querySelectorAll<HTMLElement>('main > section'));
-      const names: Record<string, string> = { top: 'Intro', sectra: 'Sectra', focus: 'Research', agent: 'Agent', work: 'Work', research: 'Paper', about: 'About', contact: 'Contact' };
-      const still = root.classList.contains('still');
-      const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let navTick = false;
-      let lastPill: HTMLAnchorElement | null | undefined = null;
-      pill?.addEventListener('animationend', () => pill.classList.remove('move-r', 'move-l'));
-      const placePill = (a: HTMLAnchorElement | undefined, force = false) => {
-        if (!pill || (!force && a === lastPill)) return;
-        lastPill = a;
-        if (!a) { pill.style.opacity = '0'; return; }
-        const from = parseFloat(pill.dataset.x || 'NaN');
-        pill.style.opacity = '1';
-        // Span the word itself, not the link's side padding.
-        const inset = parseFloat(getComputedStyle(a).paddingLeft) || 0;
-        pill.style.width = Math.max(0, a.offsetWidth - inset * 2) + 'px';
-        pill.style.transform = `translateX(${a.offsetLeft + inset}px)`;
-        pill.dataset.x = String(a.offsetLeft);
-        // Roll the wave only while it travels between links (not on first show or resize).
-        if (!force && !Number.isNaN(from) && from !== a.offsetLeft) {
-          pill.classList.remove('move-r', 'move-l');
-          void pill.offsetWidth;
-          pill.classList.add(a.offsetLeft > from ? 'move-r' : 'move-l');
-        }
-      };
-      let activeLink: HTMLAnchorElement | undefined;
-      const syncNav = () => {
-        navTick = false;
-        if (!nav) return;
-        const docH = document.documentElement.scrollHeight;
-        const max = docH - window.innerHeight;
-        const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-        nav.style.setProperty('--p', p.toFixed(4));
-        const h = nav.offsetHeight;
-        // Skin by what sits under the bar itself (its middle, since the floating pill is shorter).
-        const r = nav.querySelector<HTMLElement>('.nav-in')?.getBoundingClientRect();
-        const mid = r ? r.top + r.height / 2 : h / 2;
-        const under = allSections.find((el) => { const b = el.getBoundingClientRect(); return b.top <= mid && b.bottom > mid; });
-        nav.classList.toggle('on-stage', under?.dataset.tone === 'stage');
-        nav.classList.toggle('on-accent', under?.dataset.tone === 'invert');
-        if (heroEl) nav.classList.toggle('float', heroEl.getBoundingClientRect().bottom < h);
-        // The current section is the one crossing 40% of the screen (or the last one at the bottom).
-        const probe = window.innerHeight * 0.4;
-        const atEnd = window.innerHeight + window.scrollY >= docH - 8;
-        const current = atEnd ? allSections[allSections.length - 1] : allSections.find((el) => { const b = el.getBoundingClientRect(); return b.top <= probe && b.bottom > probe; });
-        activeLink = undefined;
-        navAnchors.forEach((a) => {
-          const on = !!current && (a.dataset.for || '').split(' ').includes(current.id);
-          a.classList.toggle('on', on);
-          if (on) { a.setAttribute('aria-current', 'location'); activeLink = a; } else a.removeAttribute('aria-current');
-        });
-        placePill(activeLink);
-        if (current) {
-          const idx = allSections.indexOf(current);
-          if (tcClip) tcClip.textContent = 'CLIP ' + String(idx + 1).padStart(2, '0');
-          if (tcName) tcName.textContent = names[current.id] || '';
-          if (tlClip) {
-            const top = current.offsetTop / docH, len = current.offsetHeight / docH;
-            tlClip.style.left = (top * 100).toFixed(2) + '%';
-            tlClip.style.width = (len * 100).toFixed(2) + '%';
-          }
-        }
-        // Scroll position as a running time: one second per 40 px.
-        const sec = Math.round(window.scrollY / 40);
-        if (tcTime) tcTime.textContent = String(Math.floor(sec / 60)).padStart(2, '0') + ':' + String(sec % 60).padStart(2, '0');
-      };
-      // Logo equalizer: bars stretch with scroll speed, then settle.
-      let lastY = window.scrollY, lastT = performance.now(), target = 0, level = 0, eqRun = false;
-      const eq = () => {
-        level += (target - level) * 0.2;
-        target *= 0.86;
-        mark?.style.setProperty('--v', level.toFixed(3));
-        if (level > 0.004 || target > 0.004) requestAnimationFrame(eq);
-        else { eqRun = false; mark?.style.setProperty('--v', '0'); }
-      };
-      const onNavScroll = () => {
-        if (!calm && !still) {
-          const now = performance.now(), dt = Math.max(1, now - lastT);
-          target = Math.min(1, Math.max(target, Math.abs(window.scrollY - lastY) / dt / 3));
-          lastY = window.scrollY; lastT = now;
-          if (!eqRun) { eqRun = true; requestAnimationFrame(eq); }
-        }
-        if (!navTick) { navTick = true; requestAnimationFrame(syncNav); }
-      };
-      syncNav();
-      window.addEventListener('scroll', onNavScroll, { passive: true });
-      window.addEventListener('resize', () => { syncNav(); placePill(activeLink, true); });
-      document.fonts?.ready.then(() => { syncNav(); placePill(activeLink, true); });
-
-      // Email chooser: mailto always opens the system's default app (often Outlook), so
-      // offer webmail compose links and a copy button instead. Without JS, mailto still works.
-      const pick = document.querySelector<HTMLElement>('#mailpick');
-      let pickFrom: HTMLElement | null = null;
-      const closePick = (restore = false) => {
-        if (!pick || pick.hidden) return;
-        pick.hidden = true;
-        pickFrom?.setAttribute('aria-expanded', 'false');
-        if (restore) pickFrom?.focus();
-      };
-      const openPick = (from: HTMLElement) => {
-        if (!pick) return;
-        pickFrom = from;
-        pick.hidden = false;
-        const r = from.getBoundingClientRect();
-        const w = pick.offsetWidth, h = pick.offsetHeight, gap = 8;
-        const left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8);
-        const below = r.bottom + gap + h <= window.innerHeight;
-        pick.style.left = left + 'px';
-        pick.style.top = (below ? r.bottom + gap : Math.max(8, r.top - gap - h)) + 'px';
-        from.setAttribute('aria-expanded', 'true');
-        pick.querySelector<HTMLElement>('[role="menuitem"]')?.focus();
-      };
-      document.querySelectorAll<HTMLAnchorElement>('[data-mail]').forEach((a) => {
-        a.setAttribute('aria-expanded', 'false');
-        a.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          if (sheet && !sheet.hidden) closeMenu(false);
-          if (pick && !pick.hidden && pickFrom === a) closePick();
-          else openPick(a);
-        });
-      });
-      pick?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => closePick()));
-      pick?.querySelector<HTMLButtonElement>('[data-copy]')?.addEventListener('click', async (e) => {
-        const b = e.currentTarget as HTMLButtonElement;
-        try { await navigator.clipboard.writeText(b.dataset.copy || ''); b.textContent = 'Copied ✓'; }
-        catch { b.textContent = 'Copy failed'; }
-        setTimeout(() => { b.textContent = 'Copy address'; closePick(true); }, 900);
-      });
-      document.addEventListener('click', (e) => { if (pick && !pick.hidden && !pick.contains(e.target as Node)) closePick(); });
-      document.addEventListener('keydown', (e) => {
-        if (!pick || pick.hidden) return;
-        if (e.key === 'Escape') { closePick(true); return; }
-        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-          e.preventDefault();
-          const items = Array.from(pick.querySelectorAll<HTMLElement>('[role="menuitem"]'));
-          const i = items.indexOf(document.activeElement as HTMLElement);
-          items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus();
-        }
-        if (e.key === 'Tab') closePick();
-      });
-      window.addEventListener('scroll', () => closePick(), { passive: true });
-      window.addEventListener('resize', () => closePick());
-
-      // Mobile menu sheet
-      const sheet = document.querySelector<HTMLElement>('#sheet');
-      const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
-      const openMenu = () => {
-        if (!sheet || !menuBtn) return;
-        sheet.hidden = false;
-        requestAnimationFrame(() => sheet.classList.add('open'));
-        menuBtn.setAttribute('aria-expanded', 'true');
-        root.classList.add('menu-open');
-        sheet.querySelector<HTMLElement>('[data-menu-close]')?.focus();
-      };
-      const closeMenu = (restore = true) => {
-        if (!sheet || !menuBtn || sheet.hidden) return;
-        sheet.classList.remove('open');
-        menuBtn.setAttribute('aria-expanded', 'false');
-        root.classList.remove('menu-open');
-        setTimeout(() => { sheet.hidden = true; }, calm ? 0 : 300);
-        if (restore) menuBtn.focus();
-      };
-      menuBtn?.addEventListener('click', openMenu);
-      sheet?.querySelector('[data-menu-close]')?.addEventListener('click', () => closeMenu());
-      sheet?.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => closeMenu(false)));
-      document.addEventListener('keydown', (e) => {
-        if (!sheet || sheet.hidden) return;
-        if (e.key === 'Escape') { closeMenu(); return; }
-        if (e.key !== 'Tab') return;
-        // Keep focus inside the open sheet.
-        const f = Array.from(sheet.querySelectorAll<HTMLElement>('a, button'));
-        const first = f[0], last = f[f.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      });
-      window.matchMedia('(min-width: 961px)').addEventListener('change', (m) => { if (m.matches) closeMenu(false); });
-
-      // Headline hook words: draw the highlighter stroke when the heading comes into view
-      const hooks = document.querySelectorAll<HTMLElement>('.hook');
-      if ('IntersectionObserver' in window) {
-        const hio = new IntersectionObserver((entries) => {
-          entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); hio.unobserve(e.target); } });
-        }, { rootMargin: '0px 0px -20% 0px' });
-        hooks.forEach((h) => hio.observe(h));
-      } else hooks.forEach((h) => h.classList.add('in'));
-
-      // Next-section / back-to-top button
-      const jump = document.querySelector<HTMLButtonElement>('[data-jump]');
-      const sections = Array.from(document.querySelectorAll<HTMLElement>('main > section'));
-      const atBottom = () => window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
-      const syncJump = () => {
-        if (!jump) return;
-        const up = atBottom();
-        jump.classList.toggle('up', up);
-        const jr = jump.getBoundingClientRect();
-        const probe = jr.top + jr.height / 2;
-        const under = sections.find((el) => { const b = el.getBoundingClientRect(); return b.top <= probe && b.bottom > probe; });
-        const tone = under?.dataset.tone || 'ink';
-        if (jump.dataset.tone !== tone) jump.dataset.tone = tone;
-        jump.setAttribute('aria-label', up ? 'Back to top' : 'Go to next section');
-      };
-      const reduceJump = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let anim = 0;
-      const glide = (to: number) => {
-        cancelAnimationFrame(anim);
-        const from = window.scrollY;
-        const dist = to - from;
-        if (reduceJump || Math.abs(dist) < 2) { window.scrollTo({ top: to, behavior: 'instant' as ScrollBehavior }); return; }
-        const dur = Math.min(700, 280 + Math.abs(dist) * 0.08);
-        const t0 = performance.now();
-        const step = (now: number) => {
-          const t = Math.min(1, (now - t0) / dur);
-          const e = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
-          window.scrollTo({ top: from + dist * e, behavior: 'instant' as ScrollBehavior });
-          if (t < 1) anim = requestAnimationFrame(step);
-        };
-        anim = requestAnimationFrame(step);
-      };
-      let ticking = false;
-      const onScroll = () => {
-        if (ticking) return;
-        ticking = true;
-        requestAnimationFrame(() => { syncJump(); ticking = false; });
-      };
-      if (jump) {
-        syncJump();
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', onScroll);
-        ['wheel', 'touchstart', 'keydown'].forEach((ev) => window.addEventListener(ev, () => cancelAnimationFrame(anim), { passive: true }));
-        jump.addEventListener('click', () => {
-          if (atBottom()) { glide(0); return; }
-          const offset = 72;
-          const next = sections.find((el) => el.getBoundingClientRect().top > offset + 8);
-          const max = document.documentElement.scrollHeight - window.innerHeight;
-          glide(next ? Math.min(max, next.getBoundingClientRect().top + window.scrollY - offset) : max);
-        });
-      }
-
-      // Sectra scroll stepper
-      const stage = document.querySelector<HTMLElement>('.stage');
-      const stepEls = Array.from(document.querySelectorAll<HTMLElement>('.step'));
-      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (stage && stepEls.length && 'IntersectionObserver' in window) {
-        const set = (n: string) => {
-          stage.dataset.step = n;
-          stepEls.forEach((el) => el.classList.toggle('on', el.dataset.step === n));
-        };
-        set(reduce || root.classList.contains('still') ? '7' : '1');
-        if (reduce) stepEls.forEach((el) => el.classList.add('on'));
-        else {
-          const io = new IntersectionObserver(
-            (entries) => {
-              entries.forEach((e) => {
-                if (e.isIntersecting) set((e.target as HTMLElement).dataset.step || '1');
-              });
-            },
-            { rootMargin: '-45% 0px -45% 0px' }
-          );
-          stepEls.forEach((el) => io.observe(el));
-        }
-      }
-    </script>
-  </body>
-</html>
+  <Contact />
+</Base>

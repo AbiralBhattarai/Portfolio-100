@@ -1,0 +1,299 @@
+---
+import Base from '../layouts/Base.astro';
+import SectraStage from '../components/SectraStage.astro';
+import Contact from '../components/Contact.astro';
+import { SECTRA, wave, arrow, right } from '../lib/site';
+
+// Hero: one long talk, three clips cut out of it.
+const LN = 160;
+const lSpeech: [number, number][] = [[3, 30], [36, 70], [76, 112], [118, 156]];
+const long = wave(LN, lSpeech, 23);
+const LW = 1200, LH = 120, LBW = LW / LN;
+const heroClips = [
+  { r: [14, 30] as [number, number], n: '01', d: '0:38', cap: ['Nobody', 'tells you', 'this'], k: 0 },
+  { r: [80, 104] as [number, number], n: '02', d: '0:52', cap: ['The model', 'is only', 'half'], k: 2 },
+  { r: [124, 140] as [number, number], n: '03', d: '0:41', cap: ['Ship it', 'before', 'it\'s perfect'], k: 2 },
+];
+
+// How clips are scored (from the Sectra README).
+const qualities = [
+  ['Hook', 30, 'Do the first seconds stop the scroll?'],
+  ['Emotion', 25, 'Hype, anger, laughter, shock, tension.'],
+  ['Payoff', 20, 'Is there a punchline, reveal or result?'],
+  ['Standalone', 15, 'Does it make sense with no context?'],
+  ['Shareability', 10, 'Is it quotable, or would people send it on?'],
+] as const;
+
+const editor = [
+  ['Cut', 'Live preview with trim, split and delete, on a timeline with the waveform, speech and captions.'],
+  ['Frame', '9:16, 1:1 or 16:9, with a draggable crop and zoom.'],
+  ['Caption', 'Edit any word and its timing. Style presets, burned in with the same fonts as the preview.'],
+  ['Score', 'Text overlays, and background music that ducks under speech. 90 public-domain tracks built in, grouped by mood.'],
+  ['Undo', 'Undo, redo and autosave on every edit.'],
+];
+
+const narrator = [
+  { t: 'Paste a story.', p: 'Up to 20,000 characters, about 25 minutes of narration. An optional LLM pass rewrites it for narration and writes the title and caption.' },
+  { t: 'Give it a voice.', p: 'A local voice reads it aloud: ten US and UK voices, speed 0.7 to 1.5×.', tech: 'Kokoro TTS' },
+  { t: 'Add a narrator.', p: 'Sam, Jane, George or Anna Stick talks over black or gameplay footage. Its mouth follows the words, and its face turns happy, sad, angry or shocked with the story.', tech: 'Rhubarb lip sync' },
+  { t: 'Cut it into parts.', p: 'Long stories split at pauses into Part 1, Part 2, …, each under X\'s 2:20 limit, then open in the same editor as clips.' },
+];
+const parts = [['Part 1', '2:18'], ['Part 2', '2:11'], ['Part 3', '1:47']];
+
+const clipFlow = [
+  ['URL / upload', ''], ['Ingest', 'yt-dlp'], ['Normalize', '≤1080p'], ['Prepare', 'proxy, audio, waveform'],
+  ['VAD', 'Silero'], ['Transcribe', 'Whisper'], ['Analyze', 'LLM'], ['Clips', ''],
+];
+const storyFlow = [
+  ['Story text', ''], ['Narrate', 'Kokoro, Rhubarb'], ['Compose', 'black or gameplay'], ['Same pipeline', 'VAD → transcribe'], ['Parts', ''],
+];
+const services = [
+  ['web', 'React + TypeScript (Vite)', 'The editor, in your browser.'],
+  ['api', 'FastAPI, async', 'REST, Server-Sent Events for live progress, and media.'],
+  ['worker', 'Async job runner', 'yt-dlp, ffmpeg, Silero, Whisper, the LLM and rendering. Each stage is a job on a Redis Stream, with its own concurrency limit.'],
+  ['postgres', 'Postgres 17', 'Videos, clips and every edit.'],
+  ['redis', 'Redis', 'The job queue and progress pub/sub.'],
+  ['poster', 'Playwright, on the host', 'Drives your own Chrome to upload to YouTube, TikTok, Instagram, X and Facebook.'],
+];
+
+const specs = [
+  ['Runs on', 'Your machine, in Docker'],
+  ['Language model', 'Local through Ollama, or any OpenAI-compatible or Anthropic API'],
+  ['Speech', 'Silero VAD, then faster-whisper, MLX Whisper on Apple GPUs, or a cloud API'],
+  ['Face tracking', 'YuNet faces and Light-ASD active-speaker scores, on the CPU'],
+  ['Narration', 'Kokoro text-to-speech, lip-synced with Rhubarb'],
+  ['Output', '1080p H.264 MP4 with burned-in captions, plus SRT'],
+  ['Auto-post', 'YouTube, TikTok, Instagram, X and Facebook, through Playwright'],
+  ['Retries', 'A failed stage can be retried from the UI'],
+  ['License', 'MIT, open source'],
+];
+
+const navLinks: [string, string, string][] = [
+  ['Pipeline', '#pipeline', 'pipeline'],
+  ['Scoring', '#scoring', 'scoring'],
+  ['Editor', '#editor', 'editor narrator'],
+  ['Stack', '#stack', 'stack'],
+  ['Run it', '#run', 'run contact'],
+];
+---
+<Base
+  title="Sectra — local AI video clipping, by Abiral Bhattarai"
+  description="Sectra turns long videos into short captioned clips on your own machine: local LLM, local speech-to-text, speaker tracking, a browser editor and one-click posting."
+  path="/sectra"
+  links={navLinks}
+  home="/"
+>
+  <!-- Hero -->
+  <section class="sectra s-hero" id="top" data-tone="stage" data-name="Sectra" aria-labelledby="s-title">
+    <div class="wrap">
+      <a class="back" href="/#sectra"><Fragment set:html={right} /> Portfolio</a>
+      <h1 class="display sectra-title" id="s-title">Sectra<span>.</span></h1>
+      <div class="s-hero-row">
+        <p class="sub">One long video in. A stack of captioned clips out. On your own machine.</p>
+        <div class="actions">
+          <a class="pill pill-signal" href={SECTRA} target="_blank" rel="noopener">View on GitHub <Fragment set:html={arrow} /></a>
+          <a class="pill pill-line" href="#run">Run it yourself</a>
+        </div>
+      </div>
+      <ul class="s-facts">
+        <li>MIT licensed</li><li>Runs in Docker</li><li>Local or cloud models</li><li>No upload required</li>
+      </ul>
+
+      <figure class="cutter">
+        <svg class="cut-wave" viewBox={`0 -34 ${LW} ${LH + 34}`} role="img" aria-label="Illustration: a long talk's waveform with three clips marked in it.">
+          {heroClips.map((c, j) => (
+            <g class="cut-mark" style={`--j:${j}`}>
+              <rect class="cut-box" x={c.r[0] * LBW - 3} y="-6" width={(c.r[1] - c.r[0] + 1) * LBW + 6} height={LH + 6} rx="8" />
+              <text class="cut-label" x={c.r[0] * LBW + 2} y="-14">CLIP {c.n} · {c.d}</text>
+            </g>
+          ))}
+          {long.map((b, i) => {
+            const h = Math.max(3, b.h * (LH - 8));
+            const j = heroClips.findIndex((c) => i >= c.r[0] && i <= c.r[1]);
+            return <rect class={`bar${b.sp ? ' sp' : ''}${j >= 0 ? ' cl' : ''}`} style={`--i:${i};--j:${Math.max(0, j)}`} x={i * LBW + 1.5} y={LH - h} width={LBW - 3} height={h} rx={(LBW - 3) / 2} />;
+          })}
+        </svg>
+        <div class="cut-cards" aria-hidden="true">
+          {heroClips.map((c, j) => (
+            <div class="cut-card" style={`--j:${j}`}>
+              <span class="ratio">CLIP {c.n}</span>
+              <span class="cut-dur">{c.d}</span>
+              <p class="cap">{c.cap.map((w, k) => k === c.k ? <b>{w} </b> : <>{w} </>)}</p>
+            </div>
+          ))}
+        </div>
+        <figcaption class="cut-note">Illustration. A 58-minute talk, three clips.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <section class="sectra s-pipe" id="pipeline" data-tone="stage" data-name="Pipeline" aria-labelledby="pipe-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="pipe-title">Seven steps, one click.</h2>
+        <p class="sub">Scroll through what happens between pasting a link and posting a clip.</p>
+      </div>
+      <SectraStage />
+    </div>
+  </section>
+
+  <!-- Scoring -->
+  <section class="section band-signal" id="scoring" data-tone="signal" data-name="Scoring" aria-labelledby="score-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="score-title">How a moment earns a <span class="hook">clip</span>.</h2>
+        <p class="sub">The LLM reads the transcript in overlapping windows and rates every candidate on five qualities.</p>
+      </div>
+      <ol class="score" data-reveal>
+        {qualities.map(([q, w, a], i) => (
+          <li style={`--w:${w};--d:${i}`}>
+            <span class="score-q">{q}</span>
+            <span class="score-bar"><i></i></span>
+            <span class="score-w">{w}%</span>
+            <span class="score-a">{a}</span>
+          </li>
+        ))}
+      </ol>
+      <div class="score-foot">
+        <div>
+          <h3>Loud lines get flagged.</h3>
+          <p>Lines where the audio is among the loudest 20% of the video are marked for the LLM, because shouting, celebrating and reactions are often the best moments.</p>
+        </div>
+        <div>
+          <h3>Then the finalists face off.</h3>
+          <p>The best ~20 candidates from the whole video go to the LLM in one request, which ranks them against each other. That ranking counts for half the final score.</p>
+        </div>
+        <div>
+          <h3>Then they're tidied.</h3>
+          <p>Clips snap to sentence boundaries, stay between 15 and 60 seconds, lose duplicates, and the best 10 are kept.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Editor -->
+  <section class="sectra s-edit" id="editor" data-tone="stage" data-name="Editor" aria-labelledby="edit-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="edit-title">Every clip opens in an editor.</h2>
+        <p class="sub">The LLM picks the moment. You get the last word, in the browser.</p>
+      </div>
+      <div class="edit-body">
+        <ul class="edit-list">
+          {editor.map(([t, p]) => <li><h3>{t}</h3><p>{p}</p></li>)}
+        </ul>
+        <figure class="reframe" aria-hidden="true">
+          <div class="rf-stage">
+            <div class="rf-frame">
+              <img src="/images/sectra-clip-wide.webp" width="960" height="641" alt="" loading="lazy" decoding="async" />
+              <p class="cap">The model is only <b>half</b> of the product</p>
+            </div>
+          </div>
+          <ul class="rf-ratios"><li>9:16</li><li>1:1</li><li>16:9</li></ul>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Narrator -->
+  <section class="sectra s-narr" id="narrator" data-tone="stage" data-name="Narrator" aria-labelledby="narr-title">
+    <div class="wrap narr">
+      <div class="narr-head">
+        <h2 class="narr-title" id="narr-title">Narrator. Stories in, parts out.</h2>
+        <p class="body">Narrator works the other way round: it starts from writing, not video. The story builds its own video, then joins the same editor, export and poster as clips.</p>
+      </div>
+      <div class="narr-body">
+        <ol class="narr-steps">
+          {narrator.map((s) => (
+            <li>
+              <h3>{s.t}</h3>
+              <p>{s.p}</p>
+              {s.tech && <span class="tech">{s.tech}</span>}
+            </li>
+          ))}
+        </ol>
+        <figure class="narr-fig">
+          <div class="phone phone-narr" aria-hidden="true">
+            <span class="ratio">Part 1</span>
+            <div class="game"></div>
+            <p class="cap">I never told anyone what I found in the <b>attic</b></p>
+            <svg class="stick" viewBox="0 0 80 120" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="40" cy="26" r="18" fill="#000" />
+              <circle cx="33" cy="23" r="1.6" fill="#fff" stroke="none" />
+              <circle cx="47" cy="23" r="1.6" fill="#fff" stroke="none" />
+              <ellipse class="mouth" cx="40" cy="33" rx="4.5" ry="3.2" fill="#fff" stroke="none" />
+              <path d="M40 44v38M40 56 24 72M40 56l16 14M40 82l-13 30M40 82l13 30" />
+            </svg>
+          </div>
+          <ul class="narr-parts">
+            {parts.map(([p, d]) => <li><b>{p}</b><span>{d}</span></li>)}
+          </ul>
+          <figcaption class="narr-note">Illustration. Each part stays under X's 2:20 limit.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Under the hood -->
+  <section class="section" id="stack" data-name="Stack" aria-labelledby="stack-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="stack-title">Under the <span class="hook">hood</span>.</h2>
+        <p class="sub">Every stage is a background job, so a 58-minute talk never blocks the editor.</p>
+      </div>
+
+      <div class="flows" data-reveal>
+        <div class="flow">
+          <span class="flow-name">A video</span>
+          <ol>{clipFlow.map(([t, s], i) => <li style={`--d:${i}`}><b>{t}{s && <small>{s}</small>}</b></li>)}</ol>
+        </div>
+        <div class="flow">
+          <span class="flow-name">A story</span>
+          <ol>{storyFlow.map(([t, s], i) => <li style={`--d:${i}`}><b>{t}{s && <small>{s}</small>}</b></li>)}</ol>
+        </div>
+        <p class="flow-out">Both end in the same place: <b>editor → export (ffmpeg + libass) → MP4 + SRT → poster</b>.</p>
+      </div>
+
+      <ul class="services">
+        {services.map(([n, w, p]) => (
+          <li><code>{n}</code><h3>{w}</h3><p>{p}</p></li>
+        ))}
+      </ul>
+
+      <div class="specs specs-light">
+        <h3>Sectra at a glance.</h3>
+        <dl class="spec-grid">
+          {specs.map(([k, v]) => (
+            <div><dt>{k}</dt><dd>{v}</dd></div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- Run it -->
+  <section class="section band-ink" id="run" data-tone="ink" data-name="Run it" aria-labelledby="run-title">
+    <div class="wrap run">
+      <div class="section-head">
+        <h2 class="h2" id="run-title">Run it <span class="hook">yourself</span>.</h2>
+        <p class="sub">You need Docker, and an LLM: Ollama on your machine, or an API key.</p>
+      </div>
+      <div class="run-body">
+        <pre class="code" aria-label="Terminal commands"><code><span class="c-p">$</span> git clone {SECTRA}
+<span class="c-p">$</span> cd sectra
+<span class="c-p">$</span> cp .env.example .env   <span class="c-c"># pick your LLM and speech-to-text</span>
+<span class="c-p">$</span> docker compose up -d --build
+<span class="c-c"># then open http://localhost:5173 and paste a link</span></code></pre>
+        <ul class="run-notes">
+          <li><b>Local by default.</b> Point it at Ollama running natively, so it can use your GPU.</li>
+          <li><b>Or the cloud.</b> Any OpenAI-compatible API (OpenAI, Groq, OpenRouter, vLLM, …) or Anthropic.</li>
+          <li><b>Speech-to-text, your pick.</b> MLX Whisper on Apple GPUs, faster-whisper on CUDA or CPU, or a cloud API.</li>
+        </ul>
+      </div>
+      <a class="textlink" href={SECTRA} target="_blank" rel="noopener">Full setup in the README <Fragment set:html={arrow} /></a>
+    </div>
+  </section>
+
+  <Contact title="Want to talk Sectra?" lede="Questions, ideas, or clips you made with it. Say hi. Based in Kathmandu, Nepal." />
+</Base>

@@ -1,0 +1,106 @@
+---
+// Sectra's clipping pipeline as a scroll-stepped demo: steps on the left,
+// a sticky product mock on the right that advances one stage per step.
+import { wave } from '../lib/site';
+
+const SN = 90;
+const stSpeech: [number, number][] = [[4, 22], [30, 62], [70, 86]];
+const stClip: [number, number] = [30, 62];
+const st = wave(SN, stSpeech, 42);
+const SW = 600, SH = 190, SBW = SW / SN;
+
+const stWords = [
+  ['so', '00:41.8'], ['the', '00:42.0'], ['model', '00:42.2'], ['is', '00:42.7'],
+  ['only', '00:42.9'], ['half', '00:43.3'], ['of', '00:43.7'], ['the', '00:43.8'],
+  ['product', '00:44.0'], ['and', '00:44.9'], ['the', '00:45.1'], ['rest', '00:45.3'],
+];
+const hlWords = new Set([1, 2, 3, 4, 5, 6, 7, 8]);
+
+const steps = [
+  { t: 'Paste a link.', p: 'Drop in a YouTube URL or a local file. Sectra pulls it in and caps it at 1080p.', tech: 'yt-dlp · ffmpeg' },
+  { t: 'Find the speech.', p: 'Voice activity detection marks where people talk, so only speech gets transcribed.', tech: 'Silero VAD' },
+  { t: 'Hear every word.', p: 'Speech becomes text with a timestamp on every single word.', tech: 'faster-whisper' },
+  { t: 'Pick the moments.', p: 'An LLM reads the transcript and proposes clips. Sectra snaps them to sentences and keeps them 15 to 60 seconds.', tech: 'Ollama, or any OpenAI-compatible or Anthropic API' },
+  { t: 'Follow the speaker.', p: 'Sectra finds every face, works out who is talking frame by frame, and cuts and crops the vertical frame to them. Two people talking? It switches between them.', tech: 'YuNet faces · Light-ASD speaker detection' },
+  { t: 'Edit and export.', p: 'Trim, crop, and restyle captions in the browser. Export a captioned MP4 in 9:16, 1:1 or 16:9.', tech: 'React editor · ffmpeg + libass' },
+  { t: 'Post everywhere.', p: 'One click on a clip, and a browser on your machine uploads it to YouTube, TikTok, Instagram, X and Facebook.', tech: 'Playwright poster' },
+];
+const platforms = ['YouTube', 'TikTok', 'Instagram', 'X', 'Facebook'];
+const stageNames = ['Ingest', 'Speech', 'Transcribe', 'Clips', 'Track', 'Export', 'Post'];
+---
+<div class="scrolly">
+  <ol class="steps">
+    {steps.map((s, i) => (
+      <li class="step" data-step={i + 1}>
+        <h3>{s.t}</h3>
+        <p>{s.p}</p>
+        <span class="tech">{s.tech}</span>
+      </li>
+    ))}
+  </ol>
+
+  <div class="stage-wrap">
+    <div class="stage" data-step="7" aria-hidden="true">
+      <div class="st-bar">
+        <span class="url">youtube.com/watch?v=… · 58:12 talk</span>
+        <span class="go">Find clips</span>
+      </div>
+      <ul class="st-stages">
+        {stageNames.map((n) => <li>{n}</li>)}
+      </ul>
+      <div class="st-body">
+        <div class="st-main">
+          <div class="st-wave">
+            <svg viewBox={`0 -26 ${SW} ${SH + 26}`}>
+              <rect class="clipbox" x={stClip[0] * SBW - 3} y="-6" width={(stClip[1] - stClip[0] + 1) * SBW + 6} height={SH + 6} rx="8" />
+              <text class="cliplabel" x={stClip[0] * SBW + 4} y="-12">CLIP 01 · 36s</text>
+              {st.map((b, i) => {
+                const h = Math.max(3, b.h * (SH - 12));
+                const inClip = i >= stClip[0] && i <= stClip[1];
+                return <rect class={`bar${b.sp ? ' sp' : ''}${inClip ? ' cl' : ''}`} x={i * SBW + 1} y={SH - h} width={SBW - 2} height={h} rx={(SBW - 2) / 2} />;
+              })}
+            </svg>
+          </div>
+          <div class="st-words">
+            {stWords.map(([w, ts], i) => (
+              <span class={hlWords.has(i) ? 'hl' : ''} style={`--w:${i}`}>{w}<small>{ts}</small></span>
+            ))}
+          </div>
+          <ul class="st-post">
+            {platforms.map((n) => <li><span class="dot"></span>{n}</li>)}
+          </ul>
+          <p class="st-note">Illustration with sample data.</p>
+        </div>
+        <div class="phone">
+          <img class="shot" src="/images/sectra-clip-wide.webp" width="960" height="641" alt="" loading="lazy" decoding="async" />
+          <span class="facebox"><span>SPEAKER · 0.94</span></span>
+          <span class="ratio">9:16</span>
+          <p class="cap">The model is only <b>half</b> of the product</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Advance the stage as each step crosses the middle of the screen.
+  const root = document.documentElement;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stage = document.querySelector<HTMLElement>('.stage');
+  const stepEls = Array.from(document.querySelectorAll<HTMLElement>('.step'));
+  if (stage && stepEls.length && 'IntersectionObserver' in window) {
+    const set = (n: string) => {
+      stage.dataset.step = n;
+      stepEls.forEach((el) => el.classList.toggle('on', el.dataset.step === n));
+    };
+    set(reduce || root.classList.contains('still') ? '7' : '1');
+    if (reduce) stepEls.forEach((el) => el.classList.add('on'));
+    else {
+      const io = new IntersectionObserver(
+        (entries) => entries.forEach((e) => { if (e.isIntersecting) set((e.target as HTMLElement).dataset.step || '1'); }),
+        { rootMargin: '-45% 0px -45% 0px' }
+      );
+      stepEls.forEach((el) => io.observe(el));
+    }
+  }
+</script>

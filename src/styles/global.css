@@ -34,20 +34,27 @@
 /* ---------- Tokens ---------- */
 :root {
   --bg: #ffffff;
-  --panel: #f5f5f7;
-  --ink: #111113;
-  --ink-2: #5d5d66;
-  --line: #e2e2e8;
+  --panel: #f2f2f0;
+  --ink: #0a0a0a;
+  --ink-2: #46464e;
+  --line: #dadade;
   --accent: #2b3bff;
   --accent-ink: #2433e6;
   --accent-hover: #1d2bd9;
   --on-accent: #ffffff;
+  /* Hook words are knocked out of a solid ultramarine block, in white. */
+  --hl: var(--accent);
+  --on-hl: #ffffff;
+  /* Ultramarine lifted for text and marks on black. */
+  --accent-on-black: #5b83ff;
   --signal: #c8ff2e;
   --stage: #000000;
   --stage-panel: #121214;
   --stage-line: #2a2a2e;
   --stage-ink: #f5f5f7;
   --stage-ink-2: #a3a3ab;
+  --on-signal: #000000;
+  --bar-dim: #3a3a40;
 
   --font: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
   --mono: "Fragment Mono", ui-monospace, monospace;
@@ -58,15 +65,22 @@
   color-scheme: light;
 }
 
+:root {
+  /* One wave for every underline: the nav's 26px period, drawn as a mask over currentColor. */
+  --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 6'%3E%3Cpath d='M0 3q6.5-2.6 13 0t13 0' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
 :root[data-theme="dark"] {
-  --bg: #131316;
-  --panel: #1c1c20;
-  --ink: #f4f4f6;
-  --ink-2: #a1a1aa;
-  --line: #2c2c33;
-  --accent: #3644ff;
-  --accent-ink: #8f98ff;
-  --accent-hover: #4b58ff;
+  /* Dark mode at full strength: a true near-black ground, pure white type, bright
+     secondary text and visible hairlines, so nothing reads washed out. */
+  --bg: #08080a;
+  --panel: #141418;
+  --ink: #ffffff;
+  --ink-2: #dedee4;
+  --line: #34343c;
+  --accent: #2b3bff;
+  --accent-ink: #5b83ff;
+  --accent-hover: #4050ff;
   --stage: #000000;
   --stage-panel: #121214;
   color-scheme: dark;
@@ -96,7 +110,7 @@ body {
 img, svg { display: block; max-width: 100%; }
 h1, h2, h3, h4, p, dl, dd, ol, ul, figure { margin: 0; }
 ul, ol { padding: 0; list-style: none; }
-a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+a { color: inherit; text-decoration: none; }
 
 ::selection { background: var(--accent); color: var(--on-accent); }
 :focus-visible {
@@ -170,7 +184,7 @@ input, textarea { caret-color: var(--accent); }
   font-size: 1.125rem;
 }
 .textlink svg { width: 0.9em; height: 0.9em; transition: transform 0.3s var(--ease); }
-.textlink:hover { text-decoration: underline; }
+
 .textlink:hover svg { transform: translate(2px, -2px); }
 
 /* ---------- Nav ---------- */
@@ -186,20 +200,28 @@ input, textarea { caret-color: var(--accent); }
   color: var(--ink);
   transition: background-color 0.4s var(--ease), border-color 0.4s var(--ease), color 0.4s var(--ease);
 }
-/* Over the black Sectra chapter the nav goes black, with lime marks */
-.nav.on-stage {
+/* The nav takes the skin of the band under it (data-skin, set by script).
+   Sectra's black: lime marks. Ultramarine bands: lime marks. Lime bands: ultramarine. */
+.nav[data-skin="stage"] {
   --bg: #000000; --ink: var(--stage-ink); --ink-2: var(--stage-ink-2); --line: var(--stage-line);
   --bar: var(--signal);
 }
-.nav.on-stage .brand-mark .c { fill: var(--signal); }
-/* Over the ultramarine contact band it turns ultramarine, with white marks */
-.nav.on-accent {
+.nav[data-skin="stage"] .brand-mark .c { fill: var(--bar); }
+.nav[data-skin="invert"] {
   --bg: var(--accent); --ink: #ffffff; --ink-2: rgba(255, 255, 255, 0.82); --line: rgba(255, 255, 255, 0.28);
   --bar: #ffffff;
 }
-.nav.on-accent .brand-mark .c { fill: #ffffff; }
-.nav.on-accent .brand-mark rect:not(.c) { fill: rgba(255, 255, 255, 0.6); }
-.nav.on-accent :focus-visible { outline-color: #fff; }
+.nav[data-skin="ink"] {
+  --bg: #000000; --ink: #ffffff; --ink-2: var(--stage-ink-2); --line: var(--stage-line);
+  --bar: var(--accent-on-black);
+}
+.nav[data-skin="signal"] {
+  --bg: var(--signal); --ink: #000000; --ink-2: rgba(0, 0, 0, 0.72); --line: rgba(0, 0, 0, 0.22);
+  --bar: #000000;
+}
+.nav:is([data-skin="invert"], [data-skin="ink"], [data-skin="signal"]) .brand-mark .c { fill: var(--bar); }
+.nav:is([data-skin="invert"], [data-skin="ink"], [data-skin="signal"]) .brand-mark rect:not(.c) { fill: color-mix(in srgb, var(--ink) 55%, transparent); }
+.nav:is([data-skin="invert"], [data-skin="ink"], [data-skin="signal"]) :focus-visible { outline-color: var(--bar); }
 
 .nav-in {
   position: relative;
@@ -263,9 +285,9 @@ input, textarea { caret-color: var(--accent); }
 .nav-tc .tc-name { min-width: 7ch; }
 .nav-tc .tc-rec { display: none; font-weight: 400; color: var(--signal); }
 /* Over Sectra the dot becomes a recording light */
-.nav.on-stage .tc-rec { display: inline; }
+.nav[data-skin="stage"] .tc-rec { display: inline; }
 @media (prefers-reduced-motion: no-preference) {
-  .nav.on-stage .tc-dot { animation: rec 1.4s steps(1) infinite; }
+  .nav[data-skin="stage"] .tc-dot { animation: rec 1.4s steps(1) infinite; }
 }
 @keyframes rec { 50% { opacity: 0.15; } }
 
@@ -280,7 +302,6 @@ input, textarea { caret-color: var(--accent); }
 .nav-pill {
   /* The current section's wavy underline: a repeating wave masked out of the accent
      colour, so it takes the bar's tone (ultramarine, lime over Sectra, white over Contact). */
-  --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 6'%3E%3Cpath d='M0 3q6.5-2.6 13 0t13 0' fill='none' stroke='%23000' stroke-width='1.7' stroke-linecap='round'/%3E%3C/svg%3E");
   position: absolute; left: 0; bottom: 0.4rem; height: 6px; width: 0;
   background: var(--bar);
   -webkit-mask: var(--wave) 0 0 / 26px 6px repeat-x;
@@ -462,13 +483,40 @@ input, textarea { caret-color: var(--accent); }
 /* ---------- Sections ---------- */
 .section { padding: clamp(6rem, 14vh, 10rem) 0; }
 .section-head { display: grid; gap: 1.5rem; margin-bottom: clamp(3rem, 8vh, 5.5rem); }
-.panel { background: var(--panel); transition: background-color 0.4s var(--ease); }
+/* Contrast bands. Each one remaps the tokens locally (the Local Remap Rule), so rows,
+   pills, tags and the agent graph inside inherit the band's colours. */
+/* Black bands: white type, one ultramarine accent (person-decides nodes, chips, links).
+   The hook word is knocked out of a white block. */
+.band-ink {
+  background: #000; color: #fff;
+  --bg: #000; --panel: #161618; --ink: #ffffff; --ink-2: #b4b4bc; --line: var(--stage-line);
+  --accent-ink: var(--accent-on-black); --decide: var(--accent); --on-decide: #fff;
+  --hl: #ffffff; --on-hl: #000;
+}
+.band-ink .models li { background: var(--accent); color: #fff; border-color: var(--accent); }
+.band-ink .paper-meta { color: var(--accent-on-black); }
+.band-ink .textlink::after { opacity: 1; }
+/* Dark mode: ground #08080a, Sectra pure black, and the ink bands lifted to a raised
+   charcoal, so the page still alternates in three distinct tones. */
+:root[data-theme="dark"] .band-ink {
+  background: #1a1b21; --bg: #1a1b21; --panel: #262830; --line: #3a3c46; --ink-2: #e2e2e8;
+  border-block: 1px solid #3a3c46;
+}
+/* Lime band (Sectra page only): black type, black hook block with lime letters. */
+.band-signal {
+  background: var(--signal); color: #000;
+  --bg: var(--signal); --panel: #d8ff66; --ink: #000; --ink-2: rgba(0, 0, 0, 0.74); --line: rgba(0, 0, 0, 0.2);
+  --accent: #000; --accent-ink: #000; --accent-hover: #26262b; --on-accent: var(--signal); --hl: #000; --on-hl: var(--signal);
+}
+.band-signal ::selection { background: #000; color: #fff; }
+.band-signal :focus-visible { outline-color: #000; }
 
 /* ---------- Sectra chapter ---------- */
 .sectra {
   background: var(--stage); color: var(--stage-ink);
   --ink: var(--stage-ink); --ink-2: var(--stage-ink-2); --line: var(--stage-line);
-  --accent-ink: #9ba3ff;
+  --accent-ink: #5b83ff;
+  --hl: var(--signal); --on-hl: var(--on-signal);
 }
 .sectra-title { font-size: clamp(5rem, 17vw, 15rem); }
 .sectra-title span { color: var(--signal); }
@@ -511,12 +559,12 @@ input, textarea { caret-color: var(--accent); }
 }
 .st-bar {
   display: flex; align-items: center; gap: 0.75rem;
-  background: #000; border: 1px solid var(--stage-line); border-radius: 999px;
+  background: var(--stage); border: 1px solid var(--stage-line); border-radius: 999px;
   padding: 0.55rem 0.6rem 0.55rem 1.1rem; font-size: 0.875rem;
 }
 .st-bar .url { font-family: var(--mono); color: var(--stage-ink-2); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .st-bar .go {
-  background: var(--signal); color: #000; font-weight: 700; font-size: 0.8125rem;
+  background: var(--signal); color: var(--on-signal); font-weight: 700; font-size: 0.8125rem;
   padding: 0.4rem 0.9rem; border-radius: 999px;
 }
 .st-stages { display: flex; gap: 0.4rem; flex-wrap: wrap; }
@@ -530,7 +578,7 @@ input, textarea { caret-color: var(--accent); }
 .st-main { display: grid; grid-template-rows: 1fr auto auto auto; gap: 1.25rem; min-height: 0; align-content: center; }
 .st-wave { position: relative; align-self: center; }
 .st-wave svg { width: 100%; height: auto; }
-.st-wave .bar { fill: #3a3a40; transition: fill 0.5s var(--ease); }
+.st-wave .bar { fill: var(--bar-dim); transition: fill 0.5s var(--ease); }
 .st-wave .clipbox { fill: color-mix(in srgb, var(--signal) 12%, transparent); stroke: var(--signal); stroke-width: 1.5; opacity: 0; transition: opacity 0.5s var(--ease); }
 .st-wave .cliplabel { font-family: var(--mono); font-size: 11px; fill: var(--signal); opacity: 0; transition: opacity 0.5s var(--ease); }
 .st-words {
@@ -575,7 +623,7 @@ input, textarea { caret-color: var(--accent); }
 .phone .cap b { color: var(--signal); font-weight: 900; }
 .phone .ratio {
   position: absolute; top: 0.6rem; left: 0.6rem;
-  font-family: var(--mono); font-size: 0.625rem; color: #000; background: var(--signal);
+  font-family: var(--mono); font-size: 0.625rem; color: var(--on-signal); background: var(--signal);
   padding: 0.15rem 0.4rem; border-radius: 4px;
 }
 
@@ -587,7 +635,7 @@ input, textarea { caret-color: var(--accent); }
 .stage:is([data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-stages li:nth-child(4),
 .stage:is([data-step="5"], [data-step="6"], [data-step="7"]) .st-stages li:nth-child(5),
 .stage:is([data-step="6"], [data-step="7"]) .st-stages li:nth-child(6),
-.stage[data-step="7"] .st-stages li:nth-child(7) { color: #000; background: var(--signal); border-color: var(--signal); }
+.stage[data-step="7"] .st-stages li:nth-child(7) { color: var(--on-signal); background: var(--signal); border-color: var(--signal); }
 
 .stage:not([data-step="1"]) .st-wave .bar.sp { fill: var(--stage-ink); }
 .stage:is([data-step="4"], [data-step="5"], [data-step="6"], [data-step="7"]) .st-wave .bar.cl { fill: var(--signal); }
@@ -612,7 +660,7 @@ input, textarea { caret-color: var(--accent); }
 }
 .facebox span {
   position: absolute; left: -1.5px; bottom: calc(100% + 4px); white-space: nowrap;
-  font-family: var(--mono); font-size: 0.5625rem; color: #000; background: var(--signal);
+  font-family: var(--mono); font-size: 0.5625rem; color: var(--on-signal); background: var(--signal);
   padding: 0.05rem 0.3rem; border-radius: 3px;
 }
 .stage:is([data-step="5"], [data-step="6"], [data-step="7"]) .facebox { left: 37%; top: 25%; width: 26%; height: 19%; }
@@ -672,8 +720,8 @@ input, textarea { caret-color: var(--accent); }
   display: grid; gap: 0.55rem; align-content: start;
   padding: 1.5rem 1.5rem 1.75rem 0; border-bottom: 1px solid var(--stage-line);
 }
-.narr-steps h4 { font-size: clamp(1.35rem, 2vw, 1.75rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; }
-.narr-steps h4::before { content: "0" counter(narr) " "; font-family: var(--mono); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0; color: var(--stage-ink-2); vertical-align: 0.35em; margin-right: 0.35rem; }
+.narr-steps :is(h3, h4) { font-size: clamp(1.35rem, 2vw, 1.75rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; }
+.narr-steps :is(h3, h4)::before { content: "0" counter(narr) " "; font-family: var(--mono); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0; color: var(--stage-ink-2); vertical-align: 0.35em; margin-right: 0.35rem; }
 .narr-steps p { color: var(--stage-ink-2); font-size: 1rem; max-width: 34ch; }
 .narr-steps .tech { font-family: var(--mono); font-size: 0.8125rem; color: var(--signal); }
 
@@ -749,8 +797,8 @@ input, textarea { caret-color: var(--accent); }
 .g-node rect { fill: var(--bg); stroke: var(--ink); stroke-width: 2; transition: fill 0.4s var(--ease); }
 .g-node text { font-family: var(--font); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; fill: var(--ink); text-anchor: middle; }
 .g-node.in rect { stroke-dasharray: 5 5; }
-.g-node.human rect { fill: var(--accent); stroke: var(--accent); }
-.g-node.human text { fill: var(--on-accent); }
+.g-node.human rect { fill: var(--decide, var(--accent)); stroke: var(--decide, var(--accent)); }
+.g-node.human text { fill: var(--on-decide, var(--on-accent)); }
 .g-node.tool rect { fill: var(--panel); }
 .g-node.end rect { fill: var(--ink); stroke: var(--ink); }
 .g-node.end text { fill: var(--bg); }
@@ -771,6 +819,8 @@ input, textarea { caret-color: var(--accent); }
 .flow-key { display: flex; gap: 1.5rem; margin-top: 2.5rem; font-size: 0.875rem; color: var(--ink-2); flex-wrap: wrap; }
 .flow-key span { display: inline-flex; align-items: center; gap: 0.5rem; }
 .flow-key i { width: 0.75rem; height: 0.75rem; border-radius: 99px; display: inline-block; }
+.flow-key .k-human { background: var(--decide, var(--accent)); }
+.flow-key .k-ai { border: 2px solid var(--ink); }
 .agent-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.5rem; margin-top: clamp(3rem, 7vh, 4.5rem); padding-top: 2rem; border-top: 1px solid var(--line); }
 .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .tags li { font-size: 0.8125rem; padding: 0.3rem 0.75rem; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-2); }
@@ -837,7 +887,7 @@ a.row:hover h3 { color: var(--accent-ink); }
   display: grid; grid-template-columns: 12rem minmax(0, 1fr) minmax(0, 1.2fr);
   gap: 0.5rem 2.5rem; padding: 1.6rem 0; border-bottom: 1px solid var(--line);
 }
-.tl .when { font-family: var(--mono); font-size: 0.875rem; color: var(--ink-2); padding-top: 0.35rem; font-variant-numeric: tabular-nums; }
+.tl .when { font-family: var(--mono); font-size: 0.875rem; color: var(--accent-ink); padding-top: 0.35rem; font-variant-numeric: tabular-nums; }
 .tl h3 { font-size: 1.375rem; font-weight: 750; letter-spacing: -0.025em; line-height: 1.2; }
 .tl .org { color: var(--ink-2); font-size: 1rem; }
 .tl p { color: var(--ink-2); font-size: 1rem; }
@@ -855,14 +905,14 @@ a.row:hover h3 { color: var(--accent-ink); }
   padding: clamp(6rem, 16vh, 11rem) 0 0;
 }
 .contact-title { font-size: clamp(3.5rem, 11vw, 10rem); }
-.contact .lede { color: var(--ink-2); margin-top: 2rem; }
+.contact .lede { color: #fff; margin-top: 2rem; }
 .mail {
   display: inline-block; margin-top: clamp(2.5rem, 6vh, 4rem);
   font-size: clamp(1.5rem, 4.2vw, 3.5rem); font-weight: 750; letter-spacing: -0.035em;
-  text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.18em;
+  
   overflow-wrap: anywhere;
 }
-.mail:hover { text-decoration-thickness: 4px; }
+
 .contact .actions { margin-top: 2.25rem; }
 .contact .pill-ink { background: #fff; color: #111; border-color: #fff; }
 .contact .pill-ink:hover { background: rgba(255, 255, 255, 0.88); }
@@ -879,7 +929,7 @@ a.row:hover h3 { color: var(--accent-ink); }
 /* Keep the links clear of the Netlify badge in the bottom-right corner */
 @media (min-width: 640px) { .foot ul { margin-right: clamp(8rem, 14vw, 12rem); } }
 .foot a { color: #fff; font-weight: 600; text-decoration: none; }
-.foot a:hover { text-decoration: underline; }
+
 
 /* Settled render for screenshots (?still) */
 .still *, .still *::before, .still *::after { animation: none !important; transition: none !important; }
@@ -909,24 +959,25 @@ a.row:hover h3 { color: var(--accent-ink); }
 @media (prefers-reduced-motion: reduce) { .jump, .jump svg { transition: none; } }
 
 /* The jump button takes its colour from the section beneath it */
-.jump[data-tone="stage"] { background: var(--signal); color: #000; border-color: transparent; }
-.jump[data-tone="accent"] { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+.jump[data-tone="stage"] { background: var(--signal); color: var(--on-signal); border-color: transparent; }
+.jump[data-tone="ink"] { background: var(--accent); color: #fff; border-color: transparent; }
+.jump[data-tone="signal"] { background: #000; color: #fff; border-color: transparent; }
 .jump[data-tone="invert"] { background: #ffffff; color: var(--accent); border-color: transparent; }
 
-/* Headline hook words: a highlighter stroke behind the word that carries the line */
+/* Headline hook words: knocked out of a solid block that wipes in from the left */
 .h2 .hook {
-  background-image: linear-gradient(color-mix(in srgb, var(--accent) 30%, transparent), color-mix(in srgb, var(--accent) 30%, transparent));
+  background-image: linear-gradient(var(--hl), var(--hl));
   background-repeat: no-repeat;
-  background-position: 0 88%;
-  background-size: 100% 0.36em;
-  padding: 0 0.04em;
-  margin: 0 -0.04em;
+  background-position: 0 58%;
+  background-size: 100% 86%;
+  color: var(--on-hl);
+  padding: 0 0.12em;
+  margin: 0 0.02em;
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
-:root[data-theme="dark"] .h2 .hook { background-image: linear-gradient(color-mix(in srgb, var(--accent) 45%, transparent), color-mix(in srgb, var(--accent) 45%, transparent)); }
 @media (prefers-reduced-motion: no-preference) {
-  .js:not(.still) .h2 .hook { background-size: 0% 0.36em; transition: background-size 0.9s var(--ease) 0.15s; }
-  .js:not(.still) .h2 .hook.in { background-size: 100% 0.36em; }
+  .js:not(.still) .h2 .hook { background-size: 0% 86%; color: inherit; transition: background-size 0.7s var(--ease) 0.15s, color 0.25s linear 0.45s; }
+  .js:not(.still) .h2 .hook.in { background-size: 100% 86%; color: var(--on-hl); }
 }
 
 /* Email chooser: webmail compose links instead of forcing the system mail app */
@@ -952,3 +1003,34 @@ a.row:hover h3 { color: var(--accent-ink); }
   .mailpick:not([hidden]) { animation: pick-in 0.2s var(--ease); }
 }
 @keyframes pick-in { from { opacity: 0; transform: translateY(-4px); } }
+
+/* Wavy underlines, everywhere: the same wave as the nav. Always on for links that read
+   as links in running text; on hover for quiet ones (text links, footer). The wave rolls on hover. */
+.wave figcaption a, .lede-link, .mail, .textlink, .foot a {
+  position: relative; text-decoration: none;
+}
+.wave figcaption a::after, .lede-link::after, .mail::after, .textlink::after, .foot a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -0.42em; height: 6px;
+  background: var(--wave-color, currentColor);
+  -webkit-mask: var(--wave) 0 0 / 26px 6px repeat-x; mask: var(--wave) 0 0 / 26px 6px repeat-x;
+  pointer-events: none; transition: opacity 0.25s var(--ease);
+}
+.textlink::after, .foot a::after { opacity: 0; }
+.textlink:hover::after, .foot a:hover::after { opacity: 1; }
+.mail::after { bottom: -0.12em; height: 9px; -webkit-mask-size: 36px 9px; mask-size: 36px 9px; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.wave figcaption a, .lede-link, .mail, .textlink, .foot a):hover::after { animation: wave-run 0.9s linear infinite; }
+  .mail:hover::after { animation-name: wave-run-lg; }
+}
+@keyframes wave-run { to { -webkit-mask-position: 26px 0; mask-position: 26px 0; } }
+@keyframes wave-run-lg { to { -webkit-mask-position: 36px 0; mask-position: 36px 0; } }
+
+/* Theme toggle: no transitions while the theme flips (see site.ts). */
+.theme-switch, .theme-switch *, .theme-switch *::before, .theme-switch *::after { transition: none !important; }
+
+/* Theme toggle animation (View Transitions): the new theme is revealed in a circle from
+   the toggle (clip-path set in site.ts), over a still snapshot of the old one. */
+.theme-anim::view-transition-old(root),
+.theme-anim::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+.theme-anim::view-transition-new(root) { z-index: 2; }
+.theme-anim::view-transition-old(root) { z-index: 1; }
