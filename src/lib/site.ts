@@ -1,8 +1,8 @@
-// The site is served from GitHub Pages under /Portfolio-100, so every internal link
-// and file path goes through to(), which adds that base.
+// Every internal link and file path goes through to(), which adds Astro's base path.
+// The site is served from the root of its custom domain, so the base is empty today.
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 export const to = (path: string) => BASE + path;
-export const SITE = 'https://abiralbhattarai.github.io' + BASE;
+export const SITE = 'https://www.abiral-bhattarai.com.np' + BASE;
 
 export const EMAIL = 'abiralbh.101@gmail.com';
 export const CV = to('/abiral-bhattarai-cv.pdf');

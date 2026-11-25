@@ -2,7 +2,7 @@
 
 Personal portfolio site for Abiral Bhattarai, a Jr. AI/ML Engineer based in Kathmandu, Nepal.
 
-Live at [abiralbhattarai.github.io/Portfolio-100](https://abiralbhattarai.github.io/Portfolio-100/).
+Live at [www.abiral-bhattarai.com.np](https://www.abiral-bhattarai.com.np/).
 
 ## Stack
 
