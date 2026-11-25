@@ -25,20 +25,55 @@ const applyTheme = (next: string) => {
 };
 btn?.addEventListener('click', () => {
   const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } };
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void>; finished: Promise<void> } };
   if (!doc.startViewTransition || calm || still) { applyTheme(next); return; }
-  // The new theme grows out of the toggle as a circle until it covers the screen.
-  const r = btn!.getBoundingClientRect();
-  const x = r.left + r.width / 2, y = r.top + r.height / 2;
-  const end = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  // The new theme washes across the screen like a sea wave at 45 degrees, from the
+  // toggle's corner to the opposite one. Two swells of different lengths travel along
+  // the diagonal edge, so the crests roll as it moves; the swell is flat at the start
+  // and end and highest midway.
+  const W = innerWidth, H = innerHeight;
+  const tr = btn!.getBoundingClientRect();
+  // Travel direction d (diagonal, away from the toggle's corner) and the edge direction e.
+  const dx = tr.left + tr.width / 2 > W / 2 ? -1 : 1;
+  const dy = tr.top + tr.height / 2 > H / 2 ? -1 : 1;
+  const ex = dy, ey = -dx;
+  const k = Math.SQRT1_2;
+  const corners = [[0, 0], [W, 0], [0, H], [W, H]];
+  const sOf = ([x, y]: number[]) => (dx * x + dy * y) * k;
+  const uOf = ([x, y]: number[]) => (ex * x + ey * y) * k;
+  const sMin = Math.min(...corners.map(sOf)), sMax = Math.max(...corners.map(sOf));
+  const uMin = Math.min(...corners.map(uOf)), uMax = Math.max(...corners.map(uOf));
+  const at = (s: number, u: number) => `${((dx * s + ex * u) * k).toFixed(1)}px ${((dy * s + ey * u) * k).toFixed(1)}px`;
+  const POINTS = 110, FRAMES = 36;
+  const amp = Math.min(60, Math.min(W, H) * 0.08);
+  const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const frames = Array.from({ length: FRAMES + 1 }, (_, f) => {
+    const t = f / FRAMES;
+    const swell = amp * Math.sin(Math.PI * Math.min(1, t * 1.15));
+    const edge = sMin - amp * 2 + easeInOut(t) * (sMax - sMin + amp * 4);
+    const pts: string[] = [];
+    for (let i = 0; i <= POINTS; i++) {
+      const v = i / POINTS;
+      const u = uMin - amp + v * (uMax - uMin + amp * 2);
+      const sEdge = edge
+        + swell * Math.sin(v * Math.PI * 2 * 1.6 + t * 7)
+        + swell * 0.45 * Math.sin(v * Math.PI * 2 * 3.7 - t * 11);
+      pts.push(at(sEdge, u));
+    }
+    const back = sMin - amp * 6;
+    pts.push(at(back, uMax + amp), at(back, uMin - amp));
+    return { clipPath: `polygon(${pts.join(',')})` };
+  });
   root.classList.add('theme-anim');
   const vt = doc.startViewTransition(() => applyTheme(next));
   vt.ready.then(() => {
-    document.documentElement.animate(
-      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
-      { duration: 650, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', pseudoElement: '::view-transition-new(root)' }
-    ).finished.finally(() => root.classList.remove('theme-anim'));
-  }).catch(() => root.classList.remove('theme-anim'));
+    document.documentElement.animate(frames, {
+      duration: 1150, easing: 'linear', fill: 'forwards', pseudoElement: '::view-transition-new(root)',
+    });
+  }).catch(() => {});
+  // Keep the default crossfade switched off until the whole transition is over;
+  // dropping the class any earlier lets it run for a frame, which is the blink.
+  vt.finished.finally(() => root.classList.remove('theme-anim'));
 });
 
 // Nav: timeline progress, timecode, current-section underline, section skins,

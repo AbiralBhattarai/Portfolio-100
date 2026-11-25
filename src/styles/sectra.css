@@ -183,7 +183,12 @@
 .flow-name { font-weight: 800; letter-spacing: -0.02em; padding-top: 0.55rem; }
 .flow ol { display: flex; flex-wrap: wrap; gap: 0.6rem 0; }
 .flow li { display: inline-flex; align-items: center; }
-.flow li:not(:last-child)::after { content: ""; width: 1.25rem; height: 2px; margin: 0 0.3rem; background: var(--ink); }
+.flow { --arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 12'%3E%3Cpath d='M1 6h18M14 1.5 19.5 6 14 10.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); }
+/* An arrow after each chip, drawn as a mask so it takes the ink colour. */
+.flow li:not(:last-child)::after {
+  content: ""; flex: none; width: 1.4rem; height: 0.75rem; margin: 0 0.3rem; background: var(--ink);
+  -webkit-mask: var(--arrow) center / contain no-repeat; mask: var(--arrow) center / contain no-repeat;
+}
 .flow b {
   display: grid; padding: 0.45rem 0.95rem; border-radius: 999px; border: 2px solid var(--ink);
   font-size: 0.9375rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15;
@@ -290,5 +295,44 @@
   opacity: calc(var(--box) * (1 - var(--out))); transition: none;
 }
 @media (max-width: 900px) {
-  .sectra-overview .loop { order: -1; height: auto; grid-template-rows: auto auto; }
+  .sectra-overview { grid-template-columns: 1fr; gap: 2.5rem; margin-top: 3rem; }
+  .sectra-overview .loop { order: -1; height: auto; grid-template-rows: auto auto; padding: 1rem; border-radius: 22px; }
+  .loop .st-stages { gap: 0.3rem; }
+  .loop .st-stages li { font-size: 0.6875rem; padding: 0.2rem 0.5rem; }
+  .loop .st-body { grid-template-columns: minmax(0, 1fr) 6.5rem; }
+  .loop .lp-phone { width: 6.5rem; }
+  .ov-list li { padding: 1.1rem 0; }
+}
+
+/* ---------- Phones ---------- */
+@media (max-width: 900px) {
+  /* The sticky card covers the top of the screen; steps activate low on the screen
+     (see SectraStage), so their text is read below the card. */
+  .sectra .step { min-height: 60vh; }
+  .sectra .step:first-child { min-height: 55vh; }
+  /* A compact card on phones: words without timestamps, smaller chips. */
+  :is(.stage, .loop) .st-words { min-height: 0; gap: 0.15rem 0.45rem; }
+  :is(.stage, .loop) .st-words span { font-size: 0.95rem; }
+  :is(.stage, .loop) .st-words small { display: none; }
+  :is(.stage, .loop) .st-main { gap: 0.75rem; }
+  :is(.stage, .loop) .st-post { gap: 0.3rem; }
+}
+@media (max-width: 640px) {
+  /* Chip flows: drop the connectors, which dangle at line ends once the row wraps. */
+  .flow ol { gap: 0.45rem; }
+  /* When rows wrap, an arrow after a chip would dangle at the line end, so on phones
+     each arrow leads into the next chip instead. */
+  .flow li:not(:last-child)::after { display: none; }
+  .flow li:not(:first-child)::before {
+    content: ""; flex: none; width: 1.1rem; height: 0.7rem; margin-right: 0.35rem; background: var(--ink);
+    -webkit-mask: var(--arrow) center / contain no-repeat; mask: var(--arrow) center / contain no-repeat;
+  }
+  .flow b { font-size: 0.875rem; padding: 0.4rem 0.8rem; }
+  .code { font-size: 0.75rem; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; border-radius: 16px; }
+  .score li { padding: 1rem 0; gap: 0.5rem 1rem; }
+  .score-q { font-size: 1.5rem; }
+  .s-facts li { font-size: 0.75rem; }
+  .door-title { font-size: clamp(2.2rem, 11vw, 3rem); }
+  .door-cta { font-size: 1rem; }
+  .door-arrow { width: 3.25rem; height: 3.25rem; }
 }

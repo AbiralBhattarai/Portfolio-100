@@ -98,7 +98,9 @@ const stageNames = ['Ingest', 'Speech', 'Transcribe', 'Clips', 'Track', 'Export'
     else {
       const io = new IntersectionObserver(
         (entries) => entries.forEach((e) => { if (e.isIntersecting) set((e.target as HTMLElement).dataset.step || '1'); }),
-        { rootMargin: '-45% 0px -45% 0px' }
+        // On phones the card sticks over the top half, so a step activates as it crosses
+        // a line low on the screen, where its text is visible below the card.
+        { rootMargin: window.matchMedia('(max-width: 900px)').matches ? '-74% 0px -22% 0px' : '-45% 0px -45% 0px' }
       );
       stepEls.forEach((el) => io.observe(el));
     }
