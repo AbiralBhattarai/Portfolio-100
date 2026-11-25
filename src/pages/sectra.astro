@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import SectraStage from '../components/SectraStage.astro';
 import Contact from '../components/Contact.astro';
-import { SECTRA, wave, arrow, right } from '../lib/site';
+import { SECTRA, to, wave, arrow, right } from '../lib/site';
 
 // Hero: one long talk, three clips cut out of it.
 const LN = 160;
@@ -79,14 +79,14 @@ const navLinks: [string, string, string][] = [
 <Base
   title="Sectra — local AI video clipping, by Abiral Bhattarai"
   description="Sectra turns long videos into short captioned clips on your own machine: local LLM, local speech-to-text, speaker tracking, a browser editor and one-click posting."
-  path="/sectra"
+  path="/sectra/"
   links={navLinks}
-  home="/"
+  home={to('/')}
 >
   <!-- Hero -->
   <section class="sectra s-hero" id="top" data-tone="stage" data-name="Sectra" aria-labelledby="s-title">
     <div class="wrap">
-      <a class="back" href="/#sectra"><Fragment set:html={right} /> Portfolio</a>
+      <a class="back" href={to('/#sectra')}><Fragment set:html={right} /> Portfolio</a>
       <h1 class="display sectra-title" id="s-title">Sectra<span>.</span></h1>
       <div class="s-hero-row">
         <p class="sub">One long video in. A stack of captioned clips out. On your own machine.</p>
@@ -186,7 +186,7 @@ const navLinks: [string, string, string][] = [
         <figure class="reframe" aria-hidden="true">
           <div class="rf-stage">
             <div class="rf-frame">
-              <img src="/images/sectra-clip-wide.webp" width="960" height="641" alt="" loading="lazy" decoding="async" />
+              <img src={to('/images/sectra-clip-wide.webp')} width="960" height="641" alt="" loading="lazy" decoding="async" />
               <p class="cap">The model is only <b>half</b> of the product</p>
             </div>
           </div>

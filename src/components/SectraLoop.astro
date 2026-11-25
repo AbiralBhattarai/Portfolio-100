@@ -3,7 +3,7 @@
 // A single timeline (--p, 0 → 1) drives everything: a playhead sweeps the
 // waveform, words appear as it passes, the clip lights up, then the vertical
 // frame pans and zooms onto the speaker while the face box tracks her.
-import { wave } from '../lib/site';
+import { wave, to } from '../lib/site';
 
 const SN = 90;
 const speech: [number, number][] = [[4, 22], [30, 62], [70, 86]];
@@ -55,7 +55,7 @@ const platforms = ['YouTube', 'TikTok', 'Instagram', 'X', 'Facebook'];
       <p class="st-note">Illustration with sample data.</p>
     </div>
     <div class="phone lp-phone">
-      <img class="shot" src="/images/sectra-clip-wide.webp" width="960" height="641" alt="" loading="lazy" decoding="async" />
+      <img class="shot" src={to('/images/sectra-clip-wide.webp')} width="960" height="641" alt="" loading="lazy" decoding="async" />
       <span class="facebox"><span>SPEAKER · 0.94</span></span>
       <span class="ratio">9:16</span>
     </div>

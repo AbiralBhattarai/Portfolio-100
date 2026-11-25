@@ -89,7 +89,7 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
 - All outbound links and the CV open in a new tab.
 - The site is a home page plus a Sectra page (`/sectra`: the clipping demo, how clips are scored, the editor, Narrator, the stack and how to run it), linking out to GitHub and the paper, plus a 404 page ("This clip got cut."). The home page keeps the Sectra clipping demo and links to `/sectra` for the rest.
 - Link previews use `public/og.png` (1200×630) with Open Graph and Twitter tags, a canonical URL and Person structured data.
-- Hosting: Netlify free tier, static build.
+- Hosting: GitHub Pages (static build, served under `/Portfolio-100`), deployed by a GitHub Actions workflow on every push to `main`. Internal links and file paths go through `to()` in `src/lib/site.ts`, which adds the base.
 
 ## Brand Commitments
 

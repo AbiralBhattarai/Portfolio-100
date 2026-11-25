@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { to } from '../lib/site';
 ---
 <!doctype html>
 <html lang="en">
@@ -8,7 +9,7 @@ import '../styles/global.css';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Page not found — Abiral Bhattarai</title>
     <meta name="robots" content="noindex" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={to('/favicon.svg')} type="image/svg+xml" />
     <script is:inline>
       (function () {
         var t = null;
@@ -26,8 +27,8 @@ import '../styles/global.css';
       </svg>
       <p class="lede">The page you're after isn't here. It may have moved, or the link has a typo.</p>
       <div class="actions">
-        <a class="pill pill-solid" href="/">Back to the portfolio</a>
-        <a class="pill pill-ink" href="/sectra">See Sectra</a>
+        <a class="pill pill-solid" href={to('/')}>Back to the portfolio</a>
+        <a class="pill pill-ink" href={to('/sectra/')}>See Sectra</a>
       </div>
     </main>
   </body>

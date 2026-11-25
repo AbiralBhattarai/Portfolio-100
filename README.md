@@ -2,13 +2,13 @@
 
 Personal portfolio site for Abiral Bhattarai, a Jr. AI/ML Engineer based in Kathmandu, Nepal.
 
-Live at [abiralbhattarai.netlify.app](https://abiralbhattarai.netlify.app).
+Live at [abiralbhattarai.github.io/Portfolio-100](https://abiralbhattarai.github.io/Portfolio-100/).
 
 ## Stack
 
 - [Astro](https://astro.build) for the static site.
 - Self-hosted Schibsted Grotesk and Fragment Mono fonts.
-- Netlify for hosting.
+- GitHub Pages for hosting, deployed by `.github/workflows/deploy.yml` on every push to `main`.
 
 ## Run locally
 

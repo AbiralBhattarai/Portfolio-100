@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import SectraLoop from '../components/SectraLoop.astro';
 import Contact from '../components/Contact.astro';
-import { EMAIL, CV, GITHUB, LINKEDIN, SECTRA, AGENT, PAPER, wave, arrow, right, mailIcon, dlIcon } from '../lib/site';
+import { EMAIL, CV, GITHUB, LINKEDIN, SECTRA, AGENT, PAPER, SITE, to, wave, arrow, right, mailIcon, dlIcon } from '../lib/site';
 
 // Hero waveform
 const HN = 150;
@@ -126,7 +126,7 @@ const navLinks: [string, string, string][] = [
 >
   <script slot="head" type="application/ld+json" set:html={JSON.stringify({
     '@context': 'https://schema.org', '@type': 'Person', name: 'Abiral Bhattarai',
-    jobTitle: 'AI/ML Engineer', url: 'https://abiralbhattarai.netlify.app/',
+    jobTitle: 'AI/ML Engineer', url: `${SITE}/`,
     address: { '@type': 'PostalAddress', addressLocality: 'Kathmandu', addressCountry: 'NP' },
     sameAs: [GITHUB, LINKEDIN],
   })} />
@@ -136,7 +136,7 @@ const navLinks: [string, string, string][] = [
     <div class="wrap">
       <h1 class="display hero-title">AI <span class="x" aria-hidden="true">×</span><span class="vh">and</span> Product.</h1>
       <div class="hero-row">
-        <p class="lede">I'm <strong>Abiral Bhattarai</strong>, an AI/ML engineer in Kathmandu. I turn models and agents into products people use, like <a class="lede-link" href="/sectra">Sectra</a>.</p>
+        <p class="lede">I'm <strong>Abiral Bhattarai</strong>, an AI/ML engineer in Kathmandu. I turn models and agents into products people use, like <a class="lede-link" href={to('/sectra/')}>Sectra</a>.</p>
         <div class="actions">
           <a class="pill pill-solid" href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu"><Fragment set:html={mailIcon} />Email me</a>
           <a class="pill pill-ink" href={CV} target="_blank" rel="noopener"><Fragment set:html={dlIcon} />View CV</a>
@@ -187,7 +187,7 @@ const navLinks: [string, string, string][] = [
         <h2 class="display sectra-title" id="sectra-title">Sectra<span>.</span></h2>
         <p class="sub">Long videos in. Captioned clips out. Everything runs on your own machine.</p>
         <div class="sectra-meta">
-          <a class="pill pill-signal" href="/sectra">The full story <Fragment set:html={right} /></a>
+          <a class="pill pill-signal" href={to('/sectra/')}>The full story <Fragment set:html={right} /></a>
           <a class="pill pill-line" href={SECTRA} target="_blank" rel="noopener">View on GitHub <Fragment set:html={arrow} /></a>
           <span class="body">My open-source clipping and narration tool. Local LLM, local speech-to-text, local voices, no upload required.</span>
         </div>
@@ -203,7 +203,7 @@ const navLinks: [string, string, string][] = [
         <SectraLoop />
       </div>
 
-      <a class="sectra-door" href="/sectra" data-reveal>
+      <a class="sectra-door" href={to('/sectra/')} data-reveal>
         <span class="door-title">There's more to Sectra<span class="door-dot">.</span></span>
         <ul class="door-list">
           {sectraMore.map(([t, p], i) => (

@@ -1,5 +1,5 @@
 ---
-import { EMAIL, CV, GITHUB, LINKEDIN, mailIcon, dlIcon } from '../lib/site';
+import { EMAIL, CV, GITHUB, LINKEDIN, to, mailIcon, dlIcon } from '../lib/site';
 
 interface Props { title?: string; lede?: string }
 const {
@@ -19,8 +19,8 @@ const {
     <footer class="foot">
       <span>© 2026 Abiral Bhattarai · Kathmandu, Nepal</span>
       <ul>
-        <li><a href="/">Portfolio</a></li>
-        <li><a href="/sectra">Sectra</a></li>
+        <li><a href={to('/')}>Portfolio</a></li>
+        <li><a href={to('/sectra/')}>Sectra</a></li>
         <li><a href={GITHUB} target="_blank" rel="noopener">GitHub</a></li>
         <li><a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a></li>
         <li><a href={CV} target="_blank" rel="noopener">CV</a></li>

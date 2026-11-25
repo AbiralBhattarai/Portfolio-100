@@ -1,7 +1,7 @@
 ---
 // Sectra's clipping pipeline as a scroll-stepped demo: steps on the left,
 // a sticky product mock on the right that advances one stage per step.
-import { wave } from '../lib/site';
+import { wave, to } from '../lib/site';
 
 const SN = 90;
 const stSpeech: [number, number][] = [[4, 22], [30, 62], [70, 86]];
@@ -72,7 +72,7 @@ const stageNames = ['Ingest', 'Speech', 'Transcribe', 'Clips', 'Track', 'Export'
           <p class="st-note">Illustration with sample data.</p>
         </div>
         <div class="phone">
-          <img class="shot" src="/images/sectra-clip-wide.webp" width="960" height="641" alt="" loading="lazy" decoding="async" />
+          <img class="shot" src={to('/images/sectra-clip-wide.webp')} width="960" height="641" alt="" loading="lazy" decoding="async" />
           <span class="facebox"><span>SPEAKER · 0.94</span></span>
           <span class="ratio">9:16</span>
           <p class="cap">The model is only <b>half</b> of the product</p>

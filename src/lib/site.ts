@@ -1,5 +1,11 @@
+// The site is served from GitHub Pages under /Portfolio-100, so every internal link
+// and file path goes through to(), which adds that base.
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+export const to = (path: string) => BASE + path;
+export const SITE = 'https://abiralbhattarai.github.io' + BASE;
+
 export const EMAIL = 'abiralbh.101@gmail.com';
-export const CV = '/abiral-bhattarai-cv.pdf';
+export const CV = to('/abiral-bhattarai-cv.pdf');
 export const GITHUB = 'https://github.com/abiralbhattarai';
 export const LINKEDIN = 'https://www.linkedin.com/in/abiral-bhattarai/';
 export const SECTRA = 'https://github.com/AbiralBhattarai/sectra';
