@@ -3,10 +3,10 @@ name: Abiral Bhattarai — AI × Product
 description: A one-page portfolio staged like a flagship product launch, with huge bold type, one product shown in motion, and actions in ultramarine.
 colors:
   ground: "#ffffff"
-  panel-grey: "#f5f5f7"
-  ink: "#111113"
-  ink-muted: "#5d5d66"
-  hairline: "#e2e2e8"
+  panel-grey: "#f2f2f0"
+  ink: "#0a0a0a"
+  ink-muted: "#46464e"
+  hairline: "#dadade"
   ultramarine: "#2b3bff"
   ultramarine-ink: "#2433e6"
   ultramarine-deep: "#1d2bd9"
@@ -17,13 +17,13 @@ colors:
   stage-hairline: "#2a2a2e"
   stage-ink: "#f5f5f7"
   stage-ink-muted: "#a3a3ab"
-  dark-ground: "#131316"
-  dark-panel: "#1c1c20"
-  dark-ink: "#f4f4f6"
-  dark-ink-muted: "#a1a1aa"
-  dark-hairline: "#2c2c33"
+  dark-ground: "#0b0b0c"
+  dark-panel: "#161618"
+  dark-ink: "#fafafa"
+  dark-ink-muted: "#a6a6ae"
+  dark-hairline: "#26262b"
   dark-ultramarine: "#3644ff"
-  dark-ultramarine-ink: "#8f98ff"
+  dark-ultramarine-ink: "#5b83ff"
   dark-ultramarine-hover: "#4b58ff"
 typography:
   display:
@@ -157,11 +157,33 @@ Motion is exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`), scroll-stepped
 
 ## Colors
 
+**Contrast bands (Nov 2026).** Black and white do the structure; ultramarine is the one colour inside the black and white sections, used in solid shapes (blocks, nodes, chips) rather than as full-bleed grounds. Lime stays with Sectra.
+
+| Band | Ground | Text | Colour | Used for |
+| --- | --- | --- | --- | --- |
+| Ground | white / `dark-ground` | ink | hook words in white on an ultramarine block; ultramarine actions, × marks, timeline dates, separators | hero, research focus, work, about, Sectra page stack |
+| Ink (`.band-ink`, tone `ink`) | black | white / `#b4b4bc` | hook word in black on a white block; ultramarine person-decides nodes and model chips; lifted blue `#5b83ff` links, DOI, nav marks | the agent, published research, "Run it yourself" |
+| Stage (`.sectra`, tone `stage`) | black | stage ink | lime | Sectra, both pages |
+| Signal (`.band-signal`, tone `signal`) | lime | black | black hook block with lime letters, black bars | Sectra page scoring |
+| Invert (tone `invert`) | ultramarine | white | white | contact |
+
+Bands remap tokens locally (`--bg`, `--ink`, `--ink-2`, `--line`, `--accent-ink`, `--hl`, `--on-hl`, `--decide`); the nav and jump button take the skin from `data-tone`. Hook words are knocked out of a solid `--hl` block (86% of the line box) that wipes in from the left. Avoid: full-bright colour bands behind body content, lime on ultramarine, orange.
+
+**Sectra by theme.** Sectra is black and lime in both themes; it does not follow the light/dark toggle.
+
+**Dark mode rhythm.** Three tones instead of one: ground `#08080a`, Sectra pure black, and the ink bands raised to charcoal `#1a1b21` with `#3a3c46` hairlines. Type stays at full strength in dark mode: ink `#ffffff`, secondary `#dedee4` (`#e2e2e8` on charcoal), links and marks `#5b83ff`. Fills keep the light-mode ultramarine `#2b3bff`. Never lighten ultramarine toward lavender (`#8f98ff`-style tints read purple on black); lift it toward true blue instead.
+
+**Theme switch.** The new theme washes across like a sea wave at 45 degrees, from the toggle's corner to the opposite one (top right to bottom left): a diagonal wave edge with two swells (1.6 and 3.7 waves along it) rolling as it moves, flat at the start and end and swelling midway. View Transitions, 1150ms, ease-in-out, over a still snapshot of the old theme. The default crossfade stays disabled until the transition has fully finished, so there is no blink at the end. Per-element colour transitions are suspended during the swap so nothing fades through muddy greys. Reduced motion, `?still` and browsers without View Transitions switch instantly.
+
+**Underlines.** Every underline is the nav's wave (26px period, a mask over `currentColor`), never a native solid or wavy text-decoration: always on for the lede's Sectra link, the hero caption link and the contact email (larger 36px wave); on hover for text links and footer links, and always on for text links in night bands. The wave rolls while hovered.
+
+**Home Sectra section.** An overview (four ruled lines plus a mono tech line) beside `SectraLoop`: one continuous 5s timeline, not steps. A lime playhead sweeps the waveform while speech bars light behind it and words fade in as it passes; the clip box and lime words come up behind the sweep; stage and post chips fill gradually; the 9:16 frame fades in, then pans and zooms to the speaker as the face box rides in and locks on. Phases overlap with ease-in-out, everything fades out together, and it loops only while on screen. No caption on the photo. The scroll-stepped version lives on `/sectra`.
+
 A white-and-ink launch page with one ultramarine action color and one lime signal reserved for the black product chapter.
 
 ### Primary
 - **Launch Ultramarine** (`ultramarine`): every primary action, the × in the hero headline, the clip in the hero waveform, the nav's timeline fill and wavy current-section underline, the 30% highlighter stroke behind each headline's hook word, the person-decides nodes in the agent graph, row-arrow hover fill, selection and focus ring. It also drenches the closing contact section edge to edge.
-- **Ultramarine Ink** (`ultramarine-ink`): ultramarine as text and thin marks (text links, work and focus-row titles on hover, the × in the research headline, mono timestamp labels, the dotted re-plan edge in the agent graph, the "|" separators in tech specs). In dark theme it lifts to `dark-ultramarine-ink` for contrast; inside the black chapter it lifts further to #9ba3ff.
+- **Ultramarine Ink** (`ultramarine-ink`): ultramarine as text and thin marks (text links, work and focus-row titles on hover, the × in the research headline, mono timestamp labels, the dotted re-plan edge in the agent graph, the "|" separators in tech specs). In dark theme and inside black sections it lifts to `#5b83ff`, a true blue, rather than a lavender tint.
 - **Deep Ultramarine** (`ultramarine-deep`): hover fill for the primary pill.
 
 ### Secondary

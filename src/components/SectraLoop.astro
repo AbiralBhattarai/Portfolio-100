@@ -1,0 +1,119 @@
+---
+// Sectra's clipping pipeline as one continuous, looping animation (home page).
+// A single timeline (--p, 0 → 1) drives everything: a playhead sweeps the
+// waveform, words appear as it passes, the clip lights up, then the vertical
+// frame pans and zooms onto the speaker while the face box tracks her.
+import { wave } from '../lib/site';
+
+const SN = 90;
+const speech: [number, number][] = [[4, 22], [30, 62], [70, 86]];
+const clip: [number, number] = [30, 62];
+const bars = wave(SN, speech, 42);
+const SW = 600, SH = 190, SBW = SW / SN;
+const rect = (b: { h: number }, i: number) => {
+  const h = Math.max(3, b.h * (SH - 12));
+  return { x: i * SBW + 1, y: SH - h, w: SBW - 2, h, rx: (SBW - 2) / 2 };
+};
+
+const words = [
+  ['so', '00:41.8'], ['the', '00:42.0'], ['model', '00:42.2'], ['is', '00:42.7'],
+  ['only', '00:42.9'], ['half', '00:43.3'], ['of', '00:43.7'], ['the', '00:43.8'],
+  ['product', '00:44.0'], ['and', '00:44.9'], ['the', '00:45.1'], ['rest', '00:45.3'],
+];
+const hl = new Set([1, 2, 3, 4, 5, 6, 7, 8]);
+const stages = ['Ingest', 'Speech', 'Transcribe', 'Clips', 'Track', 'Export', 'Post'];
+const platforms = ['YouTube', 'TikTok', 'Instagram', 'X', 'Facebook'];
+---
+<div class="loop" aria-hidden="true">
+  <div class="st-bar">
+    <span class="url">youtube.com/watch?v=… · 58:12 talk</span>
+    <span class="go">Find clips</span>
+  </div>
+  <ul class="st-stages">
+    {stages.map((n) => <li>{n}</li>)}
+  </ul>
+  <div class="st-body">
+    <div class="st-main">
+      <div class="st-wave lp-wave">
+        <svg viewBox={`0 -26 ${SW} ${SH + 26}`}>
+          <rect class="lp-clipbox" x={clip[0] * SBW - 3} y="-6" width={(clip[1] - clip[0] + 1) * SBW + 6} height={SH + 6} rx="8" />
+          <text class="lp-cliplabel" x={clip[0] * SBW + 4} y="-12">CLIP 01 · 36s</text>
+          <g class="lp-base">{bars.map((b, i) => { const r = rect(b, i); return <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={r.rx} />; })}</g>
+          <g class="lp-lit">{bars.map((b, i) => { if (!b.sp) return null; const r = rect(b, i); return <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={r.rx} />; })}</g>
+          <g class="lp-clip">{bars.map((b, i) => { if (i < clip[0] || i > clip[1]) return null; const r = rect(b, i); return <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={r.rx} />; })}</g>
+        </svg>
+        <span class="lp-head"></span>
+      </div>
+      <div class="st-words lp-words">
+        {words.map(([w, ts], i) => (
+          <span class={hl.has(i) ? 'hl' : ''} style={`--at:${(0.06 + (i / words.length) * 0.3).toFixed(3)}`}>{w}<small>{ts}</small></span>
+        ))}
+      </div>
+      <ul class="st-post">
+        {platforms.map((n) => <li><span class="dot"></span>{n}</li>)}
+      </ul>
+      <p class="st-note">Illustration with sample data.</p>
+    </div>
+    <div class="phone lp-phone">
+      <img class="shot" src="/images/sectra-clip-wide.webp" width="960" height="641" alt="" loading="lazy" decoding="async" />
+      <span class="facebox"><span>SPEAKER · 0.94</span></span>
+      <span class="ratio">9:16</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // One 7-second timeline. JS only advances time and eases a few values;
+  // CSS turns them into positions and opacities, so motion stays continuous.
+  const root = document.documentElement;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const still = root.classList.contains('still');
+  const T = 5000;
+  const clamp = (v: number) => Math.min(1, Math.max(0, v));
+  // Ease in and out, so nothing starts or stops abruptly.
+  const ease = (v: number) => 0.5 - Math.cos(Math.PI * clamp(v)) / 2;
+  const span = (p: number, a: number, b: number) => ease((p - a) / (b - a));
+
+  document.querySelectorAll<HTMLElement>('.loop').forEach((el) => {
+    const chips = Array.from(el.querySelectorAll<HTMLElement>('.st-stages li'));
+    const posts = Array.from(el.querySelectorAll<HTMLElement>('.st-post li'));
+    // Every phase overlaps the next: the frame fades in while the playhead is still
+    // sweeping, the clip lights up behind it, and tracking starts before it lands.
+    const chipAt = [0, 0.05, 0.12, 0.24, 0.34, 0.46, 0.58];
+    const postAt = [0.58, 0.61, 0.64, 0.67, 0.7];
+
+    const draw = (p: number) => {
+      const s = el.style;
+      const out = span(p, 0.88, 1);
+      s.setProperty('--sweep', span(p, 0.02, 0.5).toFixed(4));
+      s.setProperty('--clip', span(p, 0.22, 0.5).toFixed(4));
+      s.setProperty('--phone', span(p, 0.12, 0.45).toFixed(4));
+      s.setProperty('--box', span(p, 0.32, 0.5).toFixed(4));
+      s.setProperty('--track', (span(p, 0.32, 0.72) * (1 - out)).toFixed(4));
+      s.setProperty('--out', out.toFixed(4));
+      chips.forEach((c, i) => c.style.setProperty('--on', (span(p, chipAt[i], chipAt[i] + 0.12) * (1 - out)).toFixed(4)));
+      posts.forEach((c, i) => c.style.setProperty('--on', (span(p, postAt[i], postAt[i] + 0.1) * (1 - out)).toFixed(4)));
+    };
+
+    if (reduce || still) { draw(0.86); return; }
+
+    let raf = 0, start = 0, offset = 0, running = false;
+    const frame = (now: number) => {
+      const p = ((now - start + offset) % T) / T;
+      draw(p);
+      raf = requestAnimationFrame(frame);
+    };
+    draw(0);
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !running) {
+        running = true;
+        start = performance.now();
+        raf = requestAnimationFrame(frame);
+      } else if (!e.isIntersecting && running) {
+        running = false;
+        cancelAnimationFrame(raf);
+        offset = (offset + performance.now() - start) % T;
+      }
+    }, { threshold: 0.3 }).observe(el);
+  });
+</script>

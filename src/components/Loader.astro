@@ -4,7 +4,7 @@
 ---
 <style is:inline>
   #loader {
-    --l-bg: #ffffff; --l-ink: #111113; --l-ink2: #5d5d66; --l-line: #e2e2e8; --l-accent: #2b3bff;
+    --l-bg: #ffffff; --l-ink: #0a0a0a; --l-ink2: #46464e; --l-line: #e2e2e8; --l-accent: #2b3bff;
     position: fixed; inset: 0; z-index: 100;
     display: grid; grid-template-rows: auto 1fr auto;
     background: var(--l-bg); color: var(--l-ink);
@@ -13,7 +13,7 @@
     -webkit-tap-highlight-color: transparent;
     user-select: none;
   }
-  :root[data-theme="dark"] #loader { --l-bg: #131316; --l-ink: #f4f4f6; --l-ink2: #a1a1aa; --l-line: #2c2c33; --l-accent: #8f98ff; }
+  :root[data-theme="dark"] #loader { --l-bg: #08080a; --l-ink: #ffffff; --l-ink2: #dedee4; --l-line: #34343c; --l-accent: #5b83ff; }
   .no-js #loader { display: none; }
   #loader.out { opacity: 0; visibility: hidden; pointer-events: none; }
   #loader .l-in { opacity: 0; animation: l-show 0.4s 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }

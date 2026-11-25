@@ -87,7 +87,7 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
 - Main actions: Email and View CV, with equal weight. Email opens a chooser (Gmail, Outlook.com, Yahoo Mail, the visitor's mail app, or copy the address) rather than forcing the system mail app.
 - The contact line invites conversation ("Always up for talking AI, agents, open source and product."); no "hiring" or "open to work" language anywhere.
 - All outbound links and the CV open in a new tab.
-- The site is one page, linking out to GitHub and the paper, plus a 404 page ("This clip got cut.").
+- The site is a home page plus a Sectra page (`/sectra`: the clipping demo, how clips are scored, the editor, Narrator, the stack and how to run it), linking out to GitHub and the paper, plus a 404 page ("This clip got cut."). The home page keeps the Sectra clipping demo and links to `/sectra` for the rest.
 - Link previews use `public/og.png` (1200×630) with Open Graph and Twitter tags, a canonical URL and Person structured data.
 - Hosting: Netlify free tier, static build.
 

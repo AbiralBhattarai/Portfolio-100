@@ -1,0 +1,30 @@
+---
+import { EMAIL, CV, GITHUB, LINKEDIN, mailIcon, dlIcon } from '../lib/site';
+
+interface Props { title?: string; lede?: string }
+const {
+  title = "Let's build the next one.",
+  lede = 'Always up for talking AI, agents, open source and product. Say hi. Based in Kathmandu, Nepal.',
+} = Astro.props;
+---
+<section class="contact" id="contact" data-tone="invert" data-name="Contact" aria-labelledby="contact-title">
+  <div class="wrap">
+    <h2 class="display contact-title" id="contact-title">{title}</h2>
+    <p class="lede">{lede}</p>
+    <a class="mail" href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu">{EMAIL}</a>
+    <div class="actions">
+      <a class="pill pill-ink" href={`mailto:${EMAIL}`} data-mail aria-haspopup="menu"><Fragment set:html={mailIcon} />Email me</a>
+      <a class="pill pill-dark" href={CV} target="_blank" rel="noopener"><Fragment set:html={dlIcon} />View CV</a>
+    </div>
+    <footer class="foot">
+      <span>© 2026 Abiral Bhattarai · Kathmandu, Nepal</span>
+      <ul>
+        <li><a href="/">Portfolio</a></li>
+        <li><a href="/sectra">Sectra</a></li>
+        <li><a href={GITHUB} target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href={LINKEDIN} target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href={CV} target="_blank" rel="noopener">CV</a></li>
+      </ul>
+    </footer>
+  </div>
+</section>
