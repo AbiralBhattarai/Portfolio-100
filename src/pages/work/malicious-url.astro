@@ -1,0 +1,39 @@
+---
+import Project from '../../layouts/Project.astro';
+import PSection from '../../components/PSection.astro';
+import UrlFig from '../../components/graphics/UrlFig.astro';
+
+const links: [string, string, string][] = [
+  ['Overview', '#top', 'top'],
+  ['The model', '#model', 'model'],
+  ['Extension', '#extension', 'extension more'],
+  ['Contact', '#contact', 'contact'],
+];
+---
+<Project
+  slug="malicious-url"
+  description="A malicious URL detector by Abiral Bhattarai: an LSTM that classifies URLs as malicious or benign, shipped as a Chrome extension that blocks them."
+  links={links}
+>
+  <UrlFig slot="fig" />
+
+  <PSection
+    id="model" name="The model"
+    title='Reading a URL in <span class="hook">order</span>.'
+    sub="A URL is a short sequence of words, so a sequence model reads it."
+    rows={[
+      ['Tokens', 'Each URL is split into word tokens at its dots, slashes and dashes, mapped to numbers and padded to a fixed length.'],
+      ['Embedding and LSTM', 'An embedding layer turns each token into a vector, and an LSTM reads them one after another, carrying what it has seen so far.'],
+      ['One score', 'The last output goes through a sigmoid: near 1 is malicious, near 0 is benign. Trained with binary cross-entropy and gradient clipping.'],
+    ]}
+  />
+
+  <PSection
+    id="extension" name="Extension" tone="ink"
+    title='Shipped as a <span class="hook">Chrome</span> extension.'
+    rows={[
+      ['Blocks the page', 'The model sits behind a Chrome extension that stops you from opening URLs it flags as malicious.'],
+      ['In the repo', 'The data exploration, the training notebook, a test notebook, and the extension itself: manifest, background script and popup.'],
+    ]}
+  />
+</Project>

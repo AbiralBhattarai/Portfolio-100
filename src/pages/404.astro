@@ -20,15 +20,15 @@ import { to } from '../lib/site';
   </head>
   <body>
     <main class="nf wrap">
-      <p class="nf-code">404 · 00:00 – 00:00</p>
-      <h1 class="display nf-title">This clip<br />got cut.</h1>
+      <p class="nf-code">404 · confidence 0.00</p>
+      <h1 class="display nf-title">Sorry, as an AI<br />I can&rsquo;t find that.</h1>
       <svg class="nf-wave" viewBox="0 0 600 60" aria-hidden="true">
         {Array.from({ length: 50 }, (_, i) => <rect x={i * 12 + 2} y="27" width="8" height="6" rx="3" />)}
       </svg>
-      <p class="lede">The page you're after isn't here. It may have moved, or the link has a typo.</p>
+      <p class="lede">I searched everywhere and this page doesn&rsquo;t exist. Either it moved, the link has a typo, or I hallucinated it.</p>
       <div class="actions">
         <a class="pill pill-solid" href={to('/')}>Back to the portfolio</a>
-        <a class="pill pill-ink" href={to('/sectra/')}>See Sectra</a>
+        <a class="pill pill-ink" href={to('/#sectra')}>See my work</a>
       </div>
     </main>
   </body>
@@ -37,7 +37,7 @@ import { to } from '../lib/site';
 <style>
   .nf { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; gap: 2rem; padding-block: 4rem; }
   .nf-code { font-family: var(--mono); font-size: 0.875rem; color: var(--accent-ink); }
-  .nf-title { font-size: clamp(4rem, 13vw, 10rem); }
+  .nf-title { font-size: clamp(3.25rem, 10vw, 8.5rem); }
   .nf-wave { width: min(100%, 36rem); height: auto; }
   .nf-wave rect { fill: color-mix(in srgb, var(--ink) 22%, transparent); }
 </style>

@@ -1,0 +1,63 @@
+---
+import Project from '../../layouts/Project.astro';
+import PSection from '../../components/PSection.astro';
+import PeptideFig from '../../components/graphics/PeptideFig.astro';
+import { PAPER, arrow } from '../../lib/site';
+
+const links: [string, string, string][] = [
+  ['Overview', '#top', 'top'],
+  ['Question', '#question', 'question'],
+  ['Models', '#models', 'models'],
+  ['Paper', '#paper', 'paper more'],
+  ['Contact', '#contact', 'contact'],
+];
+---
+<Project
+  slug="binding-affinity"
+  description="Research by Abiral Bhattarai, published in JACEM 2025: LSTM, TCN and Transformer models compared for MHC-II peptide binding affinity prediction."
+  links={links}
+>
+  <PeptideFig slot="fig" />
+
+  <PSection
+    id="question" name="Question"
+    title='Will this peptide <span class="hook">bind</span>?'
+    sub="MHC-II molecules show peptides to the immune system. Predicting which ones bind helps find epitopes."
+    rows={[
+      ['Two sequences in', 'Each example pairs a peptide with the pseudo-sequence of an MHC-II allele. Both are tokenized with the ESM-2 protein tokenizer.'],
+      ['Two tasks', 'Regression predicts a binding affinity score between 0 and 1. Classification predicts whether the pair binds at all.'],
+    ]}
+  />
+
+  <PSection
+    id="models" name="Models" tone="ink"
+    title='Three <span class="hook">architectures</span>, compared.'
+    rows={[
+      ['LSTM', 'Reads residues in order, carrying memory along the sequence.'],
+      ['TCN', 'Stacks dilated 1D convolutions with residual connections, so each layer sees a wider span.'],
+      ['Transformer', 'An encoder with positional encoding, where every residue attends to every other.'],
+      ['Ensembles', 'For each architecture and each task an ensemble was built, and all were compared on regression and classification metrics. Hyperparameters were searched with Optuna.'],
+    ]}
+  />
+
+  <section class="section" id="paper" data-name="Paper" aria-labelledby="paper-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="paper-title"><span class="hook">Published</span> in JACEM.</h2>
+      </div>
+      <div class="paper">
+        <div>
+          <p class="paper-title">Comparative Study of Deep Learning Models for MHC-II and Epitope Binding Affinity Prediction</p>
+          <p class="paper-meta">JACEM · 2025 · doi:10.3126/jacem.v11i1.84250</p>
+        </div>
+        <div class="paper-side">
+          <p class="body">My final-year research for the B.E. in Computer Engineering at Tribhuvan University.</p>
+          <div class="paper-links">
+            <a class="textlink" href={PAPER} target="_blank" rel="noopener">Read the paper <Fragment set:html={arrow} /></a>
+            <a class="textlink" href="https://github.com/AbiralBhattarai/Protein_Pep_Binding_Affinity_Pred" target="_blank" rel="noopener">See the code <Fragment set:html={arrow} /></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Project>

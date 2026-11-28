@@ -1,0 +1,100 @@
+---
+// The binding-affinity study: a peptide and its MHC-II pseudo-sequence (a real
+// row from the project's dataset) are tokenized with the ESM-2 tokenizer, then
+// read by three architectures, each drawn the way it sees a sequence.
+const pep = 'PKYVKQNTLKLAT';
+const mhc = 'YAFFMFSGGAILNTLFGQFEYFDIEEVRMHLGMT';
+const aaAt = (i: number, n: number, a: number, b: number) => {
+  const s = a + (i / n) * (b - a);
+  return `${s.toFixed(3)},${(s + 0.04).toFixed(3)}`;
+};
+
+// LSTM: a chain of cells, one residue each, memory passed along.
+const lstm = pep.slice(0, 6).split('');
+// TCN: dilated causal convolutions, the view doubling each layer.
+const TN = 8, dil = [1, 2, 4];
+const tx = (i: number) => 20 + i * 34;
+const ty = (l: number) => 128 - l * 36;
+// Transformer: one residue attending to every other one.
+const TR = 7, focal = 3;
+const rx = (i: number) => 28 + i * 44;
+const weights = [0.35, 0.8, 0.55, 0, 0.9, 0.3, 0.6];
+---
+<div class="pep" data-timeline data-period="9000" data-rest="0.88" data-out="0.92" role="img"
+  aria-label={`Diagram: the peptide ${pep} and the MHC-II pseudo-sequence ${mhc} go through the ESM-2 tokenizer, then into three models: an LSTM that reads residues in order, a TCN whose dilated convolutions widen their view each layer, and a Transformer where each residue attends to every other. Each architecture is built as an ensemble and trained for two tasks: a binding affinity score, and binds or not.`}>
+  <div class="pep-in" aria-hidden="true">
+    <div class="pep-seq">
+      <span class="pep-l">Peptide</span>
+      <ol class="aa">{pep.split('').map((c, i) => <li data-at={aaAt(i, pep.length, 0.02, 0.12)}>{c}</li>)}</ol>
+    </div>
+    <div class="pep-seq">
+      <span class="pep-l">MHC-II · HLA-DPA1*01:03 / DPB1*02:01</span>
+      <ol class="aa aa-sm">{mhc.split('').map((c, i) => <li data-at={aaAt(i, mhc.length, 0.06, 0.2)}>{c}</li>)}</ol>
+    </div>
+  </div>
+
+  <div class="pep-tok" aria-hidden="true"><span class="pep-node" data-at="0.21,0.26">ESM-2 tokenizer</span></div>
+
+  <ol class="pep-lanes" aria-hidden="true">
+    <li data-at="0.28,0.33">
+      <h4>LSTM</h4>
+      <svg viewBox="0 0 320 150">
+        <defs><marker id="pah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z" class="g-head" /></marker></defs>
+        {lstm.map((c, i) => (
+          <g class="pl-cell" data-at={`${(0.3 + i * 0.05).toFixed(2)},${(0.34 + i * 0.05).toFixed(2)}`}>
+            <rect x={12 + i * 51} y="48" width="32" height="38" rx="10" />
+            <text class="pl-aa" x={28 + i * 51} y="114">{c}</text>
+          </g>
+        ))}
+        {lstm.slice(0, -1).map((_, i) => <path class="g-edge" d={`M${47 + i * 51} 67 H${58 + i * 51}`} marker-end="url(#pah1)" />)}
+        <text class="pl-note" x="12" y="30">memory carried left to right</text>
+      </svg>
+      <p>Reads the sequence in order, one residue at a time.</p>
+      <span class="pep-ens">Ensemble</span>
+    </li>
+    <li data-at="0.36,0.41">
+      <h4>TCN</h4>
+      <svg viewBox="0 0 320 150">
+        {dil.map((d, l) => (
+          <g class="pl-layer" data-at={`${(0.4 + l * 0.08).toFixed(2)},${(0.46 + l * 0.08).toFixed(2)}`}>
+            {Array.from({ length: TN }, (_, i) => i).filter((i) => i - d >= 0).map((i) => (
+              <>
+                <line x1={tx(i)} y1={ty(l + 1)} x2={tx(i)} y2={ty(l)} />
+                <line x1={tx(i)} y1={ty(l + 1)} x2={tx(i - d)} y2={ty(l)} />
+              </>
+            ))}
+          </g>
+        ))}
+        {[0, 1, 2, 3].map((l) => Array.from({ length: TN }, (_, i) => (
+          <circle class={`pl-dot${l === 3 && i === TN - 1 ? ' top' : ''}`} cx={tx(i)} cy={ty(l)} r={l === 3 && i === TN - 1 ? 8 : 5.5} />
+        )))}
+        {dil.map((d, l) => <text class="pl-note" x="318" y={ty(l + 1) + 4} text-anchor="end">d={d}</text>)}
+      </svg>
+      <p>Dilated convolutions see a wider span of the sequence at each layer.</p>
+      <span class="pep-ens">Ensemble</span>
+    </li>
+    <li data-at="0.44,0.49">
+      <h4>Transformer</h4>
+      <svg viewBox="0 0 320 150">
+        {weights.map((w, i) => i === focal ? null : (
+          <path class="pl-arc" data-at={`${(0.5 + i * 0.025).toFixed(3)},${(0.56 + i * 0.025).toFixed(3)}`} style={`--w:${w}`}
+            d={`M${rx(focal)} 110 Q${(rx(focal) + rx(i)) / 2} ${110 - Math.abs(i - focal) * 30} ${rx(i)} 110`} />
+        ))}
+        {pep.slice(3, 3 + TR).split('').map((c, i) => (
+          <g>
+            <circle class={`pl-dot${i === focal ? ' top' : ''}`} cx={rx(i)} cy="118" r={i === focal ? 9 : 6.5} />
+            <text class="pl-aa" x={rx(i)} y="145">{c}</text>
+          </g>
+        ))}
+      </svg>
+      <p>Every residue attends to every other, near or far.</p>
+      <span class="pep-ens">Ensemble</span>
+    </li>
+  </ol>
+
+  <div class="pep-outs" aria-hidden="true">
+    <span data-at="0.72,0.77"><b>Regression</b> How strongly does it bind?</span>
+    <span data-at="0.76,0.81"><b>Classification</b> Does it bind or not?</span>
+  </div>
+  <p class="fig-note" aria-hidden="true">One row from the project's dataset. Diagrams are simplified.</p>
+</div>

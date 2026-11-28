@@ -271,17 +271,27 @@ if ('IntersectionObserver' in window && !still) {
   revealables.forEach((h) => rio.observe(h));
 } else revealables.forEach((h) => h.classList.add('in'));
 
-// Next-section / back-to-top button
+// Next-section / back-to-top button, and the project pages' back button
+// opposite it. Both are fixed to the bottom corners, so they take the tone of
+// whichever band is behind them.
 const jump = document.querySelector<HTMLButtonElement>('[data-jump]');
+const back = document.querySelector<HTMLElement>('[data-back]');
 const atBottom = () => window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 8;
+const toneUnder = (el: HTMLElement) => {
+  const r = el.getBoundingClientRect();
+  const probe = r.top + r.height / 2;
+  const under = allSections.find((s) => { const b = s.getBoundingClientRect(); return b.top <= probe && b.bottom > probe; });
+  return under?.dataset.tone || 'ground';
+};
 const syncJump = () => {
+  if (back) {
+    const bt = toneUnder(back);
+    if (back.dataset.tone !== bt) back.dataset.tone = bt;
+  }
   if (!jump) return;
   const up = atBottom();
   jump.classList.toggle('up', up);
-  const jr = jump.getBoundingClientRect();
-  const probe = jr.top + jr.height / 2;
-  const under = allSections.find((el) => { const b = el.getBoundingClientRect(); return b.top <= probe && b.bottom > probe; });
-  const tone = under?.dataset.tone || 'ground';
+  const tone = toneUnder(jump);
   if (jump.dataset.tone !== tone) jump.dataset.tone = tone;
   jump.setAttribute('aria-label', up ? 'Back to top' : 'Go to next section');
 };
@@ -307,12 +317,12 @@ const onScroll = () => {
   ticking = true;
   requestAnimationFrame(() => { syncJump(); ticking = false; });
 };
-if (jump) {
+if (jump || back) {
   syncJump();
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
   ['wheel', 'touchstart', 'keydown'].forEach((ev) => window.addEventListener(ev, () => cancelAnimationFrame(anim), { passive: true }));
-  jump.addEventListener('click', () => {
+  jump?.addEventListener('click', () => {
     if (atBottom()) { glide(0); return; }
     const offset = 72;
     const next = allSections.find((el) => el.getBoundingClientRect().top > offset + 8);

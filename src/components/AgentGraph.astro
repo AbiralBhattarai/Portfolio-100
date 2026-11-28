@@ -1,0 +1,86 @@
+---
+// The marketing agent's graph: a linear setup, then a ReAct loop (LLM <-> tools)
+// that exits to the campaign. Drawn twice: wide for desktop, tall for phones.
+const setup = [
+  { k: 'in', t: 'Your prompt' },
+  { k: 'ai', t: 'Plan the steps' },
+  { k: 'human', t: 'You approve' },
+  { k: 'ai', t: 'Find competitors' },
+  { k: 'human', t: 'You pick sites' },
+];
+const toolChips = ['Web search', 'Campaign history', 'Parse to JSON'];
+---
+      <figure class="graph-wrap">
+        <svg class="graph g-lg" viewBox="0 -30 1200 720" role="img" aria-labelledby="g-desc">
+          <desc id="g-desc">The agent's graph. Your prompt leads to planning the steps, which you approve or reject to re-plan. It then finds competitors and you pick which sites to study. Next comes a loop: the LLM calls tools (web search, campaign history, parsing to JSON), reads the results, and repeats. When it is ready, it generates the campaign.</desc>
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+          </defs>
+          {setup.map((n, i) => {
+            const x = 30 + i * 240;
+            return (
+              <g class={`g-node ${n.k}`}>
+                <rect x={x} y="52" width="180" height="56" rx="28" />
+                <text x={x + 90} y="86">{n.t}</text>
+                {i < setup.length - 1 && <path class="g-edge" d={`M${x + 184} 80 H${x + 236}`} marker-end="url(#ah)" />}
+              </g>
+            );
+          })}
+          <path class="g-edge g-back" d="M600 50 C600 4, 360 4, 360 48" marker-end="url(#ah)" />
+          <text class="g-label" x="480" y="-12">reject: re-plan</text>
+
+          <path class="g-edge" d="M1080 110 V170 C1080 225, 690 200, 690 268" marker-end="url(#ah)" />
+
+          <circle class="g-ring" cx="690" cy="440" r="150" />
+          <text class="g-loop" x="690" y="440">ReAct loop</text>
+          <text class="g-label" x="690" y="468">repeats until the plan is complete</text>
+
+          <path class="g-edge g-cycle" d="M792 300 C940 330, 940 550, 792 580" marker-end="url(#ah)" />
+          <text class="g-label ta-s" x="950" y="445">calls a tool</text>
+          <path class="g-edge g-cycle" d="M588 580 C440 550, 440 330, 588 300" marker-end="url(#ah)" />
+          <text class="g-label ta-e" x="430" y="445">reads results</text>
+
+          <g class="g-node ai"><rect x="590" y="270" width="200" height="60" rx="30" /><text x="690" y="306">LLM</text></g>
+          <g class="g-node tool"><rect x="590" y="550" width="200" height="60" rx="30" /><text x="690" y="586">Tools</text></g>
+          {toolChips.map((c, i) => <text class="g-chip" x={530 + i * 160} y="650">{c}</text>)}
+
+          <path class="g-edge" d="M588 290 C400 290, 150 300, 150 402" marker-end="url(#ah)" />
+          <text class="g-label" x="330" y="280">when ready, generate</text>
+          <g class="g-node end"><rect x="50" y="406" width="200" height="60" rx="30" /><text x="150" y="442">Campaign</text></g>
+        </svg>
+        <svg class="graph g-sm" viewBox="0 0 400 1010" role="img" aria-label="The agent's graph: prompt, plan, your approval, competitors, your pick of sites, then a loop where the LLM calls tools and reads results until it generates the campaign.">
+          <defs>
+            <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+          </defs>
+          {setup.map((n, i) => {
+            const y = 20 + i * 92;
+            return (
+              <g class={`g-node ${n.k}`}>
+                <rect x="90" y={y} width="220" height="54" rx="27" />
+                <text x="200" y={y + 33}>{n.t}</text>
+                {i < setup.length - 1 && <path class="g-edge" d={`M200 ${y + 56} V${y + 90}`} marker-end="url(#ahm)" />}
+              </g>
+            );
+          })}
+          <path class="g-edge g-back" d="M88 230 C40 230, 40 139, 88 139" marker-end="url(#ahm)" />
+          <text class="g-label" x="24" y="185" transform="rotate(-90 24 185)">re-plan</text>
+
+          <path class="g-edge" d="M200 424 V474" marker-end="url(#ahm)" />
+          <circle class="g-ring" cx="200" cy="630" r="128" />
+          <path class="g-edge g-cycle" d="M290 500 C370 540, 370 720, 290 760" marker-end="url(#ahm)" />
+          <path class="g-edge g-cycle" d="M110 760 C30 720, 30 540, 110 500" marker-end="url(#ahm)" />
+          <text class="g-loop" x="200" y="625" style="font-size:24px">ReAct loop</text>
+          <text class="g-label" x="200" y="652">calls tools, reads results</text>
+          <g class="g-node ai"><rect x="110" y="476" width="180" height="54" rx="27" /><text x="200" y="509">LLM</text></g>
+          <g class="g-node tool"><rect x="110" y="732" width="180" height="54" rx="27" /><text x="200" y="765">Tools</text></g>
+          <text class="g-chip" x="200" y="816">Web search · History · JSON</text>
+
+          <path class="g-edge" d="M200 838 V918" marker-end="url(#ahm)" />
+          <text class="g-label ta-s" x="214" y="884">when ready</text>
+          <g class="g-node end"><rect x="100" y="922" width="200" height="56" rx="28" /><text x="200" y="956">Campaign</text></g>
+        </svg>
+      </figure>
+      <div class="flow-key" aria-hidden="true">
+        <span><i class="k-human"></i>A person decides</span>
+        <span><i class="k-ai"></i>The agent works</span>
+      </div>

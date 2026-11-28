@@ -1,0 +1,40 @@
+---
+// The URL detector end to end: a URL is typed, split into tokens, read left to
+// right by the LSTM (its hidden state carried from cell to cell), scored by a
+// sigmoid, and the extension stops the page.
+const url = 'http://login-verify.account-update.xyz/secure/signin.php';
+const tokens = ['http', 'login', 'verify', 'account', 'update', 'xyz', 'secure', 'signin', 'php'];
+const t0 = 0.2, dt = 0.052;
+const tokAt = (i: number) => `${(t0 + i * dt).toFixed(3)},${(t0 + i * dt + 0.06).toFixed(3)}`;
+const end = t0 + tokens.length * dt;
+---
+<div class="ud" data-timeline data-period="8000" data-rest="0.88" data-out="0.92" role="img"
+  aria-label={`Diagram: the URL ${url} is split into the tokens ${tokens.join(', ')}. An LSTM reads them one by one, carrying its memory from each token to the next. A sigmoid on the last output scores the URL as malicious, and the Chrome extension blocks the page.`}>
+  <div class="ud-bar" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/><path d="M1.75 8h12.5M8 1.75c2 2.2 2 10.3 0 12.5M8 1.75c-2 2.2-2 10.3 0 12.5" stroke="currentColor" stroke-width="1.2"/></svg>
+    <span class="ud-url" data-at="0.02,0.16"><span>{url}</span></span>
+  </div>
+
+  <ol class="ud-chain" aria-hidden="true">
+    {tokens.map((t, i) => (
+      <li data-at={tokAt(i)}>
+        <span class="ud-tok">{t}</span>
+        <span class="ud-cell">LSTM</span>
+      </li>
+    ))}
+  </ol>
+
+  <div class="ud-out" aria-hidden="true">
+    <span class="ud-sig" data-at={`${end.toFixed(3)},${(end + 0.05).toFixed(3)}`}><b>σ</b> last output → 0 to 1</span>
+    <span class="ud-verdict" data-at={`${(end + 0.04).toFixed(3)},${(end + 0.09).toFixed(3)}`}>Malicious</span>
+    <div class="ud-block" data-at={`${(end + 0.1).toFixed(3)},${(end + 0.16).toFixed(3)}`}>
+      <span class="ud-tab"><i></i><i></i><i></i><span>login-verify.account-update.xyz</span></span>
+      <span class="ud-stop">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5 4 5.5v6c0 4.6 3.3 8.6 8 10 4.7-1.4 8-5.4 8-10v-6z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 9 6 6m0-6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <b>Blocked</b>
+        <small>The model flagged this URL, so the extension stopped the page.</small>
+      </span>
+    </div>
+  </div>
+  <p class="fig-note" aria-hidden="true">Illustration with a made-up URL.</p>
+</div>

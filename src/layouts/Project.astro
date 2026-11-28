@@ -1,0 +1,62 @@
+---
+// One project's page: back link, numbered title, what it is, the project's own
+// graphic, then the sections the page passes in, then the next project.
+import Base from './Base.astro';
+import Contact from '../components/Contact.astro';
+import NextProject from '../components/NextProject.astro';
+import BackButton from '../components/BackButton.astro';
+import '../styles/project.css';
+import { to, arrow, right } from '../lib/site';
+import { project, num } from '../lib/projects';
+
+interface Props {
+  slug: string;
+  description: string;
+  /** Section links for the nav: [label, href, ids]. */
+  links: [string, string, string][];
+  /** Extra line under the meta row, e.g. why a repo is not public. */
+  note?: string;
+}
+const { slug, description, links, note } = Astro.props;
+const p = project(slug);
+const n = num(slug);
+---
+<Base
+  title={`${p.title} — a project by Abiral Bhattarai`}
+  description={description}
+  path={`/work/${slug}/`}
+  links={links}
+  home={to('/')}
+>
+  <BackButton slug={slug} title={p.title} />
+
+  <section class="section p-hero" id="top" data-name={p.title} aria-labelledby="p-title">
+    <div class="wrap">
+      <h1 class="display p-title" id="p-title"><span class="p-n">{n}</span>{p.title}<span class="p-dot">.</span></h1>
+      <div class="p-hero-row">
+        <p class="sub">{p.line}</p>
+        <div class="p-meta">
+          <p class="p-kind">{p.kind}</p>
+          <ul class="tags">{p.tags.map((t) => <li>{t}</li>)}</ul>
+          <div class="p-links">
+            {p.repo && <a class="pill pill-ink" href={p.repo} target="_blank" rel="noopener">View the code <Fragment set:html={arrow} /></a>}
+            {p.paper && <a class="pill pill-line" href={p.paper} target="_blank" rel="noopener">Read the paper <Fragment set:html={arrow} /></a>}
+          </div>
+          {note && <p class="p-note">{note}</p>}
+        </div>
+      </div>
+      <figure class="p-fig">
+        <slot name="fig" />
+      </figure>
+    </div>
+  </section>
+
+  <slot />
+
+  <NextProject slug={slug} />
+  <Contact title="Want to talk about it?" lede="Questions, ideas, or something you'd build differently. Say hi. Based in Kathmandu, Nepal." />
+</Base>
+
+<script>
+  import '../scripts/timeline';
+</script>

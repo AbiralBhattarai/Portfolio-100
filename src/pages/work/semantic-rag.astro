@@ -1,0 +1,52 @@
+---
+import Project from '../../layouts/Project.astro';
+import PSection from '../../components/PSection.astro';
+import RagFig from '../../components/graphics/RagFig.astro';
+
+const links: [string, string, string][] = [
+  ['Overview', '#top', 'top'],
+  ['How it works', '#how', 'how'],
+  ['The cache', '#cache', 'cache'],
+  ['Stack', '#stack', 'stack more'],
+  ['Contact', '#contact', 'contact'],
+];
+---
+<Project
+  slug="semantic-rag"
+  description="SemanticRag by Abiral Bhattarai: a chatbot that answers questions from Nepali banking documents with ChromaDB retrieval and Gemini, and a Redis semantic cache for repeat questions."
+  links={links}
+>
+  <RagFig slot="fig" />
+
+  <PSection
+    id="how" name="How it works"
+    title='Answers from the <span class="hook">documents</span>.'
+    sub="A chatbot over Nepali banking documents: policies, statistics and bank profiles."
+    rows={[
+      ['Retrieve', 'Documents are split into chunks with LangChain, embedded with <b>all-MiniLM-L6-v2</b> and stored in ChromaDB. A question pulls back the closest chunks.'],
+      ['Answer', 'Gemini 2.0 Flash writes the answer from those chunks.'],
+      ['Add documents', 'New PDFs go in through an upload endpoint. File hashes and embedding comparison keep the same document from being stored twice.'],
+    ]}
+  />
+
+  <PSection
+    id="cache" name="The cache" tone="ink"
+    title='A cache that knows a <span class="hook">repeat</span>.'
+    sub="People ask the same thing in different words. The cache still catches it."
+    rows={[
+      ['Meaning, not spelling', 'A normal cache only helps when a question is typed exactly the same way twice. This one embeds each question and compares it with the questions already answered.'],
+      ['The threshold', 'If a stored question falls within the 0.15 similarity threshold, Redis returns its answer and the LLM is never called.'],
+      ['Saved for next time', 'Every new answer is stored, so the next person who asks it another way gets it straight from the cache.'],
+    ]}
+  />
+
+  <PSection
+    id="stack" name="Stack"
+    title='What it&rsquo;s <span class="hook">built</span> with.'
+    rows={[
+      ['Backend', 'FastAPI with <code>/chat</code>, <code>/upload</code>, a health check, and cache and database statistics.'],
+      ['Frontend', 'Streamlit: the chat with history, PDF upload, live cache and database stats, and questions in English or Nepali.'],
+      ['Runs with', 'Docker Compose, Redis (cloud or local) and a Google AI key.'],
+    ]}
+  />
+</Project>

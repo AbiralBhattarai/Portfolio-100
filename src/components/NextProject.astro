@@ -1,0 +1,25 @@
+---
+// Previous and next project, as two big ruled links.
+import '../styles/project.css';
+import { right } from '../lib/site';
+import { neighbours, num } from '../lib/projects';
+
+interface Props { slug: string }
+const { prev, next } = neighbours(Astro.props.slug);
+---
+<section class="section p-more" id="more" data-name="More work" aria-label="More projects">
+  <div class="wrap">
+    <div class="p-more-grid">
+      <a class="p-more-link prev" href={prev.href}>
+        <span class="p-more-dir"><span class="p-more-arrow"><Fragment set:html={right} /></span>Previous</span>
+        <span class="p-more-title"><span class="p-n">{num(prev.slug)}</span>{prev.title}</span>
+        <span class="p-more-line">{prev.line}</span>
+      </a>
+      <a class="p-more-link next" href={next.href}>
+        <span class="p-more-dir">Next<span class="p-more-arrow"><Fragment set:html={right} /></span></span>
+        <span class="p-more-title"><span class="p-n">{num(next.slug)}</span>{next.title}</span>
+        <span class="p-more-line">{next.line}</span>
+      </a>
+    </div>
+  </div>
+</section>

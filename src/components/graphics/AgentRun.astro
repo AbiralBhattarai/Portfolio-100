@@ -1,0 +1,41 @@
+---
+// One run of the marketing agent in its terminal, line by line. The agent is
+// interactive in the terminal, so the two human checkpoints are prompts.
+type Line = { k: 'cmd' | 'ask' | 'out' | 'tool' | 'done'; t: string; a?: string };
+const lines: Line[] = [
+  { k: 'cmd', t: 'uv run src/main.py' },
+  { k: 'ask', t: 'Campaign prompt', a: 'Launch a reusable water bottle for students' },
+  { k: 'out', t: 'Plan: 5 steps, 2 in parallel · timeline drawn as a Mermaid diagram' },
+  { k: 'ask', t: 'Approve this plan? [y/n]', a: 'y' },
+  { k: 'out', t: 'Found 8 competitor sites' },
+  { k: 'ask', t: 'Pick the sites to study', a: '1, 3, 4' },
+  { k: 'tool', t: 'llm → web_search', a: 'student hydration trends' },
+  { k: 'tool', t: 'llm → campaign_history', a: 'consumer goods, students' },
+  { k: 'tool', t: 'llm → parse_to_json', a: 'competitor pages' },
+  { k: 'done', t: 'llm → generation_tool', a: 'campaign ready' },
+];
+const at = (i: number) => {
+  const s = 0.03 + i * 0.075;
+  return `${s.toFixed(3)},${(s + 0.035).toFixed(3)}`;
+};
+---
+<div class="run" data-timeline data-period="10000" data-rest="0.88" data-out="0.93" role="img"
+  aria-label="Illustration of one terminal run: you give a campaign prompt, the agent plans five steps and asks you to approve them, finds eight competitor sites and asks which to study, then loops through web search, campaign history and JSON parsing before the generation tool writes the campaign.">
+  <div class="run-top" aria-hidden="true"><i></i><i></i><i></i><span>marketing_agent</span></div>
+  <ol class="run-lines" aria-hidden="true">
+    {lines.map((l, i) => (
+      <li class={`rl-${l.k}`} data-at={at(i)}>
+        {l.k === 'ask'
+          ? <span class="rl-you">You</span>
+          : <span class="rl-mark">{l.k === 'cmd' ? '$' : l.k === 'out' ? '●' : l.k === 'tool' ? '↻' : '✓'}</span>}
+        <span class="rl-text">
+          {l.k === 'ask' && <><span class="rl-q">{l.t} ›</span> <b>{l.a}</b></>}
+          {(l.k === 'cmd' || l.k === 'out') && l.t}
+          {l.k === 'tool' && <>{l.t}<span class="rl-arg">("{l.a}")</span></>}
+          {l.k === 'done' && <>{l.t}<span class="rl-arg"> · {l.a}</span></>}
+        </span>
+      </li>
+    ))}
+  </ol>
+  <p class="run-note" aria-hidden="true">Illustration with a sample prompt.</p>
+</div>

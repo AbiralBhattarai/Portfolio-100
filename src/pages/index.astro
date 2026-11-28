@@ -1,8 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import SectraLoop from '../components/SectraLoop.astro';
+import AgentGraph from '../components/AgentGraph.astro';
 import Contact from '../components/Contact.astro';
 import { EMAIL, CV, GITHUB, LINKEDIN, SECTRA, AGENT, PAPER, SITE, to, wave, arrow, right, mailIcon, dlIcon } from '../lib/site';
+import { projects, num } from '../lib/projects';
 
 // Hero waveform
 const HN = 150;
@@ -19,10 +21,10 @@ const MW = 400, MH = 120, MBW = MW / MN;
 
 // Sectra in four lines, beside the auto-playing card.
 const overview = [
-  ['Finds the moments.', 'Paste a link or drop a file. Sectra finds the speech, transcribes every word, and has an LLM pick the moments worth clipping.'],
-  ['Frames the speaker.', 'It tracks faces, follows whoever is talking, and burns in captions as vertical, square or wide MP4s.'],
-  ['Posts everywhere.', 'One click uploads a clip to YouTube, TikTok, Instagram, X and Facebook, from a browser on your machine.'],
-  ['Narrates stories, too.', 'Narrator turns written stories into narrated, captioned parts with a talking stick figure.'],
+  ['Finding the moments', 'Silero VAD finds the speech, faster-whisper transcribes every word, and a local LLM through Ollama scores the transcript for moments worth clipping.'],
+  ['Following the speaker', 'YuNet finds faces and Light-ASD scores who is talking, frame by frame, so each clip crops to the active speaker in 9:16, 1:1 or 16:9 with burned-in captions.'],
+  ['A worker that keeps up', 'An async worker on Redis Streams runs each stage (downloads, ffmpeg, VAD, speech-to-text, the LLM) with its own concurrency limit.'],
+  ['Narration and posting', 'Narrator reads stories aloud with Kokoro and a lip-synced stick figure, and Playwright posts finished clips to five platforms from your own browser.'],
 ];
 
 // What the Sectra page covers beyond the clipping demo.
@@ -33,16 +35,6 @@ const sectraMore = [
   ['Run it yourself', 'Docker, one .env file, your own models.'],
 ];
 
-// Agent graph: a linear setup, then a ReAct loop (LLM <-> tools) that exits to the campaign.
-const setup = [
-  { k: 'in', t: 'Your prompt' },
-  { k: 'ai', t: 'Plan the steps' },
-  { k: 'human', t: 'You approve' },
-  { k: 'ai', t: 'Find competitors' },
-  { k: 'human', t: 'You pick sites' },
-];
-const toolChips = ['Web search', 'Campaign history', 'Parse to JSON'];
-
 const focus = [
   ['Is AI the answer?', 'Feasibility comes before any model. I map where a model creates real value, where plain code wins, and what each AI feature costs per user before anyone builds it.'],
   ['Cost optimization', 'Less compute per answer: dynamic audio chunking, unique-frame analysis and bounded concurrency, with the same quality.'],
@@ -51,30 +43,49 @@ const focus = [
   ['Memory for MCP clients', 'MCP clients that remember across sessions and tools.'],
 ];
 
-const work: { t: string; p: string; tags: string[]; href?: string; where?: string }[] = [
+// Work rows: my own projects, each linking to its own page. Sectra, the agent
+// and the research each have a section of their own below, so they are not
+// repeated here.
+const mine = projects.filter((p) => !['sectra', 'marketing-agent', 'binding-affinity'].includes(p.slug));
+
+// Company work gets its own section, set small: it is a list of what shipped,
+// not a showcase. The Veel lines are kept deliberately vague and carry no tech
+// tags, because the stack there is not mine to publish.
+const company: { t: string; p: string; tags?: string[]; where: string }[] = [
   {
-    t: 'Nepanglish Whisper',
-    p: 'A hackathon project: Whisper fine-tuned with QLoRA to transcribe Nepanglish, speech that mixes Nepali and English, including banking terms. I built the dataset: AI-curated scripts, then recorded the Nepali-English test audio myself.',
-    tags: ['Whisper', 'QLoRA', 'Speech-to-text', 'Dataset curation'],
-    where: 'Hackathon',
+    t: 'Audio authenticity',
+    p: 'A service that weighs whether the audio in a video is genuine, giving authenticity checks another angle to judge by.',
+    where: 'At Veel',
   },
   {
-    t: 'SemanticRag',
-    p: 'A chatbot that answers questions from Nepali banking documents, with a semantic cache for repeat questions.',
-    tags: ['FastAPI', 'ChromaDB', 'Redis', 'Streamlit'],
-    href: 'https://github.com/AbiralBhattarai/SemanticRag',
+    t: 'An agent, in fourteen days',
+    p: 'An agent taken from an idea to production in two weeks.',
+    where: 'At Veel',
   },
   {
-    t: 'Face matching',
-    p: 'A custom Siamese network: two identical CNNs decide whether two faces are the same person.',
-    tags: ['Siamese network', 'CNN', 'Olivetti faces'],
-    href: 'https://github.com/AbiralBhattarai/Face_matching',
+    t: 'Auto captions',
+    p: 'A captions feature carried all the way to production.',
+    where: 'At Veel',
   },
   {
-    t: 'Malicious URL detector',
-    p: 'A custom LSTM that classifies URLs as malicious or benign, shipped as a Chrome extension that blocks them.',
-    tags: ['LSTM', 'Chrome extension'],
-    href: 'https://github.com/AbiralBhattarai/Malicious-URL-detection-Using-LSTM',
+    t: 'AI edits',
+    p: 'An editing feature where the model does the work.',
+    where: 'At Veel',
+  },
+  {
+    t: 'Skin tone classification',
+    p: 'A classifier derived entirely from mathematics rather than a trained model, for accuracy at very low latency.',
+    where: 'At Veel',
+  },
+  {
+    t: 'Face verification',
+    p: 'A system that checks a creator profile really belongs to the person behind it.',
+    where: 'At Veel',
+  },
+  {
+    t: 'A Nepali moderation dataset',
+    p: 'Built the Nepali-language dataset behind an in-house content-moderation model.',
+    where: 'At Veel',
   },
   {
     t: 'Banking automation',
@@ -113,12 +124,12 @@ const navLinks: [string, string, string][] = [
   ['Sectra', '#sectra', 'sectra'],
   ['Research', '#focus', 'focus'],
   ['Work', '#agent', 'agent work research'],
-  ['About', '#about', 'about'],
+  ['About', '#about', 'about xp'],
   ['Contact', '#contact', 'contact'],
 ];
 ---
 <Base
-  title="Abiral Bhattarai — AI × Product"
+  title="Abiral Bhattarai — AI/ML Engineer"
   description="Abiral Bhattarai is an AI/ML engineer in Kathmandu who turns models and agents into products people use."
   path="/"
   links={navLinks}
@@ -237,85 +248,15 @@ const navLinks: [string, string, string][] = [
         <h2 class="h2" id="agent-title">An agent that <span class="hook">asks</span> before it acts.</h2>
         <p class="sub">My open-source marketing agent turns one prompt into a full campaign, and stops twice for your say.</p>
       </div>
-      <figure class="graph-wrap">
-        <svg class="graph g-lg" viewBox="0 -30 1200 720" role="img" aria-labelledby="g-desc">
-          <desc id="g-desc">The agent's graph. Your prompt leads to planning the steps, which you approve or reject to re-plan. It then finds competitors and you pick which sites to study. Next comes a loop: the LLM calls tools (web search, campaign history, parsing to JSON), reads the results, and repeats. When it is ready, it generates the campaign.</desc>
-          <defs>
-            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
-          </defs>
-          {setup.map((n, i) => {
-            const x = 30 + i * 240;
-            return (
-              <g class={`g-node ${n.k}`}>
-                <rect x={x} y="52" width="180" height="56" rx="28" />
-                <text x={x + 90} y="86">{n.t}</text>
-                {i < setup.length - 1 && <path class="g-edge" d={`M${x + 184} 80 H${x + 236}`} marker-end="url(#ah)" />}
-              </g>
-            );
-          })}
-          <path class="g-edge g-back" d="M600 50 C600 4, 360 4, 360 48" marker-end="url(#ah)" />
-          <text class="g-label" x="480" y="-12">reject: re-plan</text>
-
-          <path class="g-edge" d="M1080 110 V170 C1080 225, 690 200, 690 268" marker-end="url(#ah)" />
-
-          <circle class="g-ring" cx="690" cy="440" r="150" />
-          <text class="g-loop" x="690" y="440">ReAct loop</text>
-          <text class="g-label" x="690" y="468">repeats until the plan is complete</text>
-
-          <path class="g-edge g-cycle" d="M792 300 C940 330, 940 550, 792 580" marker-end="url(#ah)" />
-          <text class="g-label ta-s" x="950" y="445">calls a tool</text>
-          <path class="g-edge g-cycle" d="M588 580 C440 550, 440 330, 588 300" marker-end="url(#ah)" />
-          <text class="g-label ta-e" x="430" y="445">reads results</text>
-
-          <g class="g-node ai"><rect x="590" y="270" width="200" height="60" rx="30" /><text x="690" y="306">LLM</text></g>
-          <g class="g-node tool"><rect x="590" y="550" width="200" height="60" rx="30" /><text x="690" y="586">Tools</text></g>
-          {toolChips.map((c, i) => <text class="g-chip" x={530 + i * 160} y="650">{c}</text>)}
-
-          <path class="g-edge" d="M588 290 C400 290, 150 300, 150 402" marker-end="url(#ah)" />
-          <text class="g-label" x="330" y="280">when ready, generate</text>
-          <g class="g-node end"><rect x="50" y="406" width="200" height="60" rx="30" /><text x="150" y="442">Campaign</text></g>
-        </svg>
-        <svg class="graph g-sm" viewBox="0 0 400 1010" role="img" aria-label="The agent's graph: prompt, plan, your approval, competitors, your pick of sites, then a loop where the LLM calls tools and reads results until it generates the campaign.">
-          <defs>
-            <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
-          </defs>
-          {setup.map((n, i) => {
-            const y = 20 + i * 92;
-            return (
-              <g class={`g-node ${n.k}`}>
-                <rect x="90" y={y} width="220" height="54" rx="27" />
-                <text x="200" y={y + 33}>{n.t}</text>
-                {i < setup.length - 1 && <path class="g-edge" d={`M200 ${y + 56} V${y + 90}`} marker-end="url(#ahm)" />}
-              </g>
-            );
-          })}
-          <path class="g-edge g-back" d="M88 230 C40 230, 40 139, 88 139" marker-end="url(#ahm)" />
-          <text class="g-label" x="24" y="185" transform="rotate(-90 24 185)">re-plan</text>
-
-          <path class="g-edge" d="M200 424 V474" marker-end="url(#ahm)" />
-          <circle class="g-ring" cx="200" cy="630" r="128" />
-          <path class="g-edge g-cycle" d="M290 500 C370 540, 370 720, 290 760" marker-end="url(#ahm)" />
-          <path class="g-edge g-cycle" d="M110 760 C30 720, 30 540, 110 500" marker-end="url(#ahm)" />
-          <text class="g-loop" x="200" y="625" style="font-size:24px">ReAct loop</text>
-          <text class="g-label" x="200" y="652">calls tools, reads results</text>
-          <g class="g-node ai"><rect x="110" y="476" width="180" height="54" rx="27" /><text x="200" y="509">LLM</text></g>
-          <g class="g-node tool"><rect x="110" y="732" width="180" height="54" rx="27" /><text x="200" y="765">Tools</text></g>
-          <text class="g-chip" x="200" y="816">Web search · History · JSON</text>
-
-          <path class="g-edge" d="M200 838 V918" marker-end="url(#ahm)" />
-          <text class="g-label ta-s" x="214" y="884">when ready</text>
-          <g class="g-node end"><rect x="100" y="922" width="200" height="56" rx="28" /><text x="200" y="956">Campaign</text></g>
-        </svg>
-      </figure>
-      <div class="flow-key" aria-hidden="true">
-        <span><i class="k-human"></i>A person decides</span>
-        <span><i class="k-ai"></i>The agent works</span>
-      </div>
+      <AgentGraph />
       <div class="agent-foot">
         <ul class="tags">
           <li>LangGraph</li><li>Pydantic</li><li>Tavily</li><li>BeautifulSoup</li><li>Asyncio</li>
         </ul>
-        <a class="textlink" href={AGENT} target="_blank" rel="noopener">Read the code <Fragment set:html={arrow} /></a>
+        <div class="paper-links">
+          <a class="textlink" href={to('/work/marketing-agent/')}>How it works <Fragment set:html={right} /></a>
+          <a class="textlink" href={AGENT} target="_blank" rel="noopener">Read the code <Fragment set:html={arrow} /></a>
+        </div>
       </div>
     </div>
   </section>
@@ -327,27 +268,16 @@ const navLinks: [string, string, string][] = [
         <h2 class="h2" id="work-title">More things I've <span class="hook">built</span>.</h2>
       </div>
       <ul class="work">
-        {work.map((w) => (
+        {mine.map((w) => (
           <li>
-            {w.href ? (
-              <a class="row" href={w.href} target="_blank" rel="noopener">
-                <h3>{w.t}</h3>
-                <div>
-                  <p>{w.p}</p>
-                  <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
-                </div>
-                <span class="arrow"><Fragment set:html={right} /><span class="vh">View {w.t} on GitHub</span></span>
-              </a>
-            ) : (
-              <div class="row row-static">
-                <h3>{w.t}</h3>
-                <div>
-                  <p>{w.p}</p>
-                  <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
-                </div>
-                <span class="where">{w.where}</span>
+            <a class="row" href={w.href}>
+              <h3><span class="num">{num(w.slug)}</span>{w.title}</h3>
+              <div>
+                <p>{w.line}</p>
+                <ul class="tags">{w.tags.map((t) => <li>{t}</li>)}</ul>
               </div>
-            )}
+              <span class="arrow"><Fragment set:html={right} /><span class="vh">Read about {w.title}</span></span>
+            </a>
           </li>
         ))}
       </ul>
@@ -369,8 +299,8 @@ const navLinks: [string, string, string][] = [
           <ul class="models"><li>LSTM</li><li>TCN</li><li>Transformer</li></ul>
           <p class="body">Three architectures compared on regression and classification metrics, with an ensemble built for each architecture on each task.</p>
           <div class="paper-links">
+            <a class="textlink" href={to('/work/binding-affinity/')}>About the research <Fragment set:html={right} /></a>
             <a class="textlink" href={PAPER} target="_blank" rel="noopener">Read the paper <Fragment set:html={arrow} /></a>
-            <a class="textlink" href="https://github.com/AbiralBhattarai/Protein_Pep_Binding_Affinity_Pred" target="_blank" rel="noopener">See the code <Fragment set:html={arrow} /></a>
           </div>
         </div>
       </div>
@@ -402,6 +332,28 @@ const navLinks: [string, string, string][] = [
         ))}
       </ol>
       <p class="certs"><b>Certifications:</b> Machine Learning Scientist in Python, Deep Learning with PyTorch, and Natural Language Processing in Python (DataCamp); Data Science Foundations (IBM).</p>
+    </div>
+  </section>
+
+  <!-- Company work: a small-set list, no pages. Deliberately light on detail. -->
+  <section class="section band-ink" id="xp" data-tone="ink" data-name="At work" aria-labelledby="xp-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="h2" id="xp-title">On the <span class="hook">job</span>.</h2>
+        <p class="sub">What I've shipped with teams at Veel and Quickfox. Kept brief: the work is theirs, not mine to show.</p>
+      </div>
+      <ul class="xp">
+        {company.map((w) => (
+          <li class="xr">
+            <span class="xp-where">{w.where}</span>
+            <div class="xp-main">
+              <h3>{w.t}</h3>
+              <p>{w.p}</p>
+              {w.tags && <ul class="tags tags-xs">{w.tags.map((t) => <li>{t}</li>)}</ul>}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   </section>
 

@@ -1,0 +1,131 @@
+---
+import { pixelFace, gray, FACE_GRID } from '../../lib/faces';
+// Face matching as a Siamese network: two photos, the same CNN twice (shared
+// weights), an embedding each, then one distance. Under the threshold means
+// the same person. The faces are drawn here as coarse grayscale pixels in the
+// spirit of the Olivetti set; they are not real photos.
+
+const G = FACE_GRID;
+const faceA = pixelFace(5, 0, 0);
+const faceB = pixelFace(29, 0.6, 0.06);
+
+// Two embeddings that sit close together, as a matching pair should.
+let es = 77;
+const ernd = () => ((es = (es * 16807) % 2147483647) / 2147483647);
+const embA = Array.from({ length: 8 }, () => 0.2 + ernd() * 0.8);
+const embB = embA.map((v) => Math.min(1, Math.max(0.15, v + (ernd() - 0.5) * 0.18)));
+
+const blocks = [
+  { t: 'Conv 1', w: 100, h: 150 },
+  { t: 'Conv 2', w: 86, h: 112 },
+  { t: 'Conv 3', w: 72, h: 80 },
+];
+const bx = [240, 362, 470];
+const blockAt = (i: number) => `${(0.1 + i * 0.08).toFixed(2)},${(0.18 + i * 0.08).toFixed(2)}`;
+const cellAt = (i: number) => `${(0.4 + i * 0.018).toFixed(3)},${(0.44 + i * 0.018).toFixed(3)}`;
+
+// Phone layout: faces side by side, the twins below them.
+const mBlocks = [
+  { w: 130, h: 58 },
+  { w: 104, h: 50 },
+  { w: 78, h: 42 },
+];
+const mY = [196, 272, 340];
+---
+<div class="fm" data-timeline data-period="7500" data-rest="0.86" data-out="0.9" role="img"
+  aria-label="Diagram: two face photos each go through the same three-layer convolutional network, which shares its weights between the two copies. Each copy outputs an embedding; the distance between the two embeddings falls under the threshold, so the pair is judged the same person.">
+  <svg class="graph fm-lg" viewBox="0 0 1200 460" aria-hidden="true">
+    <defs>
+      <marker id="fah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+      <clipPath id="fclipA"><rect x="20" y="34" width={G * 11} height={G * 11} rx="14" /></clipPath>
+      <clipPath id="fclipB"><rect x="20" y="268" width={G * 11} height={G * 11} rx="14" /></clipPath>
+    </defs>
+
+    {[{ f: faceA, y: 34, c: 'fclipA', l: 'Photo A', cy: 122 }, { f: faceB, y: 268, c: 'fclipB', l: 'Photo B', cy: 356 }].map((side, s) => (
+      <g>
+        <text class="fm-cap" x="20" y={side.y - 12}>{side.l}</text>
+        <g clip-path={`url(#${side.c})`}>
+          {side.f.map((v, i) => <rect x={20 + (i % G) * 11} y={side.y + Math.floor(i / G) * 11} width="11" height="11" fill={gray(v)} />)}
+        </g>
+        <path class="g-edge" d={`M202 ${side.cy} H234`} marker-end="url(#fah)" />
+        {blocks.map((b, i) => (
+          <g class="fm-block" data-at={blockAt(i)}>
+            <rect x={bx[i]} y={side.cy - b.h / 2} width={b.w} height={b.h} rx="14" />
+            <text x={bx[i] + b.w / 2} y={side.cy + 6}>{b.t}</text>
+          </g>
+        ))}
+        {[0, 1].map((i) => <path class="g-edge" d={`M${bx[i] + blocks[i].w + 3} ${side.cy} H${bx[i + 1] - 3}`} />)}
+        <path class="g-edge" d={`M545 ${side.cy} H574`} marker-end="url(#fah)" />
+        {(s === 0 ? embA : embB).map((v, i) => (
+          <rect class="fm-cell" data-at={cellAt(i)} style={`--v:${v.toFixed(3)}`} x={580 + i * 28} y={side.cy - 12} width="24" height="24" rx="6" />
+        ))}
+        <text class="fm-cap" x="580" y={side.cy - 24}>embedding</text>
+      </g>
+    ))}
+
+    <!-- The two copies are one network: the same weights in both. -->
+    {blocks.map((b, i) => (
+      <path class="g-edge g-back fm-share" data-at="0.14,0.34" d={`M${bx[i] + b.w / 2} ${122 + b.h / 2 + 6} V${356 - b.h / 2 - 6}`} />
+    ))}
+    <text class="g-label ta-s fm-share-label" x="560" y="245">shared weights</text>
+
+    <path class="g-edge" d="M808 122 C850 122, 850 220, 880 232" marker-end="url(#fah)" />
+    <path class="g-edge" d="M808 356 C850 356, 850 258, 880 246" marker-end="url(#fah)" />
+    <g class="g-node ai fm-dist" data-at="0.56,0.62"><rect x="884" y="209" width="150" height="60" rx="30" /><text x="959" y="245">Distance</text></g>
+    <path class="g-edge" d="M1038 239 H1080" marker-end="url(#fah)" />
+
+    <!-- Meter: far apart at the top, close together at the bottom. -->
+    <text class="fm-cap" x="1118" y="40" text-anchor="middle">different</text>
+    <rect class="fm-track" x="1104" y="54" width="28" height="372" rx="14" />
+    <rect class="fm-same" x="1104" y="270" width="28" height="156" rx="14" />
+    <line class="fm-tick" x1="1094" x2="1142" y1="270" y2="270" />
+    <text class="fm-cap" x="1150" y="275">0.6</text>
+    <rect class="fm-needle" data-at="0.6,0.76" x="1096" y="64" width="44" height="14" rx="7" />
+    <text class="fm-verdict" data-at="0.74,0.8" x="1118" y="452" text-anchor="middle">same</text>
+  </svg>
+
+  <svg class="graph fm-sm" viewBox="0 0 400 760" aria-hidden="true">
+    <defs>
+      <marker id="fahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+      <clipPath id="fclipAm"><rect x="24" y="30" width={G * 9} height={G * 9} rx="12" /></clipPath>
+      <clipPath id="fclipBm"><rect x="232" y="30" width={G * 9} height={G * 9} rx="12" /></clipPath>
+    </defs>
+    {[{ f: faceA, x: 24, c: 'fclipAm', l: 'Photo A', cx: 96 }, { f: faceB, x: 232, c: 'fclipBm', l: 'Photo B', cx: 304 }].map((side, s) => (
+      <g>
+        <text class="fm-cap" x={side.x} y="20">{side.l}</text>
+        <g clip-path={`url(#${side.c})`}>
+          {side.f.map((v, i) => <rect x={side.x + (i % G) * 9} y={30 + Math.floor(i / G) * 9} width="9" height="9" fill={gray(v)} />)}
+        </g>
+        {mBlocks.map((b, i) => (
+          <g class="fm-block" data-at={blockAt(i)}>
+            <rect x={side.cx - b.w / 2} y={mY[i]} width={b.w} height={b.h} rx="12" />
+            <text x={side.cx} y={mY[i] + b.h / 2 + 6}>{blocks[i].t}</text>
+          </g>
+        ))}
+        <path class="g-edge" d={`M${side.cx} 178 V192`} marker-end="url(#fahm)" />
+        {[0, 1].map((i) => <path class="g-edge" d={`M${side.cx} ${mY[i] + mBlocks[i].h + 3} V${mY[i + 1] - 3}`} />)}
+        <path class="g-edge" d={`M${side.cx} 386 V418`} marker-end="url(#fahm)" />
+        {(s === 0 ? embA : embB).map((v, i) => (
+          <rect class="fm-cell" data-at={cellAt(i)} style={`--v:${v.toFixed(3)}`} x={side.cx - 50 + (i % 4) * 26} y={424 + Math.floor(i / 4) * 26} width="22" height="22" rx="5" />
+        ))}
+      </g>
+    ))}
+    {mBlocks.map((b, i) => (
+      <path class="g-edge g-back fm-share" data-at="0.14,0.34" d={`M${96 + b.w / 2 + 6} ${mY[i] + b.h / 2} H${304 - b.w / 2 - 6}`} />
+    ))}
+    <text class="g-label fm-share-label" x="200" y="186">shared weights</text>
+    <path class="g-edge" d="M96 478 C96 530, 150 540, 168 556" marker-end="url(#fahm)" />
+    <path class="g-edge" d="M304 478 C304 530, 250 540, 232 556" marker-end="url(#fahm)" />
+    <g class="g-node ai fm-dist" data-at="0.56,0.62"><rect x="125" y="560" width="150" height="54" rx="27" /><text x="200" y="593">Distance</text></g>
+    <path class="g-edge" d="M200 616 V646" marker-end="url(#fahm)" />
+    <rect class="fm-track" x="40" y="652" width="320" height="26" rx="13" />
+    <rect class="fm-same" x="40" y="652" width="134" height="26" rx="13" />
+    <line class="fm-tick" x1="174" x2="174" y1="644" y2="686" />
+    <text class="fm-cap" x="40" y="708">same</text>
+    <text class="fm-cap" x="360" y="708" text-anchor="end">different</text>
+    <text class="fm-cap" x="174" y="708" text-anchor="middle">0.6</text>
+    <rect class="fm-needle fm-needle-h" data-at="0.6,0.76" x="330" y="645" width="14" height="40" rx="7" />
+    <text class="fm-verdict" data-at="0.74,0.8" x="200" y="748" text-anchor="middle">same person</text>
+  </svg>
+  <p class="fig-note" aria-hidden="true">Illustration. The faces are drawn pixels, not real photos.</p>
+</div>

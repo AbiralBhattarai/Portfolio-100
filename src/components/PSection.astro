@@ -1,0 +1,38 @@
+---
+// A project page chapter: headline (with one hook word), a subhead, ruled rows,
+// and an optional slot for a figure. tone "ink" makes it a black band.
+interface Props {
+  id: string;
+  name: string;
+  /** Headline as HTML, so one word can carry <span class="hook">. */
+  title: string;
+  sub?: string;
+  rows?: [string, string][];
+  tone?: 'ink';
+  /** Put the slot (a figure) beside the rows instead of under them. */
+  side?: boolean;
+}
+const { id, name, title, sub, rows = [], tone, side = false } = Astro.props;
+---
+<section
+  class:list={['section', 'p-sec', tone === 'ink' && 'band-ink', side && 'p-side']}
+  id={id}
+  data-name={name}
+  data-tone={tone}
+  aria-labelledby={`${id}-title`}
+>
+  <div class="wrap">
+    <div class="section-head">
+      <h2 class="h2" id={`${id}-title`} set:html={title} />
+      {sub && <p class="sub">{sub}</p>}
+    </div>
+    <div class="p-body">
+      {rows.length > 0 && (
+        <ul class="p-rows">
+          {rows.map(([t, p]) => <li><h3>{t}</h3><p set:html={p} /></li>)}
+        </ul>
+      )}
+      {Astro.slots.has('default') && <div class="p-extra"><slot /></div>}
+    </div>
+  </div>
+</section>

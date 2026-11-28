@@ -1,0 +1,20 @@
+---
+// The way back from a project page: straight to that project's own section on
+// the home page, not to the top of it. Fixed to the corner so it is reachable
+// from anywhere in the page, and it takes the tone of the band under it the
+// same way the jump button does (see syncJump in scripts/site.ts).
+import { to, right } from '../lib/site';
+import { project } from '../lib/projects';
+
+interface Props {
+  slug: string;
+  title: string;
+}
+const { slug, title } = Astro.props;
+// Back to the section this project appears in on the landing page.
+const anchor = project(slug).anchor;
+---
+<a class="backfab" href={to(`/#${anchor}`)} data-back aria-label={`Back to ${title} on the home page`}>
+  <span class="backfab-ico"><Fragment set:html={right} /></span>
+  <span class="backfab-txt">Back</span>
+</a>

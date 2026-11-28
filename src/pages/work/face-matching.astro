@@ -1,0 +1,40 @@
+---
+import Project from '../../layouts/Project.astro';
+import PSection from '../../components/PSection.astro';
+import FaceFig from '../../components/graphics/FaceFig.astro';
+
+const links: [string, string, string][] = [
+  ['Overview', '#top', 'top'],
+  ['How it works', '#how', 'how'],
+  ['Tuning', '#tuning', 'tuning more'],
+  ['Contact', '#contact', 'contact'],
+];
+---
+<Project
+  slug="face-matching"
+  description="Face matching by Abiral Bhattarai: a Siamese CNN trained with contrastive loss on the Olivetti faces to decide whether two faces are the same person."
+  links={links}
+>
+  <FaceFig slot="fig" />
+
+  <PSection
+    id="how" name="How it works"
+    title='Same <span class="hook">person</span>, or not?'
+    sub="Face verification as a learned distance: close embeddings mean the same face."
+    rows={[
+      ['Pairs, not classes', 'The training data is pairs from the Olivetti faces. For every image there is one pair with the same person and one with someone else.'],
+      ['One network, twice', 'Both faces go through the same CNN: three blocks of convolution, batch norm, ReLU and pooling, then a dense layer down to an embedding. Shared weights mean both faces are measured the same way.'],
+      ['Contrastive loss', 'Training pulls embeddings of the same person together and pushes different people at least a margin apart.'],
+      ['Verify', 'At the end, two faces count as the same person when their embeddings are closer than a threshold.'],
+    ]}
+  />
+
+  <PSection
+    id="tuning" name="Tuning" tone="ink"
+    title='Tuned, then <span class="hook">trained</span>.'
+    rows={[
+      ['Optuna search', 'Optuna searched the embedding size, filter counts, dropout, learning rate, margin and weight decay. It scored each trial by validation ROC AUC and pruned weak ones early.'],
+      ['Final model', 'The best settings were trained again with a learning-rate schedule and early stopping, keeping the best checkpoint.'],
+    ]}
+  />
+</Project>

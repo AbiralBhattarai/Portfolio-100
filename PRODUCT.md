@@ -40,6 +40,12 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
   - Social media marketing agent built with LangGraph and the Google Gen AI SDK, with multi-agent orchestration and human-in-the-loop review (Veel).
   - MCP server work, including a custom MCP client used by the marketing agent.
   - Audio authenticity detection for AI-generated audio (Veel).
+  - Auto captions, taken to production (Veel).
+  - An agent shipped to production in 14 days (Veel).
+  - AI-driven editing features (Veel).
+  - A skin tone classifier derived entirely from mathematics rather than a trained model, for accuracy at very low latency (Veel).
+  - Face verification for creator profiles (Veel).
+  - A Nepali-language dataset for content moderation, used to build an in-house moderation model (Veel).
   - Multimedia inference pipelines with audio chunking and unique-frame analysis (Veel).
   - Computer vision services: face verification, skin tone classification, video captions (Veel).
   - Media harvesting pipelines streaming into S3 with Kafka lifecycle events and DLQs (Veel).
@@ -79,15 +85,21 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
   - Databases, Storage & Messaging: PostgreSQL, Redis, Amazon S3, Apache Kafka.
   - Cloud & DevOps: Docker, Argo CD, GitHub Actions.
   - Architecture & Tools: Hexagonal Architecture, Microservices, Asyncio, Git, GitHub.
-- Veel is mentioned as little as possible: only the role titles in the timeline, with vague one-line descriptions; no section about Veel work.
+- Veel work is shown (Abiral, Nov 2026, replacing the earlier "mention Veel as little as possible" rule): seven items in the "On the job." section, newest first, above the Quickfox ones. Each is deliberately vague: a title and one line saying what the system does, nothing about how it was built. Veel also appears as role titles in the timeline.
+- The Veel rows carry no tech tags, unlike the Quickfox ones: the stack behind that work is not Abiral's to publish, and inventing tags would be a fabricated claim.
 - The Lab Instructor role is not shown on the site.
-- No Veel internals: no architecture diagrams, internal service names, data flows, code, or screenshots.
+- No Veel internals: no architecture diagrams, internal service names, data flows, code, screenshots, team details, or metrics. The one number shown is the fourteen days to ship the agent, which Abiral gave.
 - Contact details on the site: email (abiralbh.101@gmail.com) and location (Kathmandu, Nepal); no phone number.
 - The site opens the current CV PDF in the browser, phone number included (Abiral's choice).
 - Main actions: Email and View CV, with equal weight. Email opens a chooser (Gmail, Outlook.com, Yahoo Mail, the visitor's mail app, or copy the address) rather than forcing the system mail app.
 - The contact line invites conversation ("Always up for talking AI, agents, open source and product."); no "hiring" or "open to work" language anywhere.
 - All outbound links and the CV open in a new tab.
-- The site is a home page plus a Sectra page (`/sectra`: the clipping demo, how clips are scored, the editor, Narrator, the stack and how to run it), linking out to GitHub and the paper, plus a 404 page ("This clip got cut."). The home page keeps the Sectra clipping demo and links to `/sectra` for the rest.
+- The site is a personal portfolio. The home page keeps its original shape (Abiral, Nov 2026): the "AI × Product." headline and speech waveform, the Sectra chapter with its overview and live demo, AI × product research, the agent graph, the work rows, published research, tech specs and the timeline, then company work in small type, then contact.
+- Every personal project also has a page of its own: Sectra at `/sectra`, and `/work/<slug>/` for the marketing agent, Nepanglish Whisper, SemanticRag, face matching, the malicious URL detector and the binding-affinity research. Each has an explanation and an authored graphic of that project's own mechanism, and ends with previous/next links so the projects form a loop.
+- The landing page gives every project a one-line overview and a way in: the work rows link to their pages, the Sectra chapter's door opens `/sectra`, and the agent and research sections link to theirs. The work rows no longer link straight out to GitHub; each page does that instead.
+- Projects with a section of their own on the home page (Sectra, the agent, the research) are not repeated in the work rows.
+- Each project page carries a fixed back button in the bottom-left corner, on screen for the whole page, returning to the section of the home page where that project is named rather than to the top.
+- Company work (Veel and Quickfox) gets no page of its own and is not mixed in with the personal projects. It has a section of its own, "On the job.", between the about chapter and contact: unlinked rows labelled "At Veel" or "At Quickfox", set small and dense on purpose, because it is a list of what shipped rather than a showcase.
 - Link previews use `public/og.png` (1200×630) with Open Graph and Twitter tags, a canonical URL and Person structured data.
 - Hosting: GitHub Pages on the custom domain www.abiral-bhattarai.com.np (DNS through Cloudflare; `public/CNAME` keeps the domain on every deploy), deployed by a GitHub Actions workflow on every push to `main`. Internal links and file paths go through `to()` in `src/lib/site.ts`, which adds Astro's base path (empty on the custom domain).
 
@@ -96,6 +108,7 @@ Delegated: Astro, because the site is mostly static and each project fits a Mark
 - Name: Abiral Bhattarai.
 - Title: Jr. AI/ML Engineer.
 - Visual direction pinned by Abiral: "applesque with focus on bold fonts"; "what a really creative web designer's website looks like"; not generic.
+- The site must read as a portfolio, not a product landing page (Abiral, Nov 2026): the person comes first, each project is a case study, and no project is sold with marketing copy.
 
 ## Evidence on Hand
 

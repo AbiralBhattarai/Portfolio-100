@@ -1,0 +1,54 @@
+---
+import Project from '../../layouts/Project.astro';
+import PSection from '../../components/PSection.astro';
+import NepanglishFig from '../../components/graphics/NepanglishFig.astro';
+import QloraFig from '../../components/graphics/QloraFig.astro';
+
+const links: [string, string, string][] = [
+  ['Overview', '#top', 'top'],
+  ['Problem', '#problem', 'problem'],
+  ['Dataset', '#dataset', 'dataset'],
+  ['Fine-tune', '#finetune', 'finetune more'],
+  ['Contact', '#contact', 'contact'],
+];
+---
+<Project
+  slug="nepanglish-whisper"
+  description="A hackathon project by Abiral Bhattarai: Whisper fine-tuned with QLoRA to transcribe Nepanglish, speech that mixes Nepali and English, including banking terms."
+  links={links}
+  note="Built at a hackathon. The code and data aren't public."
+>
+  <NepanglishFig slot="fig" />
+
+  <PSection
+    id="problem" name="Problem"
+    title='Two languages, <span class="hook">one</span> sentence.'
+    sub="In Nepal, people switch between Nepali and English mid-sentence, especially when they talk about money."
+    rows={[
+      ['Code-switching', 'A sentence starts in Nepali, picks up English words like <b>account</b>, <b>balance</b> or <b>loan</b>, and ends in Nepali. A useful transcript keeps both languages.'],
+      ['Banking terms', 'Banking talk is full of English terms inside Nepali sentences, so the dataset includes them on purpose.'],
+    ]}
+  />
+
+  <PSection
+    id="dataset" name="Dataset" tone="ink"
+    title='Building the <span class="hook">dataset</span>.'
+    sub="Training on mixed speech needs mixed data, so I built it."
+    rows={[
+      ['Scripts, curated with AI', 'I used AI to draft and curate Nepanglish scripts: natural sentences that mix the two languages, with banking terms throughout.'],
+      ['Test audio, recorded by me', 'I recorded the Nepali-English test audio myself, so the model is checked against real code-switched speech.'],
+    ]}
+  />
+
+  <PSection
+    id="finetune" name="Fine-tune" side
+    title='Fine-tuned with <span class="hook">QLoRA</span>.'
+    sub="Teach Whisper a new way of speaking without retraining all of it."
+    rows={[
+      ['Frozen and quantized', 'Whisper’s own weights are loaded in 4-bit and kept frozen, which cuts the memory training needs.'],
+      ['Small adapters learn', 'Low-rank adapters sit beside the model’s layers, and only they are trained.'],
+    ]}
+  >
+    <QloraFig />
+  </PSection>
+</Project>

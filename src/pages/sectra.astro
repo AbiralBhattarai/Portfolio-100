@@ -2,6 +2,8 @@
 import Base from '../layouts/Base.astro';
 import SectraStage from '../components/SectraStage.astro';
 import Contact from '../components/Contact.astro';
+import NextProject from '../components/NextProject.astro';
+import BackButton from '../components/BackButton.astro';
 import { SECTRA, to, wave, arrow, right } from '../lib/site';
 
 // Hero: one long talk, three clips cut out of it.
@@ -73,20 +75,21 @@ const navLinks: [string, string, string][] = [
   ['Scoring', '#scoring', 'scoring'],
   ['Editor', '#editor', 'editor narrator'],
   ['Stack', '#stack', 'stack'],
-  ['Run it', '#run', 'run contact'],
+  ['Run it', '#run', 'run more contact'],
 ];
 ---
 <Base
-  title="Sectra — local AI video clipping, by Abiral Bhattarai"
+  title="Sectra — a case study by Abiral Bhattarai"
   description="Sectra turns long videos into short captioned clips on your own machine: local LLM, local speech-to-text, speaker tracking, a browser editor and one-click posting."
   path="/sectra/"
   links={navLinks}
   home={to('/')}
 >
+  <BackButton slug="sectra" title="Sectra" />
+
   <!-- Hero -->
   <section class="sectra s-hero" id="top" data-tone="stage" data-name="Sectra" aria-labelledby="s-title">
     <div class="wrap">
-      <a class="back" href={to('/#sectra')}><Fragment set:html={right} /> Portfolio</a>
       <h1 class="display sectra-title" id="s-title">Sectra<span>.</span></h1>
       <div class="s-hero-row">
         <p class="sub">One long video in. A stack of captioned clips out. On your own machine.</p>
@@ -295,5 +298,6 @@ const navLinks: [string, string, string][] = [
     </div>
   </section>
 
+  <NextProject slug="sectra" />
   <Contact title="Want to talk Sectra?" lede="Questions, ideas, or clips you made with it. Say hi. Based in Kathmandu, Nepal." />
 </Base>

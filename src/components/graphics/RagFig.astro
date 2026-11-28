@@ -1,0 +1,77 @@
+---
+// SemanticRag's two paths. A new question misses the cache, goes through
+// ChromaDB and Gemini, and the answer is stored. A reworded repeat of it
+// is a close enough match to come straight back from Redis.
+---
+<div class="rag" data-timeline data-period="9000" data-rest="0.86" data-out="0.92" role="img"
+  aria-label="Diagram: a question is embedded and checked against a Redis semantic cache. On a miss it goes to a ChromaDB search over the banking documents, then Gemini writes the answer, which is stored in the cache. When a reworded version of the same question arrives, the cache finds the close match and returns the stored answer directly.">
+  <div class="rag-q" aria-hidden="true">
+    <p class="rag-q1"><span class="mono">01 · miss</span>What is the minimum balance for a savings account?</p>
+    <p class="rag-q2"><span class="mono">02 · hit</span>Minimum balance to open a savings account?</p>
+  </div>
+
+  <svg class="graph rag-lg" viewBox="0 0 1200 450" aria-hidden="true">
+    <defs>
+      <marker id="rah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+    </defs>
+    <!-- shared start -->
+    <g class="g-node in"><rect x="20" y="160" width="170" height="60" rx="30" /><text x="105" y="196">Question</text></g>
+    <path class="g-edge" d="M194 190 H246" marker-end="url(#rah)" />
+    <g class="g-node ai"><rect x="250" y="160" width="170" height="60" rx="30" /><text x="335" y="196">Embed</text></g>
+    <text class="g-chip" x="335" y="250">all-MiniLM-L6-v2</text>
+    <path class="g-edge" d="M424 190 H476" marker-end="url(#rah)" />
+    <g class="g-node tool"><rect x="480" y="160" width="200" height="60" rx="30" /><text x="580" y="196">Redis cache</text></g>
+    <text class="g-chip" x="580" y="140">similarity check · 0.15</text>
+
+    <!-- miss: retrieve, generate, store -->
+    <g class="rag-miss" data-at="0.04,0.1">
+      <path class="g-edge rag-flow" d="M580 224 V316" marker-end="url(#rah)" />
+      <text class="g-label ta-s" x="594" y="276">miss</text>
+      <g class="g-node ai"><rect x="480" y="320" width="200" height="60" rx="30" /><text x="580" y="356">ChromaDB</text></g>
+      <text class="g-chip" x="580" y="410">banking docs · top chunks</text>
+      <path class="g-edge rag-flow" d="M684 350 H756" marker-end="url(#rah)" />
+      <g class="g-node ai"><rect x="760" y="320" width="200" height="60" rx="30" /><text x="860" y="356">Gemini</text></g>
+      <text class="g-chip" x="860" y="410">2.0 Flash · LangChain</text>
+      <path class="g-edge rag-flow" d="M964 350 C1080 350, 1080 300, 1080 226" marker-end="url(#rah)" />
+      <path class="g-edge g-back" d="M860 316 C860 270, 760 250, 684 214" marker-end="url(#rah)" />
+      <text class="g-label ta-s" x="878" y="268">store the answer</text>
+    </g>
+
+    <!-- hit: straight back from the cache -->
+    <g class="rag-hit" data-at="0.5,0.56">
+      <path class="g-edge rag-flow" d="M684 190 H976" marker-end="url(#rah)" />
+      <text class="g-label" x="830" y="176">hit · asked before</text>
+    </g>
+
+    <g class="g-node end"><rect x="980" y="160" width="200" height="60" rx="30" /><text x="1080" y="196">Answer</text></g>
+  </svg>
+
+  <svg class="graph rag-sm" viewBox="0 0 400 820" aria-hidden="true">
+    <defs>
+      <marker id="rahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="g-head" /></marker>
+    </defs>
+    <g class="g-node in"><rect x="100" y="10" width="200" height="54" rx="27" /><text x="200" y="43">Question</text></g>
+    <path class="g-edge" d="M200 66 V110" marker-end="url(#rahm)" />
+    <g class="g-node ai"><rect x="100" y="114" width="200" height="54" rx="27" /><text x="200" y="147">Embed</text></g>
+    <path class="g-edge" d="M200 170 V214" marker-end="url(#rahm)" />
+    <g class="g-node tool"><rect x="100" y="218" width="200" height="54" rx="27" /><text x="200" y="251">Redis cache</text></g>
+
+    <g class="rag-miss" data-at="0.04,0.1">
+      <path class="g-edge rag-flow" d="M200 274 V350" marker-end="url(#rahm)" />
+      <text class="g-label ta-s" x="214" y="318">miss</text>
+      <g class="g-node ai"><rect x="100" y="354" width="200" height="54" rx="27" /><text x="200" y="387">ChromaDB</text></g>
+      <path class="g-edge rag-flow" d="M200 410 V486" marker-end="url(#rahm)" />
+      <g class="g-node ai"><rect x="100" y="490" width="200" height="54" rx="27" /><text x="200" y="523">Gemini</text></g>
+      <path class="g-edge rag-flow" d="M200 546 V666" marker-end="url(#rahm)" />
+      <path class="g-edge g-back" d="M98 517 C30 517, 30 245, 96 245" marker-end="url(#rahm)" />
+      <text class="g-label" x="22" y="400" transform="rotate(-90 22 400)">store</text>
+    </g>
+    <g class="rag-hit" data-at="0.5,0.56">
+      <path class="g-edge rag-flow" d="M302 245 C370 245, 370 697, 304 697" marker-end="url(#rahm)" />
+      <text class="g-label ta-e" x="356" y="470">hit</text>
+    </g>
+    <g class="g-node end"><rect x="100" y="670" width="200" height="54" rx="27" /><text x="200" y="703">Answer</text></g>
+    <text class="g-chip" x="200" y="770">MiniLM · Redis · ChromaDB · Gemini</text>
+  </svg>
+  <p class="fig-note" aria-hidden="true">Illustration with sample questions.</p>
+</div>

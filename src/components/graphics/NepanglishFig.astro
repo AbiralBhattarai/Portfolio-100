@@ -1,0 +1,47 @@
+---
+// A code-switched banking sentence: a playhead sweeps the speech and each word
+// lands in the transcript tagged by language, Nepali in Devanagari, English as is.
+import { wave } from '../../lib/site';
+
+const words: [string, 'NE' | 'EN'][] = [
+  ['मेरो', 'NE'], ['savings', 'EN'], ['account', 'EN'], ['मा', 'NE'],
+  ['balance', 'EN'], ['कति', 'NE'], ['छ', 'NE'], ['check', 'EN'], ['गर्नुस्', 'NE'],
+];
+// Give each word a stretch of speech in proportion to its length, with short gaps.
+const gap = 2;
+const spans: [number, number][] = [];
+let at = 2;
+for (const [w] of words) {
+  const len = Math.max(3, Math.round(w.length * 1.3));
+  spans.push([at, at + len - 1]);
+  at += len + gap;
+}
+const N = at + 1;
+const bars = wave(N, spans, 19);
+const W = 1200, H = 150, BW = W / N;
+const rect = (b: { h: number }, i: number) => {
+  const h = Math.max(4, b.h * (H - 10));
+  return { x: i * BW + 1.5, y: H - h, w: BW - 3, h, rx: (BW - 3) / 2 };
+};
+const sweep: [number, number] = [0.03, 0.7];
+// Each word appears when the playhead reaches the end of its stretch of speech.
+const wordAt = spans.map(([, b]) => sweep[0] + ((b + 1) / N) * (sweep[1] - sweep[0]));
+---
+<div class="np" data-timeline data-period="7000" data-rest="0.86" data-out="0.9" role="img"
+  aria-label="Illustration: a playhead sweeps a speech waveform and the transcript fills in word by word: मेरो savings account मा balance कति छ check गर्नुस्, with each word tagged Nepali or English.">
+  <div class="np-wave" aria-hidden="true">
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+      <g class="np-base">{bars.map((b, i) => { const r = rect(b, i); return <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={r.rx} />; })}</g>
+      <g class="np-lit" data-at={sweep.join(',')}>{bars.map((b, i) => { if (!b.sp) return null; const r = rect(b, i); return <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={r.rx} />; })}</g>
+    </svg>
+    <span class="np-head" data-at={sweep.join(',')}></span>
+  </div>
+  <ol class="np-words" aria-hidden="true">
+    {words.map(([w, l], i) => (
+      <li class={l === 'EN' ? 'en' : 'ne'} lang={l === 'EN' ? 'en' : 'ne'} data-at={`${wordAt[i].toFixed(3)},${(wordAt[i] + 0.05).toFixed(3)}`}>
+        <b>{w}</b><small>{l}</small>
+      </li>
+    ))}
+  </ol>
+  <p class="np-key" aria-hidden="true"><span class="ne">NE</span> Nepali <span class="en">EN</span> English · Illustration with a sample sentence.</p>
+</div>

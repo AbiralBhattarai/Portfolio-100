@@ -1,6 +1,6 @@
 ---
 name: Abiral Bhattarai — AI × Product
-description: A one-page portfolio staged like a flagship product launch, with huge bold type, one product shown in motion, and actions in ultramarine.
+description: A one-page portfolio staged like a flagship product launch, with huge bold type and one product shown in motion, backed by a page per project.
 colors:
   ground: "#ffffff"
   panel-grey: "#f2f2f0"
@@ -148,6 +148,8 @@ Density is low and the rhythm is vertical. Each chapter opens with a headline at
 
 Motion is exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`), scroll-stepped where it tells a story, and reduced-motion always shows the final state.
 
+Each project the home page names also has a page of its own, reached from the work rows, the Sectra door and the agent and research links. Those pages repeat the same chapters at a smaller scale and carry one authored figure of the project's own mechanism. Numbers (01–07) tie the two together: the same number marks a project in the work rows and on its page, always mono ultramarine-ink, inline with the title rather than as an eyebrow above it.
+
 **Key Characteristics:**
 - Display type at weight 850 with tight tracking (-0.045em) and line-height under 1.
 - Hairline rules (1px) separate rows; a full-ink 1px rule opens each list.
@@ -161,11 +163,13 @@ Motion is exponential ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`), scroll-stepped
 
 | Band | Ground | Text | Colour | Used for |
 | --- | --- | --- | --- | --- |
-| Ground | white / `dark-ground` | ink | hook words in white on an ultramarine block; ultramarine actions, × marks, timeline dates, separators | hero, research focus, work, about, Sectra page stack |
-| Ink (`.band-ink`, tone `ink`) | black | white / `#b4b4bc` | hook word in black on a white block; ultramarine person-decides nodes and model chips; lifted blue `#5b83ff` links, DOI, nav marks | the agent, published research, "Run it yourself" |
+| Ground | white / `dark-ground` | ink | hook words in white on an ultramarine block; ultramarine actions, × marks, model chips, timeline dates, separators | hero, research focus, work rows, about, Sectra page stack |
+| Ink (`.band-ink`, tone `ink`) | black | white / `#b4b4bc` | hook word in black on a white block; ultramarine person-decides nodes and model chips; lifted blue `#5b83ff` links, DOI, nav marks | the agent, published research, company work, "Run it yourself" |
 | Stage (`.sectra`, tone `stage`) | black | stage ink | lime | Sectra, both pages |
 | Signal (`.band-signal`, tone `signal`) | lime | black | black hook block with lime letters, black bars | Sectra page scoring |
 | Invert (tone `invert`) | ultramarine | white | white | contact |
+
+**The Alternation Rule.** Bands never repeat back to back: down the home page they go white, black, white, black, white, black, white, black, ultramarine, so every chapter lands against the opposite ground. Reordering or adding sections means re-toning them, never leaving two of the same tone adjacent. Sectra's stage black and `.band-ink` black count as the same tone for this, and the project pages alternate the same way.
 
 Bands remap tokens locally (`--bg`, `--ink`, `--ink-2`, `--line`, `--accent-ink`, `--hl`, `--on-hl`, `--decide`); the nav and jump button take the skin from `data-tone`. Hook words are knocked out of a solid `--hl` block (86% of the line box) that wipes in from the left. Avoid: full-bright colour bands behind body content, lime on ultramarine, orange.
 
@@ -213,8 +217,8 @@ A white-and-ink launch page with one ultramarine action color and one lime signa
 **Character:** One grotesque carries everything from a 13.5rem headline to 13px tags, with weight doing the work of hierarchy; the mono appears only where the content is literally data.
 
 ### Hierarchy
-- **Display** (850, up to 13.5rem, 0.92): the hero headline, the stage chapter title (up to 15rem) and the contact headline (up to 10rem). Balanced wrapping; the hero stays on one line from 900px up.
-- **Headline** (850, clamp 2.6–6rem, 0.95): each chapter's opening sentence, phrased as a statement ending in a full stop. One hook word per headline (product, asks, built, Published, specs, so far) carries a highlighter stroke: a 0.36em band of 30% ultramarine (45% in dark) behind the word's lower half, drawn left to right when the headline enters view.
+- **Display** (850, up to 13.5rem, 0.92): the hero headline, the stage chapter title (up to 15rem), each project page's title (up to 9.5rem) and the contact headline (up to 10rem). Balanced wrapping; the hero stays on one line from 900px up.
+- **Headline** (850, clamp 2.6–6rem, 0.95): each chapter's opening sentence, phrased as a statement ending in a full stop. One hook word per headline (product, asks, built, Published, specs, so far, and one per project-page chapter) carries a highlighter stroke: a 0.36em band of 30% ultramarine (45% in dark) behind the word's lower half, drawn left to right when the headline enters view.
 - **Title** (800–850, clamp 1.75–4rem, 1.0): work-row titles (up to 3.25rem), focus-row titles (850, up to 4rem, -0.045em) and the research paper title; smaller step titles (750–800, 1.375–3rem) in timeline and stage steps.
 - **Subhead** (600, clamp 1.35–2rem, 1.2, muted ink, max 30ch): the one line under each headline.
 - **Lede** (500, clamp 1.25–1.625rem, 1.35, max 36ch): intro paragraphs; `strong` inside it lifts to full ink at 650.
@@ -233,7 +237,7 @@ A white-and-ink launch page with one ultramarine action color and one lime signa
 
 A single 1320px container with a fluid gutter (`clamp(1.25rem, 4vw, 3.5rem)`). Chapters are full-bleed bands (ground, panel grey, stage black, ultramarine) with generous vertical padding (`clamp(6rem, 14vh, 10rem)`); the section head sits `clamp(3rem, 8vh, 5.5rem)` above content.
 
-Content is arranged as ruled rows on two- and three-column grids that collapse to one column (breakpoints at 900, 860, 760, 700, 640, 520 and 480px depending on the component). Authored SVG figures (hero waveform, agent graph) ship a separate mobile drawing instead of scaling the desktop one down; the graph swaps at 760px, the waveform at 640px. The stage chapter is a scrollytelling grid (0.8fr steps, 1.2fr sticky stage); under 900px the stage moves above the steps and sticks under the nav. The nav is sticky at 3.5rem; anchor scroll padding matches it. Nav items drop out as width shrinks: the timecode under 1120px, section links and the GitHub/LinkedIn icons under 960px (a menu button takes their place), the timecode again under 600px, the Resume pill under 380px.
+Content is arranged as ruled rows on two- and three-column grids that collapse to one column (breakpoints at 900, 860, 760, 700, 640, 520 and 480px depending on the component). Authored SVG figures (the agent graph, the retrieval flow, the Siamese network) ship a separate mobile drawing instead of scaling the desktop one down, all swapping at 760px. The stage chapter is a scrollytelling grid (0.8fr steps, 1.2fr sticky stage); under 900px the stage moves above the steps and sticks under the nav. The nav is sticky at 3.5rem; anchor scroll padding matches it. Nav items drop out as width shrinks: the timecode under 1120px, section links and the GitHub/LinkedIn icons under 960px (a menu button takes their place), the timecode again under 600px, the Resume pill under 380px.
 
 ## Elevation & Depth
 
@@ -282,6 +286,7 @@ The nav treats the page the way Sectra treats a talk: as one long clip.
 The repeating content unit for focus areas, work, tech specs and timeline: a full-ink 1px rule opens the list, each row is a grid separated by hairlines. Titles at title scale on the left, muted description on the right; on hover the title turns ultramarine ink.
 - **Focus rows:** two columns (1.1fr / 1fr), baseline-aligned, the biggest row titles on the page; one column under 760px.
 - **Work rows:** three columns with a fixed 6rem trailing column. Linked rows carry a 3.25rem round arrow that fills ultramarine and rotates -45°; unlinked rows put a muted 0.875rem location label in that column instead and have no hover.
+- **Company rows (`.xp`):** the one deliberately small list on the site. Two columns of hairline rows, each row a mono 0.75rem ultramarine-ink "At Veel" / "At Quickfox" label beside a 1rem title and a 0.875rem line; tags drop to 0.6875rem. No arrows, no links, no hover: this list says what shipped, it does not invite a click. One column under 900px, label stacked over the title under 460px.
 - **Tech-spec rows:** items separated by a thin ultramarine-ink "|" (400 weight, full opacity); each item never wraps internally.
 
 ### Stage Panel (signature)
@@ -294,6 +299,15 @@ Below the stage, inside the black chapter and opened by a stage-hairline rule: a
 
 ### Waveform Band (signature)
 A full-width SVG waveform under the hero: muted ink bars, speech bars in ink, the clip in ultramarine with a 2px bracket and a 9% ultramarine wash, words rising above, mono timestamps in ultramarine ink. Bars grow in with a 6ms stagger.
+
+### Project Pages
+One page per project, all built from the same layout: the number and title, the one-liner beside a meta column (kind, tags, code and paper pills, and a note where a repo is not public), then the project's own graphic, then chapters of ruled rows alternating ground and black bands, and finally previous/next project links. Company work gets no page.
+
+### Back Button (signature)
+Every project page carries one fixed pill in the bottom-left corner, mirroring the jump button opposite it: a reversed arrow and the word "Back". It is on screen for the whole page, and it returns to the section of the home page where that project is named — Sectra to the stage chapter, the agent to its graph, the research to the paper, the rest to the work rows — never to the top of the page. Each project's target lives in `anchor` in `src/lib/projects.ts`. It takes the band's tone exactly as the jump button does, and the footer carries extra bottom padding so neither button sits on the footer line.
+
+### Project Graphics (signature)
+Every project page carries one authored figure that draws that project's actual mechanism, in the site's own language: pill nodes with 2px outlines, hairline rules, mono for data, ultramarine for "a person decides", and a separate mobile drawing wherever the desktop one is wide. They run on one shared looping timeline (`src/scripts/timeline.ts`): the page sets `data-timeline` with a period, and each `[data-at="a,b"]` inside eases its own `--on` from 0 to 1 between those two points, then everything fades together and repeats. A timeline runs only while it is on screen; under reduced motion, `?still` and without JS it holds at `data-rest`, where the whole figure is visible. Defaults in CSS are the finished state, so nothing depends on the script having run.
 
 ### Agent Graph (signature)
 An authored SVG state graph, drawn twice: a wide desktop layout and a tall mobile layout swapped at 760px. Nodes are pill-shaped with 2px ink outlines on the ground color and 700-weight 18px labels: the input node has a dashed outline, agent nodes are plain, person-decides nodes fill ultramarine with white text, the tool node fills panel grey, the end node fills ink. Edges are 2px round-capped ink with arrowheads; the reject/re-plan edge is a dotted ultramarine-ink arc. The ReAct loop sits inside a dotted hairline ring with an 850-weight label, and its two loop edges run a flowing dash animation (1.6s linear) that stops under reduced motion. Muted 15px labels annotate edges; tool names sit beneath the tool node as 600-weight chips. A key below names the two node meanings.

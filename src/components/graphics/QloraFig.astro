@@ -1,0 +1,22 @@
+---
+// QLoRA in one picture: Whisper's own weights stay frozen and 4-bit;
+// only a thin pair of low-rank adapters beside each layer learns.
+const layers = ['Encoder', 'Encoder', 'Encoder', 'Decoder', 'Decoder', 'Decoder'];
+---
+<div class="qlora" data-timeline data-period="5200" data-rest="0.86" data-out="0.9" role="img"
+  aria-label="Diagram: six Whisper layers, frozen and stored in 4-bit, each with a small trainable low-rank adapter beside it. Training updates only the adapters.">
+  <div class="ql-head" aria-hidden="true">
+    <span>Whisper weights</span>
+    <span>Adapters</span>
+  </div>
+  <ol class="ql-stack" aria-hidden="true">
+    {layers.map((l, i) => (
+      <li>
+        <span class="ql-frozen"><b>{l}</b><small>frozen · 4-bit</small></span>
+        <span class="ql-plus">+</span>
+        <span class="ql-ad" data-at={`${(0.06 + i * 0.1).toFixed(2)},${(0.18 + i * 0.1).toFixed(2)}`}><i></i><i></i></span>
+      </li>
+    ))}
+  </ol>
+  <p class="ql-foot" aria-hidden="true"><span>Gradients only reach the adapters.</span><span class="ql-pass" data-at="0.04,0.72"></span></p>
+</div>

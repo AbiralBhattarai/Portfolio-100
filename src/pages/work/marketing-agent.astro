@@ -1,0 +1,55 @@
+---
+import Project from '../../layouts/Project.astro';
+import PSection from '../../components/PSection.astro';
+import AgentGraph from '../../components/AgentGraph.astro';
+import AgentRun from '../../components/graphics/AgentRun.astro';
+
+const links: [string, string, string][] = [
+  ['Overview', '#top', 'top'],
+  ['How it works', '#how', 'how'],
+  ['Checkpoints', '#checkpoints', 'checkpoints'],
+  ['Stack', '#stack', 'stack more'],
+  ['Contact', '#contact', 'contact'],
+];
+---
+<Project
+  slug="marketing-agent"
+  description="A LangGraph agent by Abiral Bhattarai that turns one prompt into a full marketing campaign, and stops twice for a human to approve its plan and pick the sites it studies."
+  links={links}
+>
+  <AgentGraph slot="fig" />
+
+  <PSection
+    id="how" name="How it works" tone="ink"
+    title='One graph, <span class="hook">two</span> phases.'
+    sub="A fixed setup sequence first, then a loop where the model chooses its own tools."
+    rows={[
+      ['The setup', 'The agent breaks your prompt into campaign steps, some to run in parallel and some in order, and draws the timeline as a Mermaid diagram. Then it searches the web for your top competitors.'],
+      ['The ReAct loop', 'An LLM node looks at what it has gathered so far and decides which tool to call. A tool node runs it: web search for current trends, a database of past campaigns, and a parser that turns messy page text into JSON with a second LLM call. They pass work back and forth until the LLM calls the generation tool.'],
+      ['Typed output', 'Every structured result goes through a <b>Pydantic</b> schema, so the campaign comes out as checked data, not loose text.'],
+    ]}
+  />
+
+  <PSection
+    id="checkpoints" name="Checkpoints" side
+    title='It <span class="hook">asks</span> before it acts.'
+    sub="Agents shouldn't run unsupervised. This one stops twice."
+    rows={[
+      ['Approve the plan', 'Before any research, it prints its step-by-step plan. Reject it and type a new prompt; the graph rewinds and plans again.'],
+      ['Pick the sites', 'After finding competitors it lists their URLs and you choose which ones the LLM studies, so irrelevant pages never reach it.'],
+    ]}
+  >
+    <AgentRun />
+  </PSection>
+
+  <PSection
+    id="stack" name="Stack"
+    title='What it&rsquo;s <span class="hook">built</span> with.'
+    rows={[
+      ['LangGraph', 'Stateful graph orchestration: the nodes, the loop, the breakpoints and the memory routed between them.'],
+      ['Pydantic', 'Strict JSON schemas for every structured step.'],
+      ['Tavily and BeautifulSoup', 'Web search and scraping for competitors and trends.'],
+      ['Asyncio', 'Non-blocking terminal prompts and concurrent API calls.'],
+    ]}
+  />
+</Project>

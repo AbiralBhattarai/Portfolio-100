@@ -40,15 +40,7 @@
 }
 @media (max-width: 480px) { .door-list { grid-template-columns: 1fr; } }
 
-/* ---------- Sectra page: hero ---------- */
-.s-hero { padding: clamp(2rem, 6vh, 4rem) 0 clamp(4rem, 10vh, 7rem); overflow: hidden; }
-.back {
-  display: inline-flex; align-items: center; gap: 0.45rem; margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
-  font-size: 0.9375rem; font-weight: 600; color: var(--stage-ink-2); text-decoration: none;
-}
-.back svg { width: 1rem; height: 1rem; transform: rotate(180deg); transition: transform 0.3s var(--ease); }
-.back:hover { color: var(--stage-ink); }
-.back:hover svg { transform: rotate(180deg) translateX(3px); }
+/* ---------- Sectra page: back to the work ---------- */
 .s-hero .sectra-title { margin-left: -0.05em; }
 .s-hero-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2rem 4rem; margin-top: 1.5rem; }
 .s-hero .sub { color: var(--stage-ink); max-width: 24ch; }
